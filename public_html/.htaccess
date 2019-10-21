@@ -1,0 +1,35 @@
+#Header always set X-Frame-Options SAMEORIGIN
+#php_value post_max_size 20000M
+#php_value upload_max_filesize 25000M
+	
+# DirectorySlash Off
+	RewriteEngine On
+	RewriteBase /
+	
+# Impede o Apache de listar pastas.
+	Options -Indexes
+	
+# Coloque aqui os subdomínios que não podem ser redirecionados para o arquivo index.php desta
+# pasta.
+	RewriteCond %{HTTP_HOST} ^subdomain\. [NC]
+	RewriteRule ^ - [NC,L,QSA]
+	
+# Remove a barra no final da URL.
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)/$ /$1 [L,R]
+	
+# Remove o www da URL.
+	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+	RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+	
+# Força o https. caso tenho algum endereço que não possa ter o certificado SSL, incluir na
+# condição [!^exclude\.com$]. Manter comentado caso não esteja utilizando SSL.
+	# RewriteCond %{HTTPS} !=on
+	# RewriteCond %{HTTP_HOST} !^exclude\.com$
+	# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+	
+# Redireciona todas as requisições para o arquivo index.php.
+	RewriteCond %{HTTP_HOST} ^\. [NC]
+	RewriteRule ^(.*)/$ $1 [R=301,L]
+	RewriteRule ^(.+?)/$ / [R=404,L]
+	RewriteRule ^(.*)$ index.php [NC,QSA,L]
