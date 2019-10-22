@@ -20,11 +20,11 @@
  * logo após o método shortList(): o método strict() configura a comparação para ser estrita; o
  * método noStrict() configura a comparação para ser não estrita. Por exemplo:
  * 
- * 		$status = "3";
- * 		$validation->validate($estado)
- * 				   ->shortList("0", "1", "2", "3")
- * 				   ->strict()
- * 				   ->execute();
+ *     $status = "3";
+ *     $validation->validate($estado)
+ *                ->shortList("0", "1", "2", "3")
+ *                ->strict()
+ *                ->execute();
  * 
  * A comparação acima será estrita, ou seja, caso $status seja igual a (int)3, haverá erro, já que
  * os valores possíveis são apenas strings (mesmo que haja ali um número 3)
@@ -32,95 +32,94 @@
  * A lista pode ser definida item a item, separando cada parâmetro por vírgulas, ou uma array contendo
  * todos os dados possíveis de uma vez. Por exemplo:
  * 
- * 		$status = "3";
- * 		$list = ["0", "1", "2", "3"];
+ *     $status = "3";
+ *     $list = ["0", "1", "2", "3"];
  * 
- * 		$validation->validate($estado)
- * 				   ->shortList($list)
- * 				   ->strict()
- * 				   ->execute();
+ *     $validation->validate($estado)
+ *                ->shortList($list)
+ *                ->strict()
+ *                ->execute();
  * 
  * Forma de uso (o comando abaixo não se trata de um exemplo):
  * 
- *		$validation
- *			->validate(<dado>, <rótulo>)
- *				->shortList(<lista de valores permitidos>...)
- *					->strict()
- *					->noStrict()
- *			->execute();
+ *     $validation
+ *         ->validate(<dado>, <rótulo>)
+ *             ->shortList(<lista de valores permitidos>...)
+ *                 ->strict()
+ *                 ->noStrict()
+ *             ->execute();
  */
 namespace galastri\extensions\validation;
 
 trait ShortList {
-	/**
-	 * Método que verifica se o dado corresponde a um dos itens da lista, não sendo validado caso
-	 * ele tenha outro valor.
-	 * 
-	 * @param mixed $shortList			Lista de valores possíveis que o dado pode possuir.
-	 */
-	public function shortList(...$shortList){
-		$this->beforeTest();
-		$this->chain->create(
-			"shortList",
-			[
-				"name" 		=> "shortList",
-				"shortList"	=> is_array($shortList[0]) ? $shortList[0] : $shortList,
-				"attach"	=> TRUE,
-			],
-			(
-				function($chainData, $data) {
-					$error 				= $this->error->status;
-					$shortList			= $data["shortList"];
-					$this->debug->trace	= debug_backtrace()[0];
+    /**
+     * Método que verifica se o dado corresponde a um dos itens da lista, não sendo validado caso
+     * ele tenha outro valor.
+     * 
+     * @param mixed $shortList         Lista de valores possíveis que o dado pode possuir.
+     */
+    public function shortList(...$shortList){
+        $this->beforeTest();
+        $this->chain->create(
+            "shortList",
+            [
+                "name"      => "shortList",
+                "shortList" => is_array($shortList[0]) ? $shortList[0] : $shortList,
+                "attach"    => TRUE,
+            ],
+            (
+                function($chainData, $data) {
+                    $error              = $this->error->status;
+                    $shortList          = $data["shortList"];
+                    $this->debug->trace = debug_backtrace()[0];
 
-					if(!$error) {
-						$testValue		= $this->validation->value;
-						$strict			= "notStrict";
-						
-						foreach($chainData as $parameter) {
-							switch($parameter["name"]) {
-								case "shortList":
-									$found = FALSE;
-									
-									foreach($shortList as $delimiter){
-										switch($strict){
-											case "notStrict":
-												if($testValue ==  $delimiter){
-													$found = TRUE;
-													break 2;
-												}
-												break;
-												
-											case "strict":
-												if($testValue ===  $delimiter){
-													$found = TRUE;
-													break 2;
-												}
-												break;
-										}
-									}
-									if(!$found)	$error = TRUE;
-									break;
+                    if(!$error) {
+                        $testValue = $this->validation->value;
+                        $strict    = "notStrict";
+                        
+                        foreach($chainData as $parameter) {
+                            switch($parameter["name"]) {
+                                case "shortList":
+                                    $found = FALSE;
+                                    
+                                    foreach($shortList as $delimiter){
+                                        switch($strict){
+                                            case "notStrict":
+                                                if($testValue ==  $delimiter){
+                                                    $found = TRUE;
+                                                    break 2;
+                                                }
+                                                break;
+                                                
+                                            case "strict":
+                                                if($testValue ===  $delimiter){
+                                                    $found = TRUE;
+                                                    break 2;
+                                                }
+                                                break;
+                                        }
+                                    }
+                                    if(!$found) $error = TRUE;
+                                    break;
 
-								case "strict":		$strict = "strict";		break;
-								case "notStrict":	$strict = "notStrict";	break;
-							}
-						}
+                                case "strict":    $strict = "strict";    break;
+                                case "notStrict": $strict = "notStrict"; break;
+                            }
+                        }
 
-						if($error){
-							$errorLog["error"]			= $error;
-							$errorLog["testName"]	 	= "shortList";
-							$errorLog["invalidData"] 	= $testValue;
-							$errorLog["reason"]			= "option_not_found";
-							$this->setValidationError($errorLog);
-						}
+                        if($error){
+                            $errorLog["error"]       = $error;
+                            $errorLog["testName"]    = "shortList";
+                            $errorLog["invalidData"] = $testValue;
+                            $errorLog["reason"]      = "option_not_found";
+                            $this->setValidationError($errorLog);
+                        }
 
-						return $this->chain->resolve($chainData, $data);
-					}
-				}
-			)
-		);
-
-		return $this;
-	}
+                        return $this->chain->resolve($chainData, $data);
+                    }
+                }
+            )
+        );
+        return $this;
+    }
 }

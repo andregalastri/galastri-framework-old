@@ -3,6 +3,7 @@
  * Galastri Framework
  * @author André Luis Galastri <contato@andregalastri.com.br>
  * @copyright Copyright (c) 2019, André Luis Galastri
+ * @version 0.4 alpha
  * @license https://github.com/andregalastri/galastri-framework/blob/master/LICENSE
  * 
  * MIT License
@@ -35,7 +36,17 @@
 namespace galastri;
 
 require_once("functions.php");
-require_once("const.php");
+
+/** Faz a importação das constantes dos arquivos de configuração e armazena tudo em uma constante.
+ * Desta forma, todas as configurações são acessadas através da constante GALASTRI. */
+define ("GALASTRI", (
+    array_merge(
+                         require("config/default.php"),
+        ["database"   => require("config/database.php")],
+        ["routes"     => require("config/routes.php")],
+        ["permission" => require("config/permission.php")]
+    )
+));
 
 error_reporting(E_ALL);
 ini_set('display_errors', GALASTRI["debug"] ? "On" : "Off");

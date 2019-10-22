@@ -16,42 +16,40 @@
  * O conteúdo deste arquivo deverá seguir o seguinte template:
  * 
  * <?php
- * 		namespace galastri\controller;
+ *     namespace galastri\controller;
  * 
- * 		class contato {
- * 			 <conteúdo da classe>
- * 		}
+ *     class contato {
+ *         <conteúdo da classe>
+ *     }
  * 
- * namespace:	Especificar o diretório exato onde o próprio arquivo está.
- * class:		Especificar o nome da classe idêntico ao nome do arquivo.
+ * namespace:  Especificar o diretório exato onde o próprio arquivo está.
+ * class:      Especificar o nome da classe idêntico ao nome do arquivo.
  * 
  * O motivo desta obrigatoriedade é de que o autoloader precisa localizar o arquivo correto
  * quando a instância da classe for criada. A criação desta instância deverá conter o caminho
  * completo para o arquivo, conforme exemplo abaixo:
  * 
  * <?php
- * 		new galastri\controller\contato;
+ *     new galastri\controller\contato;
  * 
  * Desta forma, ao criar esta instância, o PHP irá buscar o arquivo contato.php dentro do
  * diretório galastri/controller.
  * 
  * Sem estas configurações, haverá erro de chamada das classes.
  * 
- * @param string $className		Armazena o endereço completo do arquivo a ser requisitado, formado
- * 								por namespace\classe. É necessário substituir a barra invertida
- * 								por uma barra normal, para que o endereço seja localizado no
- * 								sistema de arquivos.
- * 
- * @var string $Path			Armazena o caminho completo de onde está o arquivo que contém a
- * 								classe chamada.
+ * @param string $className        Armazena o endereço completo do arquivo a ser requisitado,
+ *                                 formado por namespace\classe. É necessário substituir a barra
+ *                                 invertida por uma barra normal, para que o endereço seja
+ *                                 localizado no sistema de arquivos.
  */
 spl_autoload_register(function($className) {
-	$className				= explode('\\', $className);
-							  array_shift($className);
-	$className				= implode('/', $className);
-	$path					= GALASTRI["folders"]["root"]."/$className.php";
+    
+    $className = explode('\\', $className);
+                 array_shift($className);
+    $className = implode('/', $className);
+    $path      = GALASTRI["folders"]["root"]."/$className.php";
 
-	/* Verifica se o arquivo com o nome da classe existe. Se existir ele irá importar o conteúdo
-	 * do arquivo através de um require_once. */
-	if(file_exists($path)) require_once $path;
+    /* Verifica se o arquivo com o nome da classe existe. Se existir ele irá importar o conteúdo
+     * do arquivo através de um require_once. */
+    if(file_exists($path)) require_once $path;
 });

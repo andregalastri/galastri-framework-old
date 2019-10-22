@@ -30,6 +30,6 @@
  * no método testador (mais informações em core/Permission.php).
  */
 return [
-	"groups"		=> [],
-	"resources"		=> [],
+	"groups"       => [],
+	"resources"    => [],
 ];

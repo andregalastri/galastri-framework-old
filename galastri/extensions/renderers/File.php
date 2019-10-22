@@ -7,11 +7,11 @@
  * todos os parâmetros usados na URL formam o caminho onde o arquivo está. Por exemplo, supondo
  * que a rota abaixo seja configurada para ser renderizada pelo renderizador file:
  * 
- * 		dominio.com/imagens
+ *     dominio.com/imagens
  * 
  * Tudo o que vier depois de /imagens deverá montar o caminho onde o arquivo está. Por exemplo:
  * 
- * 		dominio.com/imagens/usuario/avatar.jpg
+ *     dominio.com/imagens/usuario/avatar.jpg
  * 
  * O caminho especificado significa que o arquivo avatar.jpg está dentro da pasta imagens/usuario.
  * Ou seja, todos os parâmetros formam um caminho.
@@ -28,25 +28,25 @@
  * 
  * Para se resolver este problema, uma abordagem interessante é criar um método na controller que
  * fará o controle de duas coisas:
- * - Da sessão e permissão de acesso		O controller verifica se o usuário que está acessando
- * 											o arquivo possui permissão para acessá-lo.
+ * - Da sessão e permissão de acesso      O controller verifica se o usuário que está acessando
+ *                                        o arquivo possui permissão para acessá-lo.
  * 
- * - Controle do arquivo através de um		Pode-se manipular os parâmetros da URL. Ao invés de
- *   código de acesso.						os parâmetros representarem um caminho do arquivo, ele
- * 											poderia representar apenas um código. Este código
- * 											poderia estar armazenado em um banco de dados em que
- * 											se relaciona o código com o caminho real do arquivo.
+ * - Controle do arquivo através de um    Pode-se manipular os parâmetros da URL. Ao invés de
+ *   código de acesso.                    os parâmetros representarem um caminho do arquivo, ele
+ *                                        poderia representar apenas um código. Este código
+ *                                        poderia estar armazenado em um banco de dados em que
+ *                                        se relaciona o código com o caminho real do arquivo.
  * 
- * 											Ao acessar a URL contendo o código, este seria consultado
- * 											no banco de dados e traria o caminho real do arquivo.
- * 											Em seguida este caminho real seria colocado no lugar
- * 											do caminho da URL através do método filePath(), da
- * 											classe padrão core\Controller.
+ *                                        Ao acessar a URL contendo o código, este seria consultado
+ *                                        no banco de dados e traria o caminho real do arquivo.
+ *                                        Em seguida este caminho real seria colocado no lugar
+ *                                        do caminho da URL através do método filePath(), da
+ *                                        classe padrão core\Controller.
  * 
  * Veja como ficaria:
  * - A URL ficaria parecida com isto:
  * 
- * 		dominio.com.br/imagens/img_cod001
+ *   dominio.com.br/imagens/img_cod001
  * 
  * - Este caminho não representa o caminho real do arquivo, mas sim um código que representa o
  *   caminho real. É necessário mudar, portanto, o comportamento padrão do renderizador.
@@ -54,7 +54,7 @@
  * - No banco de dados, haveria uma relação entre código e o caminho real do arquivo. Por exemplo,
  *   o código img_cod001 poderá ser o código para o arquivo localizado em:
  *   
- * 		imagens/uploads/minha_imagem.jpg
+ *   imagens/uploads/minha_imagem.jpg
  * 
  * - Por conta disso, faz-se uma busca no banco de dados pelo caminho real da imagem, baseado no
  *   código do parâmetro 1. Outra abordado é este código ser passado por meio do método GET.
@@ -73,199 +73,198 @@
 namespace galastri\extensions\renderers;
 
 trait File {
-	private $fileController = FALSE;
-	private $file;
+    private $fileController = FALSE;
+    private $file;
 
-	/**
-	 * Método principal que faz uma série de testes para verificar se os parâmetros informados
-	 * levam a um arquivo válido.
-	 * 
-	 * Primeiro é verificado se o controller retorna um objeto. Este renderizador não exige um
-	 * controller especificado. Caso não haja um controller, o teste passará Em seguida é verificado se o
-	 * arquivo especificado foi configurado. A extensão do arquivo também é verificada, pois ela
-	 * deve estar configurada em config\default.php. Por fim verifica-se se o arquivo existe.
-	 * 
-	 * Todos os dados processados e retornados pelo controller estarão disponíveis no atributo
-	 * data.
-	 * 
-	 * Estando tudo correto, é verificado se o arquivo foi configurada como sendo restrita, ou seja,
-	 * acessível apenas caso esteja com uma sessão configurada.
-	 * 
-	 * São configurados diversos cabeçalhos com o intuito de armazenar cache e exibir corretamente
-	 * o tipo de arquivo requisitado.
-	 */
-	private function file(){
-		$this->debug->trace = debug_backtrace()[0];
+    /**
+     * Método principal que faz uma série de testes para verificar se os parâmetros informados
+     * levam a um arquivo válido.
+     * 
+     * Primeiro é verificado se o controller retorna um objeto. Este renderizador não exige um
+     * controller especificado. Caso não haja um controller, o teste passará Em seguida é verificado se o
+     * arquivo especificado foi configurado. A extensão do arquivo também é verificada, pois ela
+     * deve estar configurada em config\default.php. Por fim verifica-se se o arquivo existe.
+     * 
+     * Todos os dados processados e retornados pelo controller estarão disponíveis no atributo
+     * data.
+     * 
+     * Estando tudo correto, é verificado se o arquivo foi configurada como sendo restrita, ou seja,
+     * acessível apenas caso esteja com uma sessão configurada.
+     * 
+     * São configurados diversos cabeçalhos com o intuito de armazenar cache e exibir corretamente
+     * o tipo de arquivo requisitado.
+     */
+    private function file(){
+        $this->debug->trace = debug_backtrace()[0];
 
-		$this->file					= new \StdClass;
-		$this->file->data			= NULL;
+        $this->file       = new \StdClass;
+        $this->file->data = NULL;
 
-		$this
-			->fileCheckObject()
-			->fileCheckPath()
-			->fileCheckExtension()
-			->fileCheckContentType()
-			->fileCheckExists();
-		
-		$this->file->data->data = $this->checkAuth($this->file->data);
-		
-		/** Tags responsáveis por controlar o cache do arquivo no navegador do usuário. O uso de
-		 * uma e-tag permite que o arquivo seja armazenado em cache e, caso seja modificado, o
-		 * novo arquivo seja carregado no lugar do arquivo em cache. Lembrando que tudo isso só
-		 * será utilizado caso a configuração de cache esteja ativa. */
-		$etag = md5(filemtime($this->file->path).$this->file->path);
+        $this
+            ->fileCheckObject()
+            ->fileCheckPath()
+            ->fileCheckExtension()
+            ->fileCheckContentType()
+            ->fileCheckExists();
+        
+        $this->file->data->data = $this->checkAuth($this->file->data);
+        
+        /** Tags responsáveis por controlar o cache do arquivo no navegador do usuário. O uso de
+         * uma e-tag permite que o arquivo seja armazenado em cache e, caso seja modificado, o
+         * novo arquivo seja carregado no lugar do arquivo em cache. Lembrando que tudo isso só
+         * será utilizado caso a configuração de cache esteja ativa. */
+        $etag = md5(filemtime($this->file->path).$this->file->path);
 
-		header('Last-Modified: '.gmdate('r', time()));
-		header("Cache-Control: must-revalidate");
-		header('Expires: '.gmdate('r', time()+$this->file->cache["expire"]));
-		header("Etag: ".$etag); 
-		
-		/** Cabeçalhos para caso o arquivo esteja configurado para ser baixável. */
-		if($this->file->downloadable){
-			header('Content-Description: File Transfer');
-			header('Content-Type: application/octet-stream');
-			header('Content-Disposition: attachment; filename="'.basename($this->file->path).'"');
-			header('Expires: 0');
-			header('Pragma: public');
-			header('Content-Length: '.filesize($this->file->path));
-			flush();
-			ob_start();
-			readfile($this->file->path);
-			ob_end_flush;
-			flush();
-			exit();
-		} else {
-			/** Caso o arquivo não esteja configurado para ser baixável, ele será renderizado na
-			 * tela do usuário. É verificado se o cache está ativo. Caso esteja, dois testes são
-			 * executados
-			 * 
-			 * 1. Verifica se o prazo do cache expirou. Caso sim, o arquivo deverá ser baixado de
-			 * novo. Caso não, então será usado o arquivo em cache.
-			 * 
-			 * 2. Mesmo se a verificação anterior confirmar que o prazo não expirou, o arquivo pode
-			 * ter sido modificado. Este segundo teste verifica se o arquivo foi modificado. Caso
-			 * sim, então o arquivo deverá ser baixado novamente. Caso o arquivo não tenha sido
-			 * modificado, então será usado o arquivo em cache. */
-			if($this->file->cache["status"]){
-				$cached = FALSE;
-				if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])){
-					if(time() <= strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])+$this->file->cache["expire"]){
-						$cached = TRUE;
-					}
-				}
-				if(isset($_SERVER['HTTP_IF_NONE_MATCH'])){
-					if(str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) != $etag){
-						$cached = FALSE;
-					}
-				}
-				if($cached){
-					header('HTTP/1.1 304 Not Modified');
-					exit();
-				}
-			}
-			header("Content-type: ".GALASTRI["contentType"][$this->file->extension]);
-			$this->printContent(file_get_contents($this->file->path));
-		}
-	}
-	
-	/**
-	 * Verifica se o controller foi definido. Este renderizador não obriga o uso de um controller,
-	 * por isso, caso não haja controller definido, o os parâmetros e configurações usados serão
-	 * os informados pela rota.
-	 * 
-	 * Caso o controller esteja definido, então é verificado se ele é um objeto. Caso seja, então
-	 * é chamado o método getRendererData() que trás uma StdClass com uma série de atributos que
-	 * incluem os dados processados e retornados pelo controller. P template HTML pode ser montado
-	 * a partir destes dados, e toda informação processada pode ser exibida.
-	 */
-	private function fileCheckObject(){
-		$controller = $this->controller;
+        header('Last-Modified: '.gmdate('r', time()));
+        header("Cache-Control: must-revalidate");
+        header('Expires: '.gmdate('r', time()+$this->file->cache["expire"]));
+        header("Etag: ".$etag); 
+        
+        /** Cabeçalhos para caso o arquivo esteja configurado para ser baixável. */
+        if($this->file->downloadable){
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="'.basename($this->file->path).'"');
+            header('Expires: 0');
+            header('Pragma: public');
+            header('Content-Length: '.filesize($this->file->path));
+            flush();
+            ob_start();
+            readfile($this->file->path);
+            ob_end_flush;
+            flush();
+            exit();
+        } else {
+            /** Caso o arquivo não esteja configurado para ser baixável, ele será renderizado na
+             * tela do usuário. É verificado se o cache está ativo. Caso esteja, dois testes são
+             * executados
+             * 
+             * 1. Verifica se o prazo do cache expirou. Caso sim, o arquivo deverá ser baixado de
+             * novo. Caso não, então será usado o arquivo em cache.
+             * 
+             * 2. Mesmo se a verificação anterior confirmar que o prazo não expirou, o arquivo pode
+             * ter sido modificado. Este segundo teste verifica se o arquivo foi modificado. Caso
+             * sim, então o arquivo deverá ser baixado novamente. Caso o arquivo não tenha sido
+             * modificado, então será usado o arquivo em cache. */
+            if($this->file->cache["status"]){
+                $cached = FALSE;
+                if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])){
+                    if(time() <= strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])+$this->file->cache["expire"]){
+                        $cached = TRUE;
+                    }
+                }
+                if(isset($_SERVER['HTTP_IF_NONE_MATCH'])){
+                    if(str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) != $etag){
+                        $cached = FALSE;
+                    }
+                }
+                if($cached){
+                    header('HTTP/1.1 304 Not Modified');
+                    exit();
+                }
+            }
+            header("Content-type: ".GALASTRI["contentType"][$this->file->extension]);
+            $this->printContent(file_get_contents($this->file->path));
+        }
+    }
+    
+    /**
+     * Verifica se o controller foi definido. Este renderizador não obriga o uso de um controller,
+     * por isso, caso não haja controller definido, o os parâmetros e configurações usados serão
+     * os informados pela rota.
+     * 
+     * Caso o controller esteja definido, então é verificado se ele é um objeto. Caso seja, então
+     * é chamado o método getRendererData() que trás uma StdClass com uma série de atributos que
+     * incluem os dados processados e retornados pelo controller. P template HTML pode ser montado
+     * a partir destes dados, e toda informação processada pode ser exibida.
+     */
+    private function fileCheckObject(){
+        $controller = $this->controller;
 
-		if($controller){
-			if(is_object($controller)){
-				$this->file->data			= $controller->getRendererData();
-				$this->file->parameters		= $this->file->data->parameters;
-				$this->file->downloadable	= $this->file->data->downloadable;
-				$this->file->cache			= $this->file->data->cache;
-			} else {
-				$this->debug->error("CONTROLLER003", gettype($controller))->print();
-			}
-		} else {
-			$this->file->parameters		= $this->route->parameters;
-			$this->file->downloadable	= $this->route->downloadable;
-			$this->file->cache			= $this->route->cache;
-		}
-		return $this;
-	}
+        if($controller){
+            if(is_object($controller)){
+                $this->file->data         = $controller->getRendererData();
+                $this->file->parameters   = $this->file->data->parameters;
+                $this->file->downloadable = $this->file->data->downloadable;
+                $this->file->cache        = $this->file->data->cache;
+            } else {
+                $this->debug->error("CONTROLLER003", gettype($controller))->print();
+            }
+        } else {
+            $this->file->parameters   = $this->route->parameters;
+            $this->file->downloadable = $this->route->downloadable;
+            $this->file->cache        = $this->route->cache;
+        }
+        return $this;
+    }
 
-	/**
-	 * Verifica se os parâmetros armazenam valores, para que o caminho do arquivo seja montado.
-	 */
-	private function fileCheckPath(){
-		$parameters = $this->file->parameters;
+    /**
+     * Verifica se os parâmetros armazenam valores, para que o caminho do arquivo seja montado.
+     */
+    private function fileCheckPath(){
+        $parameters = $this->file->parameters;
 
-		if(!empty($parameters)){
-			if(is_array($parameters)){
-				$this->file->parameters = implode("/", $parameters);
-			}
-		} else {
-			$this->debug->error("FILE002")->print();
-		}
-		return $this;
-	}
+        if(!empty($parameters)){
+            if(is_array($parameters)){
+                $this->file->parameters = implode("/", $parameters);
+            }
+        } else {
+            $this->debug->error("FILE002")->print();
+        }
+        return $this;
+    }
 
-	/**
-	 * Verifica se o arquivo informado possui uma extensão e se esta extensão está configurada no
-	 * arquivo config/default.php. Isso é necessário pois a chamada do arquivo irá requerer um
-	 * tipo MIME e isto precisa estar informado no arquivo de configuração.
-	 */
-	private function fileCheckExtension(){
-		$parameters = $this->file->parameters;
-		$folder = GALASTRI["folders"]["root"];
-		$path = $this->route->path;
-		$path = $path === "/" ? "/" : "$path/";
-		
-		$this->file->path = $folder.$path.$parameters;
-		
-		if(sizeof(explode(".", $parameters))>=2){
-			$this->file->extension = lower(array_slice(explode(".", $parameters), -1, 1)[0]);
-		} else {
-			$this->debug->error("FILE003")->print();
-		}
-		return $this;
-	}
+    /**
+     * Verifica se o arquivo informado possui uma extensão e se esta extensão está configurada no
+     * arquivo config/default.php. Isso é necessário pois a chamada do arquivo irá requerer um
+     * tipo MIME e isto precisa estar informado no arquivo de configuração.
+     */
+    private function fileCheckExtension(){
+        $parameters = $this->file->parameters;
+        $folder = GALASTRI["folders"]["root"];
+        $path = $this->route->path;
+        $path = $path === "/" ? "/" : "$path/";
+        
+        $this->file->path = $folder.$path.$parameters;
+        
+        if(sizeof(explode(".", $parameters))>=2){
+            $this->file->extension = lower(array_slice(explode(".", $parameters), -1, 1)[0]);
+        } else {
+            $this->debug->error("FILE003")->print();
+        }
+        return $this;
+    }
 
-	/**
-	 * Verifica se o tipo MIME foi definido para a extensão.
-	 */
-	private function fileCheckContentType(){
-		$extension = $this->file->extension;
-		$contentType = GALASTRI["contentType"];
-		
-		if(!array_key_exists($extension, $contentType)){
-			$this->debug->error("FILE001", $extension)->print();
-		}
-		return $this;
-	}
-
-	/**
-	 * Verifica se o arquivo requisitado existe.
-	 */
-	private function fileCheckExists(){
-		$path = $this->file->path;
-		
-		if(!is_file($path)){
-			$this->debug->error("FILE004", $path)->print();
-		}
-	}
-	
-	/**
-	 * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
-	 * o status de offline. Aqui foi reaproveitado o método da view, pois o teste é exatamente
-	 * o mesmo.
-	 */
-	private function fileCheckOffline(){
-		return $this->viewCheckOffline();
-	}
-
+    /**
+     * Verifica se o tipo MIME foi definido para a extensão.
+     */
+    private function fileCheckContentType(){
+        $extension = $this->file->extension;
+        $contentType = GALASTRI["contentType"];
+        
+        if(!array_key_exists($extension, $contentType)){
+            $this->debug->error("FILE001", $extension)->print();
+        }
+        return $this;
+    }
+    
+    /**
+     * Verifica se o arquivo requisitado existe.
+     */
+    private function fileCheckExists(){
+        $path = $this->file->path;
+        
+        if(!is_file($path)){
+            $this->debug->error("FILE004", $path)->print();
+        }
+    }
+    
+    /**
+     * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
+     * o status de offline. Aqui foi reaproveitado o método da view, pois o teste é exatamente
+     * o mesmo.
+     */
+    private function fileCheckOffline(){
+        return $this->viewCheckOffline();
+    }
 }
