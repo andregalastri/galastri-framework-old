@@ -1,8 +1,8 @@
 # Galastri Framework
-Microframework PHP simples para criação de sites e sistemas WEB.
+Microframework PHP 7 simples para criação de sites e sistemas WEB.
 
 ### O que é este projeto
-Microframework PHP MVC orientado a objetos para criação de sites e sistemas WEB. A ideia é fazer um framework fácil de compreender e bastante leve voltado a pequenos projetos.
+Microframework PHP 7 MVC orientado a objetos para criação de sites e sistemas WEB. A ideia é fazer um framework fácil de compreender e bastante leve voltado a pequenos projetos.
 
 ### Principais funcionalidades
 - Conexão com banco de dados facilitada;
