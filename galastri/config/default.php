@@ -97,7 +97,7 @@ return [
         "template"       =>     ["title", "divisor", "siteName"],
     ],
     
-    "version"            =>    "0.02",
+    "version"            =>    "0.01",
     "timezone"           =>    "America/Sao_Paulo",
     "debug"              =>    TRUE,
     
