@@ -15,9 +15,8 @@ Microframework PHP 7 MVC orientado a objetos para criação de sites e sistemas 
 - Controle de rotas de URLs;
 - Possibilidade de criação de APIs.
 
-### Implementações futuras
-- Classe Mailer para envio de arquivos via e-mail diretamente pelo framework;
-- Classe Filter para filtragem de dados de entrada e saída;
+
+### [Implementações futuras](https://github.com/andregalastri/galastri-framework/issues/2)
 
 ### Log de atualizações
 - 21/10/2019: Versão 0.4 Alpha. Envio inicial.
