@@ -17,10 +17,11 @@ Microframework PHP 7 MVC orientado a objetos para criação de sites e sistemas 
 - Possibilidade de criação de APIs.
 
 ### Estágio atual
-- Aprimorando os conceitos de orientação a objetos;
-- Substituindo alguns objetos de composição por classes singleton;
+- Verificação de bugs;
+- Criação de site com a documentação de uso.
 
 ### [Implementações futuras](https://github.com/andregalastri/galastri-framework/issues/2)
 
 ### Log de atualizações
+- 25/10/2019: Versão 0.5 Alpha. Aplicado padrão Singleton para a classe principal Galastri e componentes Authentication, Chain, Debug, Permission, Redirect e Route.
 - 21/10/2019: Versão 0.4 Alpha. Envio inicial.
