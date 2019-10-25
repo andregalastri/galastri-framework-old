@@ -18,7 +18,7 @@ Microframework PHP 7 MVC orientado a objetos para criação de sites e sistemas 
 
 ### Estágio atual
 - Aprimorando os conceitos de orientação a objetos;
-- Substituindo os objetos de composição por classes singleton;
+- Substituindo alguns objetos de composição por classes singleton;
 
 ### [Implementações futuras](https://github.com/andregalastri/galastri-framework/issues/2)
 
