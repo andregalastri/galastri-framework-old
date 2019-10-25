@@ -55,6 +55,8 @@
  *             ->execute();
  */
 namespace galastri\extensions\validation;
+use       galastri\core\Chain;
+use       galastri\core\Debug;
 
 trait CharSet {
     /**
@@ -106,7 +108,8 @@ trait CharSet {
      */
     public function charSet(...$charSet){
         $this->beforeTest();
-        $this->chain->create(
+        
+        Chain::create(
             "charSet",
             [
                 "name"    => "charSet",
@@ -115,9 +118,9 @@ trait CharSet {
             ],
             (
                 function($chainData, $data){
-                    $error              = $this->error->status;
-                    $charSet            = $data["charSet"];
-                    $this->debug->trace = debug_backtrace()[0];
+                    Debug::trace(debug_backtrace()[0]);
+                    $error   = $this->error->status;
+                    $charSet = $data["charSet"];
 
                     if(!$error){
                         $testValue = $this->validation->value;
@@ -265,7 +268,7 @@ trait CharSet {
                             $this->setValidationError($errorLog);
                         }
 
-                        return $this->chain->resolve($chainData, $data);
+                        return Chain::resolve($chainData, $data);
                     }
                 }
             )
@@ -292,14 +295,14 @@ trait CharSet {
      * @param array $charSet           Conjunto de caracteres.
      */
     private function modifierChain($name, $charSet){
-        $this->chain->create(
+        Chain::create(
             $name,
             [
                 "name"    => $name,
                 "charSet" => $charSet,
                 "attach"  => TRUE,
             ],
-            (function($chainData, $data){ return $this->chain->resolve($chainData, $data); })
+            (function($chainData, $data){ return Chain::resolve($chainData, $data); })
         );
 
         return $this;
@@ -323,7 +326,7 @@ trait CharSet {
      * @param array $charCase          Definição da obrigatoriedade maiúsculo/minúsculo.
      */
     private function caseChain($name, $charCase){
-        $this->chain->create(
+        Chain::create(
             $name,
             [
                 "name"     => $name,
@@ -333,7 +336,7 @@ trait CharSet {
             (
                 function($chainData, $data){
                     $this->charSet->case = $data["charCase"];
-                    return $this->chain->resolve($chainData, $data); 
+                    return Chain::resolve($chainData, $data); 
                 }
             )
         );

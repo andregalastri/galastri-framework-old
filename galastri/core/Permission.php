@@ -76,12 +76,10 @@
  *         "proprietarios" => 3,
  *     ];
  * 
- *     $permission = new Permission();
- *        
- *     $result = $permission->addGroup("vendedores")
- *                          ->addGroup("gerentes")
- *                          ->checkGroup($userGroup, $groupArray);
- *     vdump($result);
+ *     $permission = Permission::addGroup("vendedores")
+ *                             ::addGroup("gerentes")
+ *                             ::checkGroup($userGroup, $groupArray);
+ *     vdump($permission);
  * 
  * -----
  * Exemplo de uso de permissão usuário a usuário:
@@ -94,19 +92,20 @@
  *         "remover_venda" => 3,
  *     ];
  * 
- *     $permission = new Permission();
- *        
- *     $result = $permission->setResource("remover_venda")
- *                          ->checkResource($userIdPermissions, $resourceArray);
- *     vdump($result);
+ *     $permission = Permission::setResource("remover_venda")
+ *                             ::checkResource($userIdPermissions, $resourceArray);
+ *     vdump($permission);
  */
 namespace galastri\core;
 
 class Permission {
-    private $groups   = [];
-    private $resource = NULL;
-    private $result   = [];
+    private static $groups   = [];
+    private static $resource = NULL;
+    private static $result   = [];
     
+    /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
+    private function __construct(){}
+
     /**
      * Método que adiciona um nome de grupo que a página ou recurso permite acesso. Pode-se
      * utilizar este método várias vezes com o objetivo de formar uma lista.
@@ -114,9 +113,9 @@ class Permission {
      * @param string $groupName        Nome do grupo, igual como definido nas arrays que armazenam
      *                                 as listas de grupos do site.
      */
-    public function addGroup($groupName){
-        $this->groups[] = $groupName;
-        return $this;
+    public static function addGroup($groupName){
+        self::$groups[] = $groupName;
+        return __CLASS__;
     }
     
     /**
@@ -126,9 +125,9 @@ class Permission {
      * @param string $groupName        Nome do grupo, igual como definido nas arrays que armazenam
      *                                 as listas de grupos do site.
      */
-    public function removeGroup($groupName){
-        unset($this->groups[$groupName]);
-        return $this;
+    public static function removeGroup($groupName){
+        unset(self::$groups[$groupName]);
+        return __CLASS__;
     }
     
     /**
@@ -152,15 +151,15 @@ class Permission {
      * 
      *     $userGroup = 3;
      *     ...
-     *     ->checkGroup($userGroup, $groupArray);
+     *     Permission::checkGroup($userGroup, $groupArray);
      * 
      * @param int|string $userGroup    Em geral contém o ID do grupo a qual o usuário pertence.
      * 
      * @param array $groupTags         Array contendo todos os grupos existentes no sistema de
      *                                 permissões.
      */
-    public function checkGroup($userGroup, $groupTags = GALASTRI["permission"]["groups"]){
-        $groups = $this->groups;
+    public static function checkGroup($userGroup, $groupTags = GALASTRI["permission"]["groups"]){
+        $groups = self::$groups;
         
         foreach($groups as $groupName){
             if($groupTags[$groupName] === $userGroup){
@@ -177,9 +176,9 @@ class Permission {
      * @param string $resourceName     Nome do recurso, igual como definido nas arrays que
      *                                 armazenam as listas de recursos do site.
      */
-    public function setResource($resourceName){
-        $this->resource = $resourceName;
-        return $this;
+    public static function setResource($resourceName){
+        self::$resource = $resourceName;
+        return __CLASS__;
     }
 
     /**
@@ -205,7 +204,7 @@ class Permission {
      * 
      *     $userIdPermissions = [1, 2];
      *     ...
-     *     ->checkResource($userIdPermissions, $resourceArray);
+     *     Permission::checkResource($userIdPermissions, $resourceArray);
      * 
      * @param array $userResources     Array com a lista de IDs de recursos a qual o usuário
      *                                 possui permissão de acesso.
@@ -213,8 +212,8 @@ class Permission {
      * @param array $resourceTags      Array contendo todos os recursos existentes no sistema de
      *                                 permissões.
      */
-    public function checkResource($userResources, $resourceTags = GALASTRI["permission"]["resources"]){
-        $resource = $this->resource;
+    public static function checkResource($userResources, $resourceTags = GALASTRI["permission"]["resources"]){
+        $resource = self::$resource;
         $resourceIds = array_flip($resourceTags);
         
         foreach($userResources as $resourceId){

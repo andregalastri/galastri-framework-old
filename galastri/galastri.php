@@ -53,5 +53,4 @@ ini_set('display_errors', GALASTRI["debug"] ? "On" : "Off");
 
 require_once("autoload.php");
 
-$galastri = new core\Galastri;
-$galastri->execute();
+core\Galastri::execute();

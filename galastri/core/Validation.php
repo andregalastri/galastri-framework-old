@@ -75,7 +75,7 @@
  */
 namespace galastri\core;
 
-class Validation extends Composition {
+class Validation {
     /**
      * Importação dos validadores.
      * Todos eles foram escritos como sendo traits ao invés de classes.
@@ -114,27 +114,17 @@ class Validation extends Composition {
     
     private $charSet;
     private $onError;
-
     private $validation;
     private $validator;
     private $error;
     private $result;
     
     /**
-     * Este microframework se utiliza de composição como forma de trabalhar com reutilização de
-     * códigos, já que o PHP não permite heranças múltiplas. Mais informações no arquivo
-     * core\Composition.php.
-     */
-    private function composition(){
-        $this->debug();
-    }
-    
-    /**
      * O método contruct() define vários atributos padrão e principalmente alguns objetos StdClass
      * que servirão para retornar os dados.
      */
     public function __construct(){
-        $this->composition();
+        Debug::trace(debug_backtrace()[0]);
 
         $this->charSet             = new \StdClass();
 
@@ -146,8 +136,6 @@ class Validation extends Composition {
         $this->validation->label   = NULL;
 
         $this->validator           = NULL;
-
-        $this->chain               = new \galastri\core\Chain();
 
         $this->error               = new \StdClass();
         $this->error->status       = FALSE;
@@ -178,7 +166,7 @@ class Validation extends Composition {
      * @param int|string $label        Armazena o rótulo identificador do teste.
      */
     public function validate($testValue, $label = 0){
-        if($this->chain->hasLinks()){
+        if(Chain::hasLinks()){
             $this->execute();
         }
         
@@ -199,7 +187,7 @@ class Validation extends Composition {
      * corrente que estiver em aberto.
      */
     public function execute(){
-        return $this->chain->resolve();
+        return Chain::resolve();
     }
 
     /**
@@ -213,7 +201,7 @@ class Validation extends Composition {
      *                                 algum dos testes.
      */
     public function onError($message){
-        $this->chain->create(
+        Chain::create(
             "onError",
             [
                 "name"    => "onError",
@@ -223,7 +211,7 @@ class Validation extends Composition {
             (
                 function($chainData, $data){
                     $this->onError->message = $data["message"];
-                    return $this->chain->resolve($chainData, $data);
+                    return Chain::resolve($chainData, $data);
                 }
             )
         );
@@ -274,8 +262,9 @@ class Validation extends Composition {
      * Método usado antes de cada validador para verificar se o método validade() foi usado antes.
      */
     private function beforeTest(){
+
         if($this->validation->counter === 0){
-            $this->debug->error("VALIDATION001"); 
+           Debug::error("VALIDATION001")::print(); 
         }
     }
     

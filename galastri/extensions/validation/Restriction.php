@@ -6,6 +6,7 @@
  * método especifica um comportamento diferente a ser definido pelo próprio validador.
  */
 namespace galastri\extensions\validation;
+use       galastri\core\Chain;
 
 trait Restriction {
     /**
@@ -25,13 +26,13 @@ trait Restriction {
      * @param string $name             Nome do método de comparação.
      */
     private function restrictionChain($name){
-        $this->chain->create(
+        Chain::create(
             $name,
             [
                 "name"   => $name,
                 "attach" => TRUE,
             ],
-            (function($chainData, $data){ return $this->chain->resolve($chainData, $data); })
+            (function($chainData, $data){ return Chain::resolve($chainData, $data); })
         );
     }
 }

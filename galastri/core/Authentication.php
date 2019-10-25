@@ -30,11 +30,9 @@
  * 
  * Exemplo de uso da classe:
  * 
- *     $authentication = new Authentication();
- *         
- *     $authentication->set("clientes")
- *                    ->addField("user_id", $userId)
- *                    ->start();
+ *     Authentication::setTag("clientes")
+ *                   ::addField("user_id", $userId)
+ *                   ::start();
  * 
  * O exemplo acima é usado quando o usuário realiza um login bem sucedido. A tag da autenticação
  * é "clientes". Esta tag não deve ser diferente para cada usuário, ela apenas representa uma
@@ -56,7 +54,7 @@
  * 
  * Exemplo de validação:
  * 
- *     $check = $authentication->validate("clientes");
+ *     $check = Authentication::validate("clientes");
  * 
  *     if($check){
  *         // Usuário está autenticado.
@@ -66,32 +64,20 @@
  */
 namespace galastri\core;
 
-class Authentication extends Composition {
-
-    private $authTag;
+class Authentication {
+    private static $authTag;
     
-    /**
-     * Este microframework se utiliza de composição como forma de trabalhar com reutilização de
-     * códigos, já que o PHP não permite heranças múltiplas. Mais informações no arquivo
-     * core\Composition.php.
-     */
-    private function composition(){
-        $this->redirect();
-        $this->chain();
-    }
-    
-    public function __construct(){
-        $this->composition();
-    }
+    /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
+    private function __construct(){}
     
     /**
      * Método que define a tag de uma área de autenticação quando um login é bem sucedido.
      * 
      * @param string $authTag          Nome da tag.
      */
-    public function set($authTag){
-        $this->authTag = $authTag;
-        return $this;
+    public static function setTag($authTag){
+        self::$authTag = $authTag;
+        return __CLASS__;
     }
     
     /**
@@ -109,17 +95,17 @@ class Authentication extends Composition {
      * 
      * @param mixed $value             Valor do campo.
      */
-    public function addField($field, $value){
+    public static function addField($field, $value){
         if($field === "token" or $field === "ip"){
-            $this->debug->error("AUTH001", $field)->print();
+            Debug::error("AUTH001", $field)::print();
         } else {
-            $authTag = $this->authTag;
+            $authTag = self::$authTag;
 
             if(!isset($_SESSION[$authTag][$field])){
                 $_SESSION[$authTag][$field] = $value;
             }
         }
-        return $this;
+        return __CLASS__;
     }
     
     /**
@@ -130,8 +116,8 @@ class Authentication extends Composition {
      * 
      * @param string $authTag          Nome da tag que terá os dados armazenados.
      */
-    public function start($authTag = FALSE){
-        $authTag = $authTag === FALSE ? $this->authTag : $authTag;
+    public static function start($authTag = FALSE){
+        $authTag = $authTag === FALSE ? self::$authTag : $authTag;
 
         $_SESSION[$authTag]["token"] = base64_encode(random_bytes(48));
         $_SESSION[$authTag]["ip"] = $_SERVER['REMOTE_ADDR'];
@@ -145,9 +131,9 @@ class Authentication extends Composition {
      * 
      * @param string $authTag          Nome da tag que terá os dados atualizados.
      */
-    public function update($authTag){
-        if($this->check($authTag)){
-            $this->start($authTag);
+    public static function update($authTag){
+        if(self::check($authTag)){
+            self::start($authTag);
         }
         return FALSE;
     }
@@ -158,8 +144,8 @@ class Authentication extends Composition {
      * 
      * @param string $authTag          Nome da tag que terá os dados removidos.
      */
-    public function unset($authTag){
-        if($this->check($authTag)){
+    public static function unset($authTag){
+        if(self::check($authTag)){
             unset($_SESSION[$authTag]);
             setcookie($authTag, NULL, time() - 3600);
             unset($_COOKIE[$authTag]);
@@ -172,10 +158,10 @@ class Authentication extends Composition {
      * Método que destrói toda a sessão, fazendo com que o usuário seja deslogado de todas as áreas
      * que requerer autenticação.
      */
-    public function destroy(){
-        foreach(array_authTags($_SESSION) as $authTag){
-            setcookie($authTag, NULL, time() - 3600);
-            unset($_COOKIE[$authTag]);
+    public static function destroy(){
+        foreach($_SESSION as $key => $value){
+            setcookie($key, NULL, time() - 3600);
+            unset($_COOKIE[$key]);
         }
         session_unset();
         session_destroy();
@@ -186,8 +172,8 @@ class Authentication extends Composition {
      * 
      * @param string $authTag          Nome da tag que terá os dados recuperados.
      */
-    public function getData($authTag){
-        if($this->check($authTag)){
+    public static function getData($authTag){
+        if(self::check($authTag)){
             $session = new \StdClass;
             foreach($_SESSION[$authTag] as $authTag => $value){
                 $session->$authTag = $value;
@@ -218,8 +204,8 @@ class Authentication extends Composition {
      *                                 Por isso não é inesperado que uma autenticação de um
      *                                 usuário seja considerada inválida devido a estes fatores.
      */
-    public function validate($authTag, $ipCheck = FALSE){
-        if($this->check($authTag)){
+    public static function validate($authTag, $ipCheck = FALSE){
+        if(self::check($authTag)){
             if($_SESSION[$authTag]["token"] === $_COOKIE[$authTag]){
                 if($ipCheck){
                     if($_SESSION[$authTag]["ip"] === $_SERVER['REMOTE_ADDR']){
@@ -242,7 +228,7 @@ class Authentication extends Composition {
      * 
      * @param string $authTag          Nome da tag que será verificada.
      */
-    private function check($authTag){
+    private static function check($authTag){
         if(session_status() === PHP_SESSION_NONE){
             return FALSE;
         }

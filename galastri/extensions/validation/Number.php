@@ -29,7 +29,7 @@ trait Number {
      */
     public function number($type){
         $this->beforeTest();
-        $this->chain->create(
+        Chain::create(
             "number",
             [
                 "name"   => "number",
@@ -38,8 +38,9 @@ trait Number {
             ],
             (
                 function($chainData, $data){
-                    $error              = $this->error->status;
-                    $this->debug->trace = debug_backtrace()[0];
+                    Debug::trace(debug_backtrace()[0]);
+
+                    $error = $this->error->status;
 
                     if(!$error){
                         $testValue = $this->validation->value;
@@ -102,7 +103,7 @@ trait Number {
                             $this->setValidationError($errorLog);
                         }
 
-                        return $this->chain->resolve($chainData, $data);
+                        return Chain::resolve($chainData, $data);
                     }
                 }
             )

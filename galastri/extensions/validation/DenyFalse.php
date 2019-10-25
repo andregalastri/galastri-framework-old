@@ -13,6 +13,8 @@
  *         ->execute();
  */
 namespace galastri\extensions\validation;
+use       galastri\core\Chain;
+use       galastri\core\Debug;
 
 trait DenyFalse {
     /**
@@ -20,7 +22,8 @@ trait DenyFalse {
      */
     public function denyFalse(){
         $this->beforeTest();
-        $this->chain->create(
+        
+        Chain::create(
             "denyFalse",
             [
                 "name"   => "denyFalse",
@@ -28,9 +31,10 @@ trait DenyFalse {
             ],
             (
                 function($chainData, $data){
-                    $data               = end($chainData);
-                    $error              = $this->error->status;
-                    $this->debug->trace = debug_backtrace()[0];
+                    Debug::trace(debug_backtrace()[0]);
+
+                    $data  = end($chainData);
+                    $error = $this->error->status;
 
                     if(!$error){
                         $testValue = $this->validation->value;
@@ -45,7 +49,7 @@ trait DenyFalse {
                             $this->setValidationError($errorLog);
                         }
 
-                        return $this->chain->resolve($chainData, $data);
+                        return Chain::resolve($chainData, $data);
                     }
                 }
             )

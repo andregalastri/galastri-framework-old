@@ -7,10 +7,13 @@
  * URL, no arquivo config\routes.php.
  */
 namespace galastri\extensions\renderers;
+use       galastri\core\Debug;
+use       galastri\core\Route;
 
 trait Json {
-    private $jsonController = TRUE;
-    private $json;
+    private static $json;
+
+    private static function jsonController(){ return TRUE; }
 
     /**
      * Método principal que um único teste; verifica se o controller retorna um objeto.
@@ -18,18 +21,17 @@ trait Json {
      * Estando tudo correto, é verificado se a página foi configurada como sendo restrita, ou seja,
      * acessível apenas caso esteja com uma sessão configurada.
      */
-    private function json(){
-        $this->debug->trace =  debug_backtrace()[0];
+    private static function json(){
+        Debug::trace(debug_backtrace()[0]);
         
-        $this->json       = new \StdClass;
-        $this->json->data = NULL;
+        self::$json = new \StdClass;
 
-        $this->jsonCheckObject();
+        self::jsonCheckObject();
         
-        $this->json->data->data = $this->checkAuth($this->json->data);
+        self::$json = self::checkAuth(self::$json);
 
         header('Content-Type: application/json');
-        $this->printContent(json_encode($this->json->data->data));
+        self::printContent(json_encode(self::$json->data));
     }
     
     /**
@@ -38,35 +40,32 @@ trait Json {
      * retornados pelo controller. Estes dados serão codificados e exibidos na tela em formato
      * JSON.
      */
-    private function jsonCheckObject(){
-        $controller = $this->controller;
-        $json = $this->json->data;
+    private static function jsonCheckObject(){
+        $controller = self::$controller;
 
-        if($json === NULL){
-            if(is_object($controller)){
-                $this->json->data = $controller->getRendererData();
-            } else {
-                $this->debug->error("CONTROLLER003", gettype($controller))->print();
-            }
+        if(is_object($controller)){
+            self::$json = $controller->getRendererData();
+        } else {
+            Debug::error("CONTROLLER003", gettype($controller))::print();
         }
-        return $this;
+        return __CLASS__;
     }
     
     /**
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline.
      */
-    private function jsonCheckOffline(){
-        $offline = $this->route->offline;
+    private static function jsonCheckOffline(){
+        $offline = Route::offline();
         
         if($offline){
             header('Content-Type: application/json');
             
-            $this->printContent(json_encode([
+            self::printContent(json_encode([
                 "pass" => FALSE,
                 "message" => "maintenance",
             ]));
         }
-        return $this;
+        return __CLASS__;
     }
 }

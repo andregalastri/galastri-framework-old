@@ -15,10 +15,23 @@
  */
 namespace galastri\core;
 
-class Debug extends Composition {
-    private $message = NULL;
-    public $error    = FALSE;
-    public $trace    = FALSE;
+class Debug {
+    private static $message = NULL;
+    private static $error   = FALSE;
+    private static $trace   = FALSE;
+    
+    /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
+    private function __construct(){}
+    
+    /**
+     * Método que armazena os dados da função debug_backtrace(), para traçar a rota dos erros
+     * internos do microframwork.
+     * 
+     * @param array $trace              Armazena um dos vetores da função debug_backtrace().
+     */
+    public static function trace($trace){
+        self::$trace = $trace;
+    }
     
     /**
      * Método que define que houve um erro e qual será a mensagem que será exibida.
@@ -29,17 +42,17 @@ class Debug extends Composition {
      * @param mixed ...$data            Armazena dados quaisquer que são importantes de serem
      *                                  informados nas mensagens de erro.
      */
-    public function error($tag, ...$data){
+    public static function error($tag, ...$data){
         if(!GALASTRI["debug"]){
-            $this->message = "<code>OCORREU UM ERRO INTERNO. CONTATE O DESENVOLVEDOR.</code>";
+            self::$message = "<code>OCORREU UM ERRO INTERNO. CONTATE O DESENVOLVEDOR.</code>";
         } else {
-            $class  = $this->trace["class"];
-            $method = $this->trace["function"];
-            $line   = $this->trace["line"];
-            $file   = $this->trace["file"];
-            $error  = $this->getError($tag, $data);
+            $class  = self::$trace["class"];
+            $method = self::$trace["function"];
+            $line   = self::$trace["line"];
+            $file   = self::$trace["file"];
+            $error  = self::getMessage($tag, $data);
 
-            $this->message = "
+            self::$message = "
                 <code>
                     <small>Erro durante a execução da função <b>$class->$method()</b></small><br/>
                     <big>$error</big><br/><br/>
@@ -49,25 +62,30 @@ class Debug extends Composition {
                     </small>
                 </code>";
         }
-        
-        $this->error = TRUE;
-        return $this;
+        self::$error = TRUE;
+        return __CLASS__;
+    }
+    
+    /**
+     * Método que retorna o status atual do atributo $error.
+     */
+    public static function getError(){
+        return self::$error;
     }
     
     /**
      * Método que imprime uma mensagem de erro na tela.
      */
-    public function print(){
-        exit(print($this->message));
+    public static function print(){
+        exit(print(self::$message));
     }
     
     /**
      * Método que retorna uma mensagem de erro, podendo ser armazenado em uma variável, por exemplo.
      */
-    public function return(){
-        return strip_tags($this->message);
+    public static function return(){
+        return strip_tags(self::$message);
     }
-    
     
     /**
      * Método que reune todas as tags de erros do microframework e suas respectivas mensagens de
@@ -79,7 +97,7 @@ class Debug extends Composition {
      * @param array data                Armazena dados quaisquer que são importantes de serem
      *                                  informados nas mensagens de erro.
      */
-    private function getError($tag, $data){
+    private static function getMessage($tag, $data){
         switch($tag){
             case "REDIRECT001":   return "Nenhum parâmetro foi informado. É necessário informar uma string contendo uma URL ou uma palavra chave para redirecionamento.";
             

@@ -3,13 +3,14 @@
  * - Galastri.php -
  * 
  * Classe que contém a inicialização do microframework, os renderizadores e os controladores. A
- * execução de tudo ocorre dentro da classe Galastri, o que permite maior flexibilidade na chamada
- * de componentes através de composição.
+ * execução de tudo ocorre dentro da classe Galastri, através do padrão Singleton, o que permite
+ * maior flexibilidade na chamada de componentes.
  */
 namespace galastri\core;
 
-class Galastri extends Composition {
-    
+class Galastri {
+    private static $controller = FALSE;
+
     /**
      * Importação dos renderizadores.
      * Rendizador, no contexto deste microframework, é qualquer componente que imprima algo na
@@ -38,50 +39,36 @@ class Galastri extends Composition {
     use \galastri\extensions\renderers\Json;
     use \galastri\extensions\renderers\View;
     
-    private $controller = FALSE;
-    
-    /**
-     * Este microframework se utiliza de composição como forma de trabalhar com reutilização de
-     * códigos, já que o PHP não permite heranças múltiplas. Mais informações no arquivo
-     * core\Composition.php.
-     */
-    private function composition(){
-        $this->debug();
-        $this->redirect();
-        $this->route();
-    }
-
-    public function __construct(){
-        $this->composition();
-        date_default_timezone_set(GALASTRI["timezone"]);
-    }
+    /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
+    private function __construct(){}
     
     /**
      * Execução do microframework.
      * Uma série de testes são executados em série para verificar se as configurações foram feitas
      * corretamente. Se tudo estiver certo, uma instância do controller é criada
      * 
-     * O controller, após processado, irá retornar dados que são armaeznados no atributo $controller,
-     * sendo este acessível pelo renderizador.
+     * O controller irá retornar dados que são armaeznados no atributo $controller, sendo este
+     * acessível pelo renderizador.
      * 
-     * O renderizador configurado é chamado para realizar a exibição dos dados.
+     * O renderizador é chamado para realizar a exibição dos dados.
      */
-    public  function execute(){
+    public static function execute(){
         session_start();
-        $this->debug->trace = debug_backtrace()[0];
 
-        $this
-            ->checkRendererExists()
-            ->checkOffline("global")
-            ->checkOffline($this->route->renderer)
-            ->checkRequiredController()
-            ->checkController()
-            ->checkClass()
-            ->checkMethod()
-            ->callController();
+        date_default_timezone_set(GALASTRI["timezone"]);
+        Route::resolve();
 
-        $renderer = $this->route->renderer;
-        $this->$renderer();
+        self::checkRendererExists()
+            ::checkOffline("global")
+            ::checkOffline(Route::renderer())
+            ::checkRequiredController()
+            ::checkController()
+            ::checkClass()
+            ::checkMethod()
+            ::callController();
+
+        $renderer = Route::renderer();
+        self::$renderer();
     }
     
     /**
@@ -89,37 +76,55 @@ class Galastri extends Composition {
      * nome é formado pelo nome do renderizador e seguido pelo termo "CheckOffline". Por exemplo,
      * o renderizador view possui um método chamado viewCheckOffline().
      * 
-     * Por padrão, ao menos 2 métodos são executados usando este aqui: um verificando se a
+     * Por padrão, ao menos 2 métodos são executados usando o método abaixo: um verificando se a
      * configuração offline está ativa globalmente e outra se a configuração offline está ativa
-     * na rota (arquivo routes.php).
+     * na rota (arquivo config/routes.php).
      * 
      * @param string $scope            Nome do renderizador ou do escopo que irá se unir ao termo
-     *                                 "CheckOffline" a fim de compor o nome completo da função
+     *                                 "CheckOffline" a fim de compor o nome completo do método
      *                                 que verifica se há configurações offline ativas.
      */
-    private function checkOffline($scope){
-        return $this->{$scope."CheckOffline"}();
+    private static function checkOffline($scope){
+        return self::{$scope."CheckOffline"}();
     }
     
+    /**
+     * Verifica se a opção global offline está ativa. Caso esteja, verifica se a configuração
+     * redirectTo está prenchida. Caso sim, o usuário é redirecionado para aquela página configurada
+     * no redirectTo. Caso não, apenas a mensagem será exibida na tela.
+     */
+    private static function globalCheckOffline(){
+        if(GALASTRI["offline"]["status"]){
+            $redirectTo = GALASTRI["offline"]["redirectTo"];
+            
+            if($redirectTo){
+                $url = GALASTRI["urls"][$redirectTo];
+                if(Route::urlString() !== $url) Redirect::location($url);
+            }
+            
+            if(($redirectTo and GALASTRI["offline"]["forceMessage"]) or !$redirectTo) self::printContent(GALASTRI["offline"]["message"]);
+        }
+        return __CLASS__;
+    }
     
     /**
      * Verifica se o renderizador especificado na configuração existe. É importante ressaltar que
      * os renderizadores são traits importadas logo após a definição desta classe.
      */
-    private function checkRendererExists(){
-        $this->debug->trace = debug_backtrace()[0];
+    private static function checkRendererExists(){
+        Debug::trace(debug_backtrace()[0]);
         
-        $renderer = $this->route->renderer;
+        $renderer = Route::renderer();
         
         if(isset($renderer) and !empty($renderer)){
-            if(!method_exists(get_class($this), $renderer)){
-                $this->debug->error("RENDERER003", $renderer)->print();
+            if(!method_exists(__CLASS__, $renderer)){
+                Debug::error("RENDERER003", $renderer)::print();
             }
         } else {
-            $this->debug->error("CONFIG001", $path)->print();
+            Debug::error("CONFIG001", $path)::print();
         }
         
-        return $this;
+        return __CLASS__;
     }
     
     /**
@@ -128,22 +133,22 @@ class Galastri extends Composition {
      * ativos para cada página requisitada. Caso não exista nenhum método ou classe configurada
      * nestes casos, uma mensagem de erro é exibida.
      */
-    private function checkRequiredController(){
-        $this->debug->trace = debug_backtrace()[0];
+    private static function checkRequiredController(){
+        Debug::trace(debug_backtrace()[0]);
         
-        $renderer   = $this->route->renderer;
-        $controller = $this->route->controller;
-        $method     = $this->route->renderer;
-        $path       = $this->route->path;
+        $renderer   = Route::renderer();
+        $controller = Route::controller();
+        $method     = Route::renderer();
+        $path       = Route::path();
         
-        $requireController = $this->{$renderer."Controller"};
+        $requireController = self::{$renderer."Controller"}();
 
         if($method === NULL and $requireController){
-            $this->debug->error("RENDERER001", $renderer, $path)->print();
+            Debug::error("RENDERER001", $renderer, $path)::print();
         } elseif($controller === NULL and $requireController){
-            $this->debug->error("RENDERER002", $renderer, $path)->print();
+            Debug::error("RENDERER002", $renderer, $path)::print();
         }
-        return $this;
+        return __CLASS__;
     }
     
     /**
@@ -151,47 +156,47 @@ class Galastri extends Composition {
      * foi definido, o valor do atributo $controller é FALSE. Já quando o controller existe, o
      * atributo $controller irá armazenar o caminho de chamada da classe controladora.
      */
-    private function checkController(){
-        $controller = $this->route->controller;
+    private static function checkController(){
+        $controller = Route::controller();
         if($controller === NULL){
-            $this->controller = FALSE;
+            self::$controller = FALSE;
         } else {
-            $this->controller = str_replace(["/","."], ["\\",""], GALASTRI["folders"]["controller"]).str_replace("/", "\\", $controller);
+            self::$controller = str_replace(["/","."], ["\\",""], GALASTRI["folders"]["controller"]).str_replace("/", "\\", $controller);
         }
-        return $this;
+        return __CLASS__;
     }
 
     /**
      * Verifica se o arquivo com a classe controladora existe.
      */
-    private function checkClass(){
-        $this->debug->trace = debug_backtrace()[0];
-        $controller = $this->controller;
+    private static function checkClass(){
+        Debug::trace(debug_backtrace()[0]);
+        $controller = self::$controller;
         
         if($controller){
             if(!class_exists($controller)){
-                $this->debug->error("CONTROLLER001", $controller)->print();
+                Debug::error("CONTROLLER001", $controller)::print();
             }
         }
-        return $this;
+        return __CLASS__;
     }
 
     /**
      * Verifica se o arquivo com a classe controladora possui um método que representa a página
      * requisitada.
      */
-    private function checkMethod(){
-        $this->debug->trace = debug_backtrace()[0];
+    private static function checkMethod(){
+        Debug::trace(debug_backtrace()[0]);
         
-        $controller = $this->controller;
-        $method     = $this->route->method;
+        $controller = self::$controller;
+        $method     = Route::method();
         
         if($controller){
             if(!method_exists($controller, $method)){
-                $this->debug->error("CONTROLLER002", $controller, $method)->print();
+                Debug::error("CONTROLLER002", $controller, $method)::print();
             }
         }
-        return $this;
+        return __CLASS__;
     }
     
     /**
@@ -201,30 +206,13 @@ class Galastri extends Composition {
      * A execução deste método irá retornar dados ou não. Caso retorne, estes dados poderão ser
      * impressos pelo renderizador.
      */
-    private function callController(){
-        $controller = $this->controller;
+    private static function callController(){
+        $controller = self::$controller;
 
         if($controller){
-            $this->controller = new $controller();
-            $this->controller->startController($this->route);
+            self::$controller = new $controller();
+            self::$controller->startController();
         }
-    }
-    
-    /**
-     * Verifica se a opção global offline está ativa. Caso esteja, verifica se a configuração
-     * redirectTo está prenchida. Caso sim, o usuário é redirecionado para aquela página configurada
-     * no redirectTo. Caso não, apenas a mensagem message será exibida na tela.
-     */
-    private function globalCheckOffline(){
-        if(GALASTRI["offline"]["status"]){
-            $redirectTo = GALASTRI["offline"]["redirectTo"];
-            if($redirectTo){
-                $url = GALASTRI["urls"][$redirectTo];
-                if($this->route->urlString !== $url) $this->redirect->location($url);
-            }
-            if(($redirectTo and GALASTRI["offline"]["forceMessage"]) or !$redirectTo) $this->printContent(GALASTRI["offline"]["message"], TRUE);
-        }
-        return $this;
     }
     
     /**
@@ -242,24 +230,25 @@ class Galastri extends Composition {
      * @param object $data             Armazena o objeto obtido do método getRenderData() da
      *                                 classe Controller.
      */
-    private function checkAuth($data){
-        $authStatus = property_exists($data, "authStatus") ? $data->authStatus : TRUE;
-        $onAuthFail = $this->route->onAuthFail;
-        
-        if($authStatus === FALSE){
-            if($onAuthFail){
-                $this->redirect->location($onAuthFail);
-            } else {
-                return ["error" => ["code" => -1, "message" => "session"]];
+    private static function checkAuth($data){
+        if($data !== NULL){
+            $authStatus = property_exists($data, "authStatus") ? $data->authStatus : TRUE;
+            $onAuthFail = Route::onAuthFail();
+
+            if($authStatus === FALSE){
+                if($onAuthFail){
+                    Redirect::location($onAuthFail);
+                } else {
+                    $data->data = ["error" => ["code" => -1, "message" => "session"]];
+                }
             }
         }
-        
-        return $data->data;
+        return $data;
     }
     
     /**
      * Métodos para impressão ou requerimento de conteúdo.
      */
-    private function requireContent ($render,  $file, $exit = FALSE){ $exit ? exit(require_once($file)) : require_once($file); }
-    private function printContent   ($content, $exit = FALSE){        $exit ? exit(print($content))     : print($content); }
+    private static function requireContent($render, $file){ exit(require_once($file)); }
+    private static function printContent($content){ exit(print($content)); }
 }

@@ -52,6 +52,8 @@
  *             ->execute();
  */
 namespace galastri\extensions\validation;
+use       galastri\core\Chain;
+use       galastri\core\Debug;
 
 trait Datetime {
     /**
@@ -62,7 +64,7 @@ trait Datetime {
      */
     public function dateTime($dateFormat){
         $this->beforeTest();
-        $this->chain->create(
+        Chain::create(
             "dateTime",
             [
                 "name"       => "dateTime",
@@ -71,8 +73,8 @@ trait Datetime {
             ],
             (
                 function($chainData, $data){
-                    $error              = $this->error->status;
-                    $this->debug->trace = debug_backtrace()[0];
+                    Debug::trace(debug_backtrace()[0]);
+                    $error = $this->error->status;
 
                     if(!$error){
                         $testValue  = $this->validation->value;
@@ -210,7 +212,7 @@ trait Datetime {
                             $this->setValidationError($errorLog);
                         }
 
-                        return $this->chain->resolve($chainData, $data);
+                        return Chain::resolve($chainData, $data);
                     }
                 }
             )

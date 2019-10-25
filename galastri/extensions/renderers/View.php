@@ -7,10 +7,14 @@
  * rota da URL, no arquivo config\routes.php.
  */
 namespace galastri\extensions\renderers;
+use       galastri\core\Debug;
+use       galastri\core\Redirect;
+use       galastri\core\Route;
 
 trait View {
-    private $viewController = TRUE;
-    private $view;
+    private static $view;
+
+    private static function viewController(){ return TRUE; }
 
     /**
      * Método principal que faz uma série de testes para verificar se os dados retornados pelo
@@ -26,21 +30,19 @@ trait View {
      * Estando tudo correto, é verificado se a página foi configurada como sendo restrita, ou seja,
      * acessível apenas caso esteja com uma sessão configurada.
      */
-    private function view(){
-        $this->debug->trace = debug_backtrace()[0];
+    private static function view(){
+        Debug::trace(debug_backtrace()[0]);
         
-        $this->view       = new \StdClass;
-        $this->view->data = NULL;
+        self::$view = new \StdClass;
         
-        $this
-            ->viewCheckObject()
-            ->viewCheckHasView()
-            ->viewSetTemplate()
-            ->viewCheckExists();
+        self::viewCheckObject()
+            ::viewCheckHasView()
+            ::viewSetTemplate()
+            ::viewCheckExists();
         
-        $this->view->data->data = $this->checkAuth($this->view->data);
+        self::$view = self::checkAuth(self::$view);
         
-        $this->requireContent($this->view->data, $this->view->data->template["root"]);
+        self::requireContent(self::$view, self::$view->template["root"]);
     }
     
     /**
@@ -49,28 +51,28 @@ trait View {
      * retornados pelo controller. P template HTML pode ser montado a partir destes dados, e toda
      * informação processada pode ser exibida.
      */
-    private function viewCheckObject(){
-        $controller = $this->controller;
+    private static function viewCheckObject(){
+        $controller = self::$controller;
 
         if(is_object($controller)){
-            $this->view->data = $controller->getRendererData();
+            self::$view = $controller->getRendererData();
         } else {
-            $this->debug->error("CONTROLLER003", gettype($controller))->print();
+            Debug::error("CONTROLLER003", gettype($controller))::print();
         }
-        return $this;
+        return __CLASS__;
     }
     
     /**
      * Verifica se o caminho para o arquivo da view foi configurado.
      */
-    private function viewCheckHasView(){
-        $view = $this->view->data->view;
-        $path = $this->view->data->path;
+    private static function viewCheckHasView(){
+        $view = self::$view->view;
+        $path = self::$view->path;
 
         if($path === FALSE){
-            $this->debug->error("VIEW002", $view)->print();
+            Debug::error("VIEW002", $view)::print();
         }
-        return $this;
+        return __CLASS__;
     }
 
     /**
@@ -90,10 +92,10 @@ trait View {
      * 
      * Este método também configura o título da página, que geralmente é usado entre as tags <title>.
      */
-    private function viewSetTemplate(){
+    private static function viewSetTemplate(){
         $template = GALASTRI["template"];
 
-        $data = $this->view->data;
+        $data = self::$view;
         $import = $data->import;
         
         /** Configuração do template. */
@@ -123,22 +125,22 @@ trait View {
             }  
         }
 
-        $this->view->data->template = $template;
-        $this->view->data->import   = $import;
-        $this->view->data->title    = ltrim(implode("", $title), GALASTRI["title"]["divisor"]);
-        $this->view->data->view     = GALASTRI["folders"]["view"]."/".ltrim($data->view, "/");
+        self::$view->template = $template;
+        self::$view->import   = $import;
+        self::$view->title    = ltrim(implode("", $title), GALASTRI["title"]["divisor"]);
+        self::$view->view     = GALASTRI["folders"]["view"]."/".ltrim($data->view, "/");
 
-        return $this;
+        return __CLASS__;
     }
 
     /**
      * Verifica se o arquivo da view existe.
      */
-    private function viewCheckExists(){
-        $view = $this->view->data->view;
+    private static function viewCheckExists(){
+        $view = self::$view->view;
 
         if(!is_file($view)){
-            $this->debug->error("VIEW001", $view)->print();
+            Debug::error("VIEW001", $view)::print();
         }
     }
     
@@ -146,16 +148,16 @@ trait View {
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline.
      */
-    private function viewCheckOffline(){
-        $offline = $this->route->offline;
-        $urlString = $this->route->offline;
+    private static function viewCheckOffline(){
+        $offline   = Route::offline();
+        $urlString = Route::urlString();
         
         if($offline){
             $url = GALASTRI["urls"]["maintenance"];
             if($urlString !== $url){
-                $this->redirect->location($url);
+                Redirect::location($url);
             }
         }
-        return $this;
+        return __CLASS__;
     }
 }

@@ -71,10 +71,13 @@
  *   arquivo será exibido normalmente.
  */
 namespace galastri\extensions\renderers;
+use       galastri\core\Debug;
+use       galastri\core\Route;
 
 trait File {
-    private $fileController = FALSE;
-    private $file;
+    private static $file;
+
+    private static function fileController(){ return FALSE; }
 
     /**
      * Método principal que faz uma série de testes para verificar se os parâmetros informados
@@ -94,43 +97,41 @@ trait File {
      * São configurados diversos cabeçalhos com o intuito de armazenar cache e exibir corretamente
      * o tipo de arquivo requisitado.
      */
-    private function file(){
-        $this->debug->trace = debug_backtrace()[0];
+    private static function file(){
+       Debug::trace(debug_backtrace()[0]);
 
-        $this->file       = new \StdClass;
-        $this->file->data = NULL;
+        self::$file = new \StdClass;
 
-        $this
-            ->fileCheckObject()
-            ->fileCheckPath()
-            ->fileCheckExtension()
-            ->fileCheckContentType()
-            ->fileCheckExists();
+        self::fileCheckObject()
+            ::fileCheckPath()
+            ::fileCheckExtension()
+            ::fileCheckContentType()
+            ::fileCheckExists();
         
-        $this->file->data->data = $this->checkAuth($this->file->data);
+        self::$file = self::checkAuth(self::$file);
         
         /** Tags responsáveis por controlar o cache do arquivo no navegador do usuário. O uso de
          * uma e-tag permite que o arquivo seja armazenado em cache e, caso seja modificado, o
          * novo arquivo seja carregado no lugar do arquivo em cache. Lembrando que tudo isso só
          * será utilizado caso a configuração de cache esteja ativa. */
-        $etag = md5(filemtime($this->file->path).$this->file->path);
+        $etag = md5(filemtime(self::$file->path).self::$file->path);
 
         header('Last-Modified: '.gmdate('r', time()));
         header("Cache-Control: must-revalidate");
-        header('Expires: '.gmdate('r', time()+$this->file->cache["expire"]));
+        header('Expires: '.gmdate('r', time()+self::$file->cache["expire"]));
         header("Etag: ".$etag); 
         
         /** Cabeçalhos para caso o arquivo esteja configurado para ser baixável. */
-        if($this->file->downloadable){
+        if(self::$file->downloadable){
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.basename($this->file->path).'"');
+            header('Content-Disposition: attachment; filename="'.basename(self::$file->path).'"');
             header('Expires: 0');
             header('Pragma: public');
-            header('Content-Length: '.filesize($this->file->path));
+            header('Content-Length: '.filesize(self::$file->path));
             flush();
             ob_start();
-            readfile($this->file->path);
+            readfile(self::$file->path);
             ob_end_flush;
             flush();
             exit();
@@ -146,10 +147,10 @@ trait File {
              * ter sido modificado. Este segundo teste verifica se o arquivo foi modificado. Caso
              * sim, então o arquivo deverá ser baixado novamente. Caso o arquivo não tenha sido
              * modificado, então será usado o arquivo em cache. */
-            if($this->file->cache["status"]){
+            if(self::$file->cache["status"]){
                 $cached = FALSE;
                 if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])){
-                    if(time() <= strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])+$this->file->cache["expire"]){
+                    if(time() <= strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])+self::$file->cache["expire"]){
                         $cached = TRUE;
                     }
                 }
@@ -163,8 +164,9 @@ trait File {
                     exit();
                 }
             }
-            header("Content-type: ".GALASTRI["contentType"][$this->file->extension]);
-            $this->printContent(file_get_contents($this->file->path));
+            
+            header("Content-type: ".GALASTRI["contentType"][self::$file->extension]);
+            self::printContent(file_get_contents(self::$file->path));
         }
     }
     
@@ -178,40 +180,40 @@ trait File {
      * incluem os dados processados e retornados pelo controller. P template HTML pode ser montado
      * a partir destes dados, e toda informação processada pode ser exibida.
      */
-    private function fileCheckObject(){
-        $controller = $this->controller;
+    private static function fileCheckObject(){
+        $controller = self::$controller;
 
         if($controller){
             if(is_object($controller)){
-                $this->file->data         = $controller->getRendererData();
-                $this->file->parameters   = $this->file->data->parameters;
-                $this->file->downloadable = $this->file->data->downloadable;
-                $this->file->cache        = $this->file->data->cache;
+                self::$file = $controller->getRendererData();
+//                self::$file->parameters   = $controller->getRendererData()->parameters;
+//                self::$file->downloadable = $controller->getRendererData()->downloadable;
+//                self::$file->cache        = $controller->getRendererData()->cache;
             } else {
-                $this->debug->error("CONTROLLER003", gettype($controller))->print();
+               Debug::error("CONTROLLER003", gettype($controller))::print();
             }
         } else {
-            $this->file->parameters   = $this->route->parameters;
-            $this->file->downloadable = $this->route->downloadable;
-            $this->file->cache        = $this->route->cache;
+            self::$file->parameters   = Route::parameters();
+            self::$file->downloadable = Route::downloadable();
+            self::$file->cache        = Route::cache();
         }
-        return $this;
+        return __CLASS__;
     }
 
     /**
      * Verifica se os parâmetros armazenam valores, para que o caminho do arquivo seja montado.
      */
-    private function fileCheckPath(){
-        $parameters = $this->file->parameters;
+    private static function fileCheckPath(){
+        $parameters = self::$file->parameters;
 
         if(!empty($parameters)){
             if(is_array($parameters)){
-                $this->file->parameters = implode("/", $parameters);
+                self::$file->parameters = implode("/", $parameters);
             }
         } else {
-            $this->debug->error("FILE002")->print();
+           Debug::error("FILE002")::print();
         }
-        return $this;
+        return __CLASS__;
     }
 
     /**
@@ -219,43 +221,43 @@ trait File {
      * arquivo config/default.php. Isso é necessário pois a chamada do arquivo irá requerer um
      * tipo MIME e isto precisa estar informado no arquivo de configuração.
      */
-    private function fileCheckExtension(){
-        $parameters = $this->file->parameters;
+    private static function fileCheckExtension(){
+        $parameters = self::$file->parameters;
         $folder = GALASTRI["folders"]["root"];
-        $path = $this->route->path;
+        $path = Route::path();
         $path = $path === "/" ? "/" : "$path/";
         
-        $this->file->path = $folder.$path.$parameters;
+        self::$file->path = $folder.$path.$parameters;
         
         if(sizeof(explode(".", $parameters))>=2){
-            $this->file->extension = lower(array_slice(explode(".", $parameters), -1, 1)[0]);
+            self::$file->extension = lower(array_slice(explode(".", $parameters), -1, 1)[0]);
         } else {
-            $this->debug->error("FILE003")->print();
+           Debug::error("FILE003")::print();
         }
-        return $this;
+        return __CLASS__;
     }
 
     /**
      * Verifica se o tipo MIME foi definido para a extensão.
      */
-    private function fileCheckContentType(){
-        $extension = $this->file->extension;
+    private static function fileCheckContentType(){
+        $extension = self::$file->extension;
         $contentType = GALASTRI["contentType"];
         
         if(!array_key_exists($extension, $contentType)){
-            $this->debug->error("FILE001", $extension)->print();
+           Debug::error("FILE001", $extension)::print();
         }
-        return $this;
+        return __CLASS__;
     }
     
     /**
      * Verifica se o arquivo requisitado existe.
      */
-    private function fileCheckExists(){
-        $path = $this->file->path;
+    private static function fileCheckExists(){
+        $path = self::$file->path;
         
         if(!is_file($path)){
-            $this->debug->error("FILE004", $path)->print();
+           Debug::error("FILE004", $path)::print();
         }
     }
     
@@ -264,7 +266,7 @@ trait File {
      * o status de offline. Aqui foi reaproveitado o método da view, pois o teste é exatamente
      * o mesmo.
      */
-    private function fileCheckOffline(){
-        return $this->viewCheckOffline();
+    private static function fileCheckOffline(){
+        return self::viewCheckOffline();
     }
 }

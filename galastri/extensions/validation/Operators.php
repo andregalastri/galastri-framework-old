@@ -6,6 +6,7 @@
  * método corresponde a um operador relacional.
  */
 namespace galastri\extensions\validation;
+use       galastri\core\Chain;
 
 trait Operators {
     /**
@@ -28,7 +29,6 @@ trait Operators {
     public function diff    ($delimiter, $optional = FALSE) { $this->operatorChain("diff",    $delimiter, "!=", $optional); return $this; }
     public function equal   ($delimiter, $optional = FALSE) { $this->operatorChain("equal",   $delimiter, "==", $optional); return $this; }
 
-    
     /**
      * Método que cria o elo na corrente com o operador. Todo os operadores utilizam os mesmos
      * comandos, por isso optou-se por criar um comando único que pode ser reaproveitado por
@@ -43,7 +43,7 @@ trait Operators {
      * @param mixed $optional          Atributo opcional.
      */
     private function operatorChain($name, $delimiter, $operator, $optional){
-        $this->chain->create(
+        Chain::create(
             $name,
             [
                 "name"      => $name,
@@ -52,7 +52,7 @@ trait Operators {
                 "optional"  => $optional,
                 "attach"    => TRUE,
             ],
-            (function($chainData, $data){ return $this->chain->resolve($chainData, $data); })
+            (function($chainData, $data){ return Chain::resolve($chainData, $data); })
         );
     }
 }

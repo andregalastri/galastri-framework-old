@@ -10,7 +10,10 @@
 namespace galastri\core;
 
 class Chain {
-    private $links;
+    private static $links = [];
+    
+    /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
+    private function __construct(){}
     
     /**
      * Método que cria um elo na corrente.
@@ -21,13 +24,12 @@ class Chain {
      * 
      * @param function $function       A função que será armazenada.
      */
-    public function create($name, $data, $function){
-        $this->links[]     =  [
+    public static function create($name, $data, $function){
+        self::$links[]     =  [
             "name"        => $name,
             "data"        => $data,
             "function"    => $function,
         ];
-        
     }
     /**
      * Método que resolve uma corrente. A resolução ocorre na ordem de uma pilha, ou seja, a
@@ -41,29 +43,29 @@ class Chain {
      *                                 função a qual pertencem e, se necessário, para serem
      *                                 repassados para os parâmetros da corrente.
      */
-    public function resolve($chainData = FALSE, $data = FALSE){
-        $chain = $this->pop();
+    public static function resolve($chainData = FALSE, $data = FALSE){
+        $chain = self::pop();
 
         if($chain !== NULL){
             if($chain["data"]["attach"]){
                 $chainData[] = $chain["data"];
             }
-            return     $chain["function"]($chainData, $chain["data"]);
+            return $chain["function"]($chainData, $chain["data"]);
         }
     }
     
     /**
      * Método que checa se existem elos na corrente.
      */
-    public    function hasLinks(){
-        return !empty($this->links);
+    public static function hasLinks(){
+        return !empty(self::$links);
     }
     
     /**
      * Método que desempilha um elo da corrente.
      */
-    private function pop(){
-        $last = array_pop($this->links);
+    private static function pop(){
+        $last = array_pop(self::$links);
         return $last;
     }
 }

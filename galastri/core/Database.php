@@ -41,37 +41,26 @@
  */
 namespace galastri\core;
 
-class Database extends Composition {
+class Database {
     private $conn;
     private $pdo;
     private $result;
     private $pagination;
 
     /**
-     * Este microframework se utiliza de composição como forma de trabalhar com reutilização de
-     * códigos, já que o PHP não permite heranças múltiplas. Mais informações no arquivo
-     * core\Composition.php.
-     */
-    private function composition(){
-        $this->debug();
-        $this->chain();
-    }
-    
-    /**
      * Quando a instância da classe é criada, alguns atributos são configurados para terem valores
      * padrão.
      */
     public function __construct(){
-        $this->composition();
-        $this->conn                = new \StdClass;
-        $this->conn->status        = FALSE;
+        $this->conn         = new \StdClass;
+        $this->conn->status = FALSE;
         
-        $this->result            = [];
-        $this->pagination        = [];
+        $this->result       = [];
+        $this->pagination   = [];
         
-        $this->query            = new \StdClass();
-        $this->query->sql        = NULL;
-        $this->query->label        = NULL;
+        $this->query        = new \StdClass();
+        $this->query->sql   = NULL;
+        $this->query->label = NULL;
         
         $this->setDefaultConfig();
     }
@@ -139,10 +128,10 @@ class Database extends Composition {
      */
     private    function beforeTest(){
         if($this->conn->status === FALSE){
-            $this->debug->error("DATABASE001");
+            Debug::error("DATABASE001");
         } else {
             if($this->conn->active){
-                if($this->chain->hasLinks()){
+                if(Chain::hasLinks()){
                     $this->submit();
                 }    
             }
@@ -194,7 +183,7 @@ class Database extends Composition {
 
         /** Este método cria um elo em uma corrente, o que permite que sejam concatenados outros
          * métodos junto a ela. */
-        $this->chain->create(
+        Chain::create(
             "query",
             [
                 "name"        => "query",
@@ -205,7 +194,7 @@ class Database extends Composition {
             (
                 function($chainData, $data){
                     if($this->conn->active){
-                        $this->debug->trace = debug_backtrace()[0];
+                        Debug::trace(debug_backtrace()[0]);
 
                         $this->query->label = $data["label"] === 0 ? "defaultQuery" : $data["label"];
 
@@ -323,7 +312,7 @@ class Database extends Composition {
                                         $this->setPagination($pagLog);
                                         $this->setResult($resultLog);
                                     } else {
-                                        $this->debug->error("DATABASE002", $mainQuery)->print();
+                                        Debug::error("DATABASE002", $mainQuery)->print();
                                     }
                                     break;
                                     
@@ -356,7 +345,7 @@ class Database extends Composition {
                                     break;
                             }
                         }
-                        return $this->chain->resolve($chainData, $data);
+                        return Chain::resolve($chainData, $data);
                     }
                 }
             )
@@ -390,7 +379,7 @@ class Database extends Composition {
      */
     public function bind($field, $value){
         if($this->conn->active){
-            $this->chain->create(
+            Chain::create(
                 "bind",
                 [
                     "name"         => "bind",
@@ -398,7 +387,7 @@ class Database extends Composition {
                     "value"        => $value,
                     "attach"    => TRUE,
                 ],
-                (function($chainData, $data){ return $this->chain->resolve($chainData, $data); })
+                (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
         }
         return $this;
@@ -429,14 +418,14 @@ class Database extends Composition {
      */
     public function bindArray(array $fields){
         if($this->conn->active){
-            $this->chain->create(
+            Chain::create(
                 "bindArray",
                 [
                     "name"   => "bindArray",
                     "fields" => $fields,
                     "attach" => TRUE,
                 ],
-                (function($chainData, $data){ return $this->chain->resolve($chainData, $data); })
+                (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
         }
         return $this;
@@ -466,7 +455,7 @@ class Database extends Composition {
      */
     public function pagination($page, $perPage){
         if($this->conn->active){
-            $this->chain->create(
+            Chain::create(
                 "pagination",
                 [
                     "name"    => "pagination",
@@ -474,7 +463,7 @@ class Database extends Composition {
                     "perPage" => $perPage,
                     "attach"  => TRUE,
                 ],
-                (function($chainData, $data){ return $this->chain->resolve($chainData, $data); })
+                (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
         }
         return $this;
@@ -487,7 +476,7 @@ class Database extends Composition {
      */
     public function submit(){
         if($this->conn->active){
-            return $this->chain->resolve();
+            return Chain::resolve();
         }
     }
     
@@ -565,17 +554,18 @@ class Database extends Composition {
      *                                 método está sendo executado.
      */
     private function propertyResults($label, $property){
-        $this->debug->trace = debug_backtrace()[0];
+        Debug::trace(debug_backtrace()[0]);
+        
         $keys = array_keys($this->$property);
         
         if(isset($this->$property[$label])){
             return $this->$property[$label];
         } else {
             if($label === "galastriDefaultQuery"){
-                $this->debug->error("DATABASE003", $label)->print();
+                Debug::error("DATABASE003", $label)->print();
 
             } else {
-                $this->debug->error("DATABASE004", $label)->print();
+                Debug::error("DATABASE004", $label)->print();
             }
         }
     }

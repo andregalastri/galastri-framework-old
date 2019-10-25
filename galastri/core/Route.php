@@ -7,30 +7,26 @@
  */
 namespace galastri\core;
 
-class Route extends Composition {
-    public  $controller;
-    public  $method;
-    public  $view;
-    public  $parameters;
-    public  $path;
-    public  $title;
-    public  $cache;
-    public  $template;
-    public  $import;
-    public  $renderer;
-    public  $offline;
-    public  $urlString;
-    public  $downloadable;
-    private $inheritanceConfig;
+class Route {
+    private static $cache;
+    private static $controller;
+    private static $method;
+    private static $view;
+    private static $parameters;
+    private static $path;
+    private static $offline;
+    private static $authTag;
+    private static $onAuthFail;
+    private static $urlString;
+    private static $title;
+    private static $template;
+    private static $import;
+    private static $renderer;
+    private static $downloadable;
+    private static $inheritanceConfig;
     
-    /**
-     * Este microframework se utiliza de composição como forma de trabalhar com reutilização de
-     * códigos, já que o PHP não permite heranças múltiplas. Mais informações no arquivo
-     * core/Composition.php.
-     */
-    private function composition(){
-        $this->redirect();
-    }
+    /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
+    private function __construct(){}
     
     /**
      * Este microframework se utiliza de URLs amigaveis para as requisições e navegação entre as
@@ -44,9 +40,11 @@ class Route extends Composition {
      * Como este arquivo possui muitos comandos, a explicação de cada bloco importante de código
      * será feito diretamente junto aos códigos.
      */
-    public function __construct(){
-        $this->composition();
-        
+
+    /**
+     * Método que faz a resolução da URL.
+     */
+    public static function resolve(){
         /** A URL requisitada é armazenada na variável $url, que sofrerá duas modificações. A
          * primeira é a remoção de querystrings, ou seja, tudo o que existir após o sinal de
          * interrogação ? que por ventura estiver na URL.
@@ -62,7 +60,7 @@ class Route extends Composition {
          * O resultado disso é que 'vendas' e 'nova_venda' são parâmetros. Estes valores, portanto
          * serão armazenados em uma array, que é a própria variável $url.
          * 
-         * Também serão utilizadas aqui as rotas configuradas no arquivo config/routes.php.*/
+         * Também serão utilizadas aqui as rotas configuradas no arquivo config/routes.php. */
         $url       = explode("?", lower($_SERVER['REQUEST_URI']));
         $url       = explode("/", $url[0]);
         $routes    = GALASTRI["routes"];
@@ -70,13 +68,12 @@ class Route extends Composition {
 
         /** Quando se trata da index, ou seja, quando nenhum parâmetro é informado na URL através
          * das barras /, pode ocorrer de a variáveis $url armazenar duas chaves vazias. Neste caso
-         * é importante remover uma das chaves vazias.
-         */
+         * é importante remover uma das chaves vazias. */
         if(empty($url[1])) array_shift($url);
         
         /** Todos os valores da array $url serão acrescidas com uma barra / à frente do valor
          * atual. Isso é necessário pois todas as áreas armazenadas nas configurações das rotas
-         * são iniciadas por uma barra.*/
+         * são iniciadas por uma barra. */
         foreach($url as $key => &$routeName) $routeName = "/$routeName";
         unset($routeName);
         
@@ -105,8 +102,8 @@ class Route extends Composition {
          * Cada uma das configurações abaixo são herdáveis seguindo este mesmo princípio. O loop
          * foreach abaixo realiza justamente um teste através do método checkInheritanceData() para
          * se verificar e armazenar valores herdados para todas as áreas e páginas que não
-         * possuirem tal configuração.*/
-        $this->inheritanceConfig    = [
+         * possuirem tal configuração. */
+        self::$inheritanceConfig = [
             "offline"      => FALSE,
             "downloadable" => FALSE,
             "cache"        => FALSE,
@@ -116,7 +113,7 @@ class Route extends Composition {
 
         foreach($url as $routeName){
             if(array_key_exists($routeName, $routes)){
-                $this->checkInheritanceData($routes[$routeName]);
+                self::checkInheritanceData($routes[$routeName]);
                 
                 $routePath .= $routeName;
                 $routes     = $routes[$routeName];
@@ -142,8 +139,7 @@ class Route extends Composition {
          * deverão ser armazenados dentro da variável $parameters.
          * 
          * Tendo os parâmetros armazenados em uma array, verifica-se se o parâmetro 0 possui o
-         * valor de um método. Todo método é precedido de um arroba @.
-          */
+         * valor de um método. Todo método é precedido de um arroba @. */
         $urlString  = "/".ltrim(implode($url), "/");
         $routePath  = "/".ltrim($routePath, "/");
         $parameters = explode("/", ltrim(replaceOnce($routePath, "", $urlString), "/"));
@@ -155,14 +151,14 @@ class Route extends Composition {
          * venha uma página e não um parâmetro. Por isto, esta verificação abaixo testa se a rota
          * está apontando para a index. Caso sim, é verificado se existem parâmetros. Caso sim,
          * é testado se o primeiro parâmetro é igual a uma página (um método). Caso não, então
-         * haverá redirecionamento para uma página de erro 404.*/
+         * haverá redirecionamento para uma página de erro 404. */
         if($routePath === "/" and $routeName !== "/"){
             if(!array_key_exists($routeName, $routes) and !array_key_exists($method, $routes)){
-                $this->redirect->location("error404");
+               Redirect::location("error404");
             }
         }
 
-        /** Verifica se o método existe na rota. Caso não, então o método padrão será o @main.*/
+        /** Verifica se o método existe na rota. Caso não, então o método padrão será o @main. */
         $method = array_key_exists($method, $routes) ? $method : "@main";
         $method = $method === "@" ? "" : $method;
 
@@ -171,9 +167,9 @@ class Route extends Composition {
          * nada mais é do que a classe que contém os métodos e a view, que é configurada mesmo
          * que o renderizador seja outro.
          * 
-         * Caso contrário, então método, view e controller serão vazios.*/
+         * Caso contrário, então método, view e controller serão vazios. */
         if(array_key_exists($method, $routes)){
-            $this->checkInheritanceData($routes[$method]);
+            self::checkInheritanceData($routes[$method]);
             
             $controller = $routePath === "/"  ? "/index" : $routePath;
             $view       = $method === "@main" ? "$controller.php" : "$controller/".ltrim("$method.php", "@");
@@ -194,7 +190,7 @@ class Route extends Composition {
         
         /** A rota é armazenada na variável $route e contém todos os dados processados até aqui.
          * Caso se tenha configurado uma view e/ou um controller diretamente na rota, estes são
-         * removidos da array.*/
+         * removidos da array. */
         $route = keyExists($method, $routes, $routes);
         
         if(!empty(array_filter($route))){
@@ -202,31 +198,49 @@ class Route extends Composition {
             unset($route["view"]);
         }
         
-        /** Abaixo, cada um dos dados processados são armazenados em atributos de uma classe
-         * StdClass que será a forma como estes dados serão utilizados nas outras partes do
-         * microframwork.*/
-        if($this->inheritanceConfig["cache"] === FALSE){
-            $this->cache = GALASTRI["cache"];
+        /** Abaixo, cada um dos dados processados são armazenados em atributos. Estes atributos
+         * serão acessíveis através de métodos getters com o mesmo nome dos atributos. */
+        if(self::$inheritanceConfig["cache"] === FALSE){
+            self::$cache = GALASTRI["cache"];
         } else {
-            $cache = $this->inheritanceConfig["cache"];
-            $this->cache["status"] = keyExists("status", $cache, GALASTRI["cache"]["status"]);
-            $this->cache["expire"] = keyExists("expire", $cache, GALASTRI["cache"]["expire"]);
+            $cache = self::$inheritanceConfig["cache"];
+            self::$cache["status"] = keyExists("status", $cache, GALASTRI["cache"]["status"]);
+            self::$cache["expire"] = keyExists("expire", $cache, GALASTRI["cache"]["expire"]);
         }
-        $this->controller   = $controller;
-        $this->method       = ltrim($method,"@");
-        $this->view         = $view;
-        $this->parameters   = $parameters;
-        $this->path         = $routePath;
-        $this->offline      = $this->inheritanceConfig["offline"];
-        $this->authTag      = $this->inheritanceConfig["authTag"];
-        $this->onAuthFail   = keyExists("onAuthFail", $route, $this->inheritanceConfig["onAuthFail"]);
-        $this->urlString    = $urlString;
-        $this->title        = keyExists("title", $route, "");
-        $this->template     = keyExists("template", $route, []);
-        $this->import       = keyExists("import", $route, []);
-        $this->renderer     = keyExists("renderer", $route, FALSE);
-        $this->downloadable = $this->inheritanceConfig["downloadable"];
+        self::$controller   = $controller;
+        self::$method       = ltrim($method,"@");
+        self::$view         = $view;
+        self::$parameters   = $parameters;
+        self::$path         = $routePath;
+        self::$offline      = self::$inheritanceConfig["offline"];
+        self::$authTag      = self::$inheritanceConfig["authTag"];
+        self::$onAuthFail   = keyExists("onAuthFail", $route, self::$inheritanceConfig["onAuthFail"]);
+        self::$urlString    = $urlString;
+        self::$title        = keyExists("title", $route, "");
+        self::$template     = keyExists("template", $route, []);
+        self::$import       = keyExists("import", $route, []);
+        self::$renderer     = keyExists("renderer", $route, FALSE);
+        self::$downloadable = self::$inheritanceConfig["downloadable"];
     }
+    
+    /**
+     * Métodos getters para recuperar o conteúdo dos atributos.
+     */
+    public static function cache()       { return self::$cache; }
+    public static function controller()  { return self::$controller; }
+    public static function method()      { return self::$method; }
+    public static function view()        { return self::$view; }
+    public static function parameters()  { return self::$parameters; }
+    public static function path()        { return self::$path; }
+    public static function offline()     { return self::$offline; }
+    public static function authTag()     { return self::$authTag; }
+    public static function onAuthFail()  { return self::$onAuthFail; }
+    public static function urlString()   { return self::$urlString; }
+    public static function title()       { return self::$title; }
+    public static function template()    { return self::$template; }
+    public static function import()      { return self::$import; }
+    public static function renderer()    { return self::$renderer; }
+    public static function downloadable(){ return self::$downloadable; }
     
     /**
      * Método responsável por verificar se existem configurações herdáveis. Caso sim, então a
@@ -234,8 +248,8 @@ class Route extends Composition {
      * 
      * @param string $routeArray       Armazena a array com os dados da área a ser verificada.
      */
-    private function checkInheritanceData($routeArray){
-        foreach($this->inheritanceConfig as $config => &$value){
+    private static function checkInheritanceData($routeArray){
+        foreach(self::$inheritanceConfig as $config => &$value){
             if(array_key_exists($config, $routeArray)){
                 $value = $routeArray[$config];
             }

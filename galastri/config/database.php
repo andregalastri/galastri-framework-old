@@ -24,10 +24,10 @@
 return [
     "driver"        => "mysql",
     "active"        => TRUE,
-    "host"          => "",
-    "database"      => "",
-    "user"          => "",
-    "password"      => "",
+    "host"          => "localhost",
+    "database"      => "test",
+    "user"          => "phpmyadmin",
+    "password"      => "phpmyadmin",
     
     "options"       => [
         PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
