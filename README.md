@@ -23,5 +23,6 @@ Este microframework PHP 7 MVC orientado a objetos está sendo usado para estudo 
 ### [Implementações futuras](https://github.com/andregalastri/galastri-framework/issues/2)
 
 ### Log de atualizações
-- **25/10/2019**: Versão 0.5 Alpha. Aplicado padrão Singleton para a classe principal Galastri e componentes Authentication, Chain, Debug, Permission, Redirect e Route.
+- **05/11/2019**: Versão 0.42 Alpha. Melhorado sistema de parâmetros para rotas. Agora é possível definir rótulos aos parâmetros, recuperar estes parâmetros na controller através destes rótulos e obrigar a URL a contê-los ou não, dependendo da configuração.
+- **25/10/2019**: Versão 0.41 Alpha. Aplicado padrão Singleton para a classe principal Galastri e componentes Authentication, Chain, Debug, Permission, Redirect e Route.
 - **21/10/2019**: Versão 0.4 Alpha. Envio inicial.
