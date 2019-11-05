@@ -5,7 +5,7 @@ Microframework PHP 7 simples para estudo e criação de pequenos sistemas WEB.
 - Em breve
 
 ### O que é este projeto
-Este microframework PHP 7 MVC orientado a objetos está sendo usado para estudo pessoal para compreensão mais aprofundada dos fundamentos do PHP e dos padrões de projeto. A ideia é fazer um framework fácil de compreender e bastante leve voltado a pequenos projetos.
+Este microframework PHP 7 MVC orientado a objetos está sendo usado para estudo pessoal para compreensão mais aprofundada dos fundamentos do PHP e dos padrões de projeto. A ideia é fazer um framework fácil de compreender e que dê mais liberdade para o programador fazer as coisas do seu jeito ao mesmo tempo que o direciona, como um guia.
 
 ### Principais funcionalidades
 - Conexão com banco de dados facilitada;
