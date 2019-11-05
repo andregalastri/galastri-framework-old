@@ -2,7 +2,7 @@
 /**
  * - DenyFalse.php -
  * 
- * Validador usado pela classe Validation que verifica se o dado é FALSE. Caso seja, então será
+ * Validador usado pela classe Validation que verifica se o dado é false. Caso seja, então será
  * retornado erro.
  * 
  * Forma de uso (o comando abaixo não se trata de um exemplo):
@@ -13,24 +13,28 @@
  *         ->execute();
  */
 namespace galastri\extensions\validation;
-use       galastri\core\Chain;
-use       galastri\core\Debug;
 
-trait DenyFalse {
+use galastri\core\Chain;
+use galastri\core\Debug;
+
+trait DenyFalse
+{
     /**
-     * Método que verifica se o dado é FALSE.
+     * Método que verifica se o dado é false.
      */
-    public function denyFalse(){
+    public function denyFalse()
+    {
         $this->beforeTest();
         
         Chain::create(
             "denyFalse",
             [
                 "name"   => "denyFalse",
-                "attach" => TRUE,
+                "attach" => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
 
                     $data  = end($chainData);
@@ -38,7 +42,7 @@ trait DenyFalse {
 
                     if(!$error){
                         $testValue = $this->validation->value;
-                        $error     = $testValue === FALSE ? TRUE : FALSE;
+                        $error     = $testValue === false ? true : false;
 
                         if($error){
                             $errorLog["error"]       = $error;

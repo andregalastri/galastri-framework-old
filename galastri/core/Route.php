@@ -7,7 +7,8 @@
  */
 namespace galastri\core;
 
-class Route {
+class Route
+{
     private static $cache;
     private static $controller;
     private static $method;
@@ -44,7 +45,8 @@ class Route {
     /**
      * Método que faz a resolução da URL.
      */
-    public static function resolve(){
+    public static function resolve()
+    {
         /** A URL requisitada é armazenada na variável $url, que sofrerá duas modificações. A
          * primeira é a remoção de querystrings, ou seja, tudo o que existir após o sinal de
          * interrogação ? que por ventura estiver na URL.
@@ -88,13 +90,13 @@ class Route {
          *     ],
          * 
          * Suponha que se queira que todas as páginas de area1 fiquem offline para manutenção.
-         * Ao invés de se colocar uma chave "offline" => TRUE para cada página, pode-se colocar
+         * Ao invés de se colocar uma chave "offline" => true para cada página, pode-se colocar
          * uma única chave dessas logo após a declaração de area1. Esta chave é herdável, ou seja,
          * todas as páginas de area1 também possuirão esta chave o seu respectivo valor, fazendo
          * com que tornar uma área offline fique muito mais prática.
          * 
          *     "/area1" => [
-         *         "offline" => TRUE,
+         *         "offline" => true,
          *         "@pagina_a" => [],
          *         "@pagina_b" => [],
          *     ],
@@ -104,11 +106,11 @@ class Route {
          * se verificar e armazenar valores herdados para todas as áreas e páginas que não
          * possuirem tal configuração. */
         self::$inheritanceConfig = [
-            "offline"      => FALSE,
-            "downloadable" => FALSE,
-            "cache"        => FALSE,
-            "authTag"      => FALSE,
-            "onAuthFail"   => FALSE,
+            "offline"      => false,
+            "downloadable" => false,
+            "cache"        => false,
+            "authTag"      => false,
+            "onAuthFail"   => false,
         ];
 
         foreach($url as $routeName){
@@ -140,10 +142,12 @@ class Route {
          * 
          * Tendo os parâmetros armazenados em uma array, verifica-se se o parâmetro 0 possui o
          * valor de um método. Todo método é precedido de um arroba @. */
-        $urlString  = "/".ltrim(implode($url), "/");
-        $routePath  = "/".ltrim($routePath, "/");
-        $parameters = explode("/", ltrim(replaceOnce($routePath, "", $urlString), "/"));
-        $method     = "@".keyEmpty(0, $parameters, "");
+        $urlString     = "/".ltrim(implode($url), "/");
+        $routePath     = "/".ltrim($routePath, "/");
+        $preParameters = explode("/", ltrim(replaceOnce($routePath, "", $urlString), "/"));
+        $method        = "@".keyEmpty(0, $preParameters, "");
+        
+        $parameters    = [];
 
         /** Da forma como tudo está sendo configurado, tudo o que é considerado um parâmetro é
          * interpretado apenas assim: como um parâmetro. Porém, quando se trata da index, a
@@ -152,16 +156,20 @@ class Route {
          * está apontando para a index. Caso sim, é verificado se existem parâmetros. Caso sim,
          * é testado se o primeiro parâmetro é igual a uma página (um método). Caso não, então
          * haverá redirecionamento para uma página de erro 404. */
-        if($routePath === "/" and $routeName !== "/"){
-            if(!array_key_exists($routeName, $routes) and !array_key_exists($method, $routes)){
-               Redirect::location("error404");
-            }
+        if($routePath !== "/"){
+            /**
+             * Este IF provavelmente será removido, mas deixei aqui por enquanto.
+             */
+//            if(!array_key_exists($routeName, $routes) and !array_key_exists($method, $routes)){
+//               Redirect::location("error404");
+//            }
+            array_shift($preParameters);
         }
 
         /** Verifica se o método existe na rota. Caso não, então o método padrão será o @main. */
         $method = array_key_exists($method, $routes) ? $method : "@main";
         $method = $method === "@" ? "" : $method;
-
+        
         /** Caso o método, seja ele @main ou qualquer outro, esteja configurado nas rotas, então
          * significa que há um controller. Aqui, portanto, é configurado qual é o controller (que
          * nada mais é do que a classe que contém os métodos e a view, que é configurada mesmo
@@ -175,14 +183,38 @@ class Route {
             $view       = $method === "@main" ? "$controller.php" : "$controller/".ltrim("$method.php", "@");
 
             if(array_key_exists("controller", $routes[$method]))    $controller = $routes[$method]["controller"];
-            if(array_key_exists("view",          $routes[$method]))    $view         = $routes[$method]["view"];
+            if(array_key_exists("view",       $routes[$method]))    $view       = $routes[$method]["view"];
+            
+            /**
+             * MELHORAR ESTA PARTE.
+             */
+            foreach(($routes[$method]["parameters"] ?? []) as $key => $label){
+                if($label[0] === "?"){
+                    $label = substr($label, 1, strlen($label));
+                    
+                    if(empty($preParameters[$key])){
+                        $parameters[$label] = null;
+                    } else {
+                        $parameters[$label] = $preParameters[$key];
+                    }
+                } else {
+                    if(empty($preParameters[$key])){
+                        if(GALASTRI["forceParameters"]["status"])
+                            Redirect::location(GALASTRI["forceParameters"]["redirectOnFail"]);
+                        else
+                            $parameters[$label] = false;
+                    } else {
+                        $parameters[$label] = $preParameters[$key];
+                    }
+                }
+            }
 
             $controller = str_replace("/", "\\", $controller);
         } else {
-            $view       = NULL;
-            $controller = NULL;
-            $method     = NULL;
-
+            $view       = null;
+            $controller = null;
+            $method     = null;
+            
             foreach($routes as $option => $value){
                 if(lower(gettype($value)) === "array") unset($routes[$option]);
             }
@@ -200,7 +232,7 @@ class Route {
         
         /** Abaixo, cada um dos dados processados são armazenados em atributos. Estes atributos
          * serão acessíveis através de métodos getters com o mesmo nome dos atributos. */
-        if(self::$inheritanceConfig["cache"] === FALSE){
+        if(self::$inheritanceConfig["cache"] === false){
             self::$cache = GALASTRI["cache"];
         } else {
             $cache = self::$inheritanceConfig["cache"];
@@ -219,7 +251,7 @@ class Route {
         self::$title        = keyExists("title", $route, "");
         self::$template     = keyExists("template", $route, []);
         self::$import       = keyExists("import", $route, []);
-        self::$renderer     = keyExists("renderer", $route, FALSE);
+        self::$renderer     = keyExists("renderer", $route, false);
         self::$downloadable = self::$inheritanceConfig["downloadable"];
     }
     
@@ -248,7 +280,8 @@ class Route {
      * 
      * @param string $routeArray       Armazena a array com os dados da área a ser verificada.
      */
-    private static function checkInheritanceData($routeArray){
+    private static function checkInheritanceData($routeArray)
+    {
         foreach(self::$inheritanceConfig as $config => &$value){
             if(array_key_exists($config, $routeArray)){
                 $value = $routeArray[$config];

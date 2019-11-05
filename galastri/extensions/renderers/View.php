@@ -7,14 +7,19 @@
  * rota da URL, no arquivo config\routes.php.
  */
 namespace galastri\extensions\renderers;
-use       galastri\core\Debug;
-use       galastri\core\Redirect;
-use       galastri\core\Route;
 
-trait View {
+use galastri\core\Debug;
+use galastri\core\Redirect;
+use galastri\core\Route;
+
+trait View
+{
     private static $view;
 
-    private static function viewController(){ return TRUE; }
+    private static function viewController()
+    {
+        return true;
+    }
 
     /**
      * Método principal que faz uma série de testes para verificar se os dados retornados pelo
@@ -30,7 +35,8 @@ trait View {
      * Estando tudo correto, é verificado se a página foi configurada como sendo restrita, ou seja,
      * acessível apenas caso esteja com uma sessão configurada.
      */
-    private static function view(){
+    private static function view()
+    {
         Debug::trace(debug_backtrace()[0]);
         
         self::$view = new \StdClass;
@@ -51,7 +57,8 @@ trait View {
      * retornados pelo controller. P template HTML pode ser montado a partir destes dados, e toda
      * informação processada pode ser exibida.
      */
-    private static function viewCheckObject(){
+    private static function viewCheckObject()
+    {
         $controller = self::$controller;
 
         if(is_object($controller)){
@@ -65,11 +72,12 @@ trait View {
     /**
      * Verifica se o caminho para o arquivo da view foi configurado.
      */
-    private static function viewCheckHasView(){
+    private static function viewCheckHasView()
+    {
         $view = self::$view->view;
         $path = self::$view->path;
 
-        if($path === FALSE){
+        if($path === false){
             Debug::error("VIEW002", $view)::print();
         }
         return __CLASS__;
@@ -92,7 +100,8 @@ trait View {
      * 
      * Este método também configura o título da página, que geralmente é usado entre as tags <title>.
      */
-    private static function viewSetTemplate(){
+    private static function viewSetTemplate()
+    {
         $template = GALASTRI["template"];
 
         $data = self::$view;
@@ -136,7 +145,8 @@ trait View {
     /**
      * Verifica se o arquivo da view existe.
      */
-    private static function viewCheckExists(){
+    private static function viewCheckExists()
+    {
         $view = self::$view->view;
 
         if(!is_file($view)){
@@ -148,15 +158,16 @@ trait View {
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline.
      */
-    private static function viewCheckOffline(){
+    private static function viewCheckOffline()
+    {
         $offline   = Route::offline();
         $urlString = Route::urlString();
         
         if($offline){
-            $url = GALASTRI["urls"]["maintenance"];
-            if($urlString !== $url){
-                Redirect::location($url);
-            }
+            if(isset($offline["redirect"]) and $urlString !== "/")
+                Redirect::location($offline["redirect"]);
+
+            self::printContent($offline["message"] ?? "offline");
         }
         return __CLASS__;
     }

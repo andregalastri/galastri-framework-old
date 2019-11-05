@@ -9,7 +9,8 @@
  */
 namespace galastri\core;
 
-class Chain {
+class Chain
+{
     private static $links = [];
     
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
@@ -24,7 +25,8 @@ class Chain {
      * 
      * @param function $function       A função que será armazenada.
      */
-    public static function create($name, $data, $function){
+    public static function create($name, $data, $function)
+    {
         self::$links[]     =  [
             "name"        => $name,
             "data"        => $data,
@@ -43,10 +45,11 @@ class Chain {
      *                                 função a qual pertencem e, se necessário, para serem
      *                                 repassados para os parâmetros da corrente.
      */
-    public static function resolve($chainData = FALSE, $data = FALSE){
+    public static function resolve($chainData = false, $data = false)
+    {
         $chain = self::pop();
 
-        if($chain !== NULL){
+        if($chain !== null){
             if($chain["data"]["attach"]){
                 $chainData[] = $chain["data"];
             }
@@ -57,14 +60,16 @@ class Chain {
     /**
      * Método que checa se existem elos na corrente.
      */
-    public static function hasLinks(){
+    public static function hasLinks()
+    {
         return !empty(self::$links);
     }
     
     /**
      * Método que desempilha um elo da corrente.
      */
-    private static function pop(){
+    private static function pop()
+    {
         $last = array_pop(self::$links);
         return $last;
     }

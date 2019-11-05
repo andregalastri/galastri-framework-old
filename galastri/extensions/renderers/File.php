@@ -71,13 +71,17 @@
  *   arquivo será exibido normalmente.
  */
 namespace galastri\extensions\renderers;
-use       galastri\core\Debug;
-use       galastri\core\Route;
 
-trait File {
+use galastri\core\Debug;
+use galastri\core\Route;
+
+trait File
+{
     private static $file;
 
-    private static function fileController(){ return FALSE; }
+    private static function fileController(){
+        return false;
+    }
 
     /**
      * Método principal que faz uma série de testes para verificar se os parâmetros informados
@@ -97,7 +101,8 @@ trait File {
      * São configurados diversos cabeçalhos com o intuito de armazenar cache e exibir corretamente
      * o tipo de arquivo requisitado.
      */
-    private static function file(){
+    private static function file()
+    {
        Debug::trace(debug_backtrace()[0]);
 
         self::$file = new \StdClass;
@@ -148,15 +153,15 @@ trait File {
              * sim, então o arquivo deverá ser baixado novamente. Caso o arquivo não tenha sido
              * modificado, então será usado o arquivo em cache. */
             if(self::$file->cache["status"]){
-                $cached = FALSE;
+                $cached = false;
                 if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])){
                     if(time() <= strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])+self::$file->cache["expire"]){
-                        $cached = TRUE;
+                        $cached = true;
                     }
                 }
                 if(isset($_SERVER['HTTP_IF_NONE_MATCH'])){
                     if(str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) != $etag){
-                        $cached = FALSE;
+                        $cached = false;
                     }
                 }
                 if($cached){
@@ -180,7 +185,8 @@ trait File {
      * incluem os dados processados e retornados pelo controller. P template HTML pode ser montado
      * a partir destes dados, e toda informação processada pode ser exibida.
      */
-    private static function fileCheckObject(){
+    private static function fileCheckObject()
+    {
         $controller = self::$controller;
 
         if($controller){
@@ -203,7 +209,8 @@ trait File {
     /**
      * Verifica se os parâmetros armazenam valores, para que o caminho do arquivo seja montado.
      */
-    private static function fileCheckPath(){
+    private static function fileCheckPath()
+    {
         $parameters = self::$file->parameters;
 
         if(!empty($parameters)){
@@ -221,7 +228,8 @@ trait File {
      * arquivo config/default.php. Isso é necessário pois a chamada do arquivo irá requerer um
      * tipo MIME e isto precisa estar informado no arquivo de configuração.
      */
-    private static function fileCheckExtension(){
+    private static function fileCheckExtension()
+    {
         $parameters = self::$file->parameters;
         $folder = GALASTRI["folders"]["root"];
         $path = Route::path();
@@ -240,7 +248,8 @@ trait File {
     /**
      * Verifica se o tipo MIME foi definido para a extensão.
      */
-    private static function fileCheckContentType(){
+    private static function fileCheckContentType()
+    {
         $extension = self::$file->extension;
         $contentType = GALASTRI["contentType"];
         
@@ -253,7 +262,8 @@ trait File {
     /**
      * Verifica se o arquivo requisitado existe.
      */
-    private static function fileCheckExists(){
+    private static function fileCheckExists()
+    {
         $path = self::$file->path;
         
         if(!is_file($path)){
@@ -266,7 +276,8 @@ trait File {
      * o status de offline. Aqui foi reaproveitado o método da view, pois o teste é exatamente
      * o mesmo.
      */
-    private static function fileCheckOffline(){
+    private static function fileCheckOffline()
+    {
         return self::viewCheckOffline();
     }
 }

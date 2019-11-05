@@ -13,24 +13,28 @@
  *         ->execute();
  */
 namespace galastri\extensions\validation;
-use       galastri\core\Chain;
-use       galastri\core\Debug;
 
-trait DenyEmpty {
+use galastri\core\Chain;
+use galastri\core\Debug;
+
+trait DenyEmpty
+{
     /**
      * Método que verifica se o dado é vazio.
      */
-    public function denyEmpty(){
+    public function denyEmpty()
+    {
         $this->beforeTest();
         
         Chain::create(
             "denyEmpty",
             [
                 "name"   => "denyEmpty",
-                "attach" => TRUE,
+                "attach" => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
 
                     $error = $this->error->status;
@@ -38,16 +42,16 @@ trait DenyEmpty {
                     if(!$error){
                         $testValue = $this->validation->value;
 
-                        if(!is_bool($testValue) and ($testValue === "" or $testValue === NULL)){
-                            $error = TRUE;
+                        if(!is_bool($testValue) and ($testValue === "" or $testValue === null)){
+                            $error = true;
                         } elseif(is_array($testValue) === 0){
-                            if(count([$testValue])) $error = TRUE;
+                            if(count([$testValue])) $error = true;
                         }
 
                         if($error){
                             $errorLog["error"]       = $error;
                             $errorLog["testName"]    = "denyEmpty";
-                            $errorLog["invalidData"] = NULL;
+                            $errorLog["invalidData"] = null;
                             $errorLog["reason"]      = "empty_is_denied";
 
                             $this->setValidationError($errorLog);

@@ -52,27 +52,31 @@
  *             ->execute();
  */
 namespace galastri\extensions\validation;
-use       galastri\core\Chain;
-use       galastri\core\Debug;
 
-trait Datetime {
+use galastri\core\Chain;
+use galastri\core\Debug;
+
+trait Datetime
+{
     /**
      * Método que verifica se o dado contém uma data válida baseada no formato informado.
      * 
      * @param string $dateFormat       Formato da data. Utiliza-se dos parâmetros de data comuns
      *                                 da classe DateTime do PHP.
      */
-    public function dateTime($dateFormat){
+    public function dateTime($dateFormat)
+    {
         $this->beforeTest();
         Chain::create(
             "dateTime",
             [
                 "name"       => "dateTime",
                 "dateformat" => $dateFormat,
-                "attach"     => TRUE,
+                "attach"     => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
                     $error = $this->error->status;
 
@@ -87,7 +91,7 @@ trait Datetime {
                          * Caso a conversão da data dê errado, ocorrerá um erro. */
                         if(is_object($testValue)){
                             if(get_class($testValue) !== "DateTime"){
-                                $this->executeError (TRUE, "DATETIME_INVALID_OBJECT", $this->debug);
+                                $this->executeError (true, "DATETIME_INVALID_OBJECT", $this->debug);
                             } else {
                                 $testDatetime = $testValue;
                                 $testDatetime->format($dateFormat);
@@ -96,7 +100,7 @@ trait Datetime {
                             $testDatetime = \DateTime::createFromFormat($dateFormat, $testValue);
 
                             if(!empty(array_filter(\DateTime::getLastErrors()))){
-                                $error = TRUE;
+                                $error = true;
                                 $errorLog["reason"] = "invalid_datetime";
                             }
                         }
@@ -133,11 +137,11 @@ trait Datetime {
                                         if(isset($operation)){
                                             foreach($operation as $operator){
                                                 $delimiterValue  = $operator["delimiterValue"];
-                                                $delimiterFormat = $operator["delimiterFormat"] === FALSE ? $dateFormat : $operator["delimiterFormat"];
+                                                $delimiterFormat = $operator["delimiterFormat"] === false ? $dateFormat : $operator["delimiterFormat"];
                                                 
                                                 if(is_object($delimiterValue)){
                                                     if(get_class($delimiterValue) !== "DateTime"){
-                                                        $this->executeError (TRUE, "DATETIME_INVALID_DELIMITER_OBJECT", $this->debug);
+                                                        $this->executeError (true, "DATETIME_INVALID_DELIMITER_OBJECT", $this->debug);
                                                     } else {
                                                         $delimiterDatetime = $delimiterValue;
                                                     }
@@ -152,9 +156,9 @@ trait Datetime {
                                                     preg_match("/$regexFlag/u", $delimiterValue, $matchFlag);
                                                     preg_match("/$regexIncrement/u", $delimiterValue, $matchIncrement);
 
-                                                    $matchDatetime  = empty($matchDatetime)  ? FALSE : trim($matchDatetime[0]);
-                                                    $matchFlag      = empty($matchFlag)      ? FALSE : $matchFlag[0];
-                                                    $matchIncrement = empty($matchIncrement) ? FALSE : $matchIncrement[0];
+                                                    $matchDatetime  = empty($matchDatetime)  ? false : trim($matchDatetime[0]);
+                                                    $matchFlag      = empty($matchFlag)      ? false : $matchFlag[0];
+                                                    $matchIncrement = empty($matchIncrement) ? false : $matchIncrement[0];
 
                                                     if($matchFlag){
                                                         $delimiterDatetime = new \DateTime($delimiterValue);
@@ -163,7 +167,7 @@ trait Datetime {
                                                         $delimiterDatetime = \DateTime::createFromFormat($delimiterFormat, $matchDatetime);
 
                                                         if(!empty(array_filter(\DateTime::getLastErrors()))){
-                                                            $error = TRUE;
+                                                            $error = true;
                                                             $errorLog["reason"] = "invalid_delimiter_datetime";
                                                             break 3;
                                                         } else {
@@ -179,7 +183,7 @@ trait Datetime {
                                                  * retornando seu resultado. */
                                                 if(!$error){
                                                     if(!$this->compare($testDatetime, $operator["operator"], $delimiterDatetime)){
-                                                        $error = TRUE;
+                                                        $error = true;
                                                         $errorLog["reason"] = "datetime_doesnt_passed_the_test";
                                                         break 3;
                                                     }

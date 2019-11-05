@@ -7,7 +7,8 @@
  */
 namespace galastri\core;
 
-class Controller {
+class Controller
+{
     private $authStatus;
     private $data;
     private $title;
@@ -28,7 +29,8 @@ class Controller {
      * 
      * @param object $route            Recebe uma instância da classe Route.
      */
-    public function startController(){
+    public function startController()
+    {
         $this->title        = Route::title();
         $this->view         = Route::view();
         $this->cache        = Route::cache();
@@ -52,7 +54,8 @@ class Controller {
      * Método que retorna um objeto StdClass contendo atributos que armazenam dados processados
      * pelo controller.
      */
-    public function getRendererData(){
+    public function getRendererData()
+    {
         $data               = new \StdClass;
         
         $data->title        = $this->title;
@@ -97,6 +100,38 @@ class Controller {
     protected function getParameters()   { return $this->parameters; }
     protected function getAuthStatus()   { return $this->authStatus; }
     
+    protected function getParameter($parameter)
+    {
+        Debug::trace(debug_backtrace()[0]);
+
+        if(!isset($this->parameters[$parameter])){
+            Debug::error("CONTROLLER004", $parameter)::print();
+        }
+        return $this->parameters[$parameter];
+    }
+    
+    /**
+     * Método que verifica se parâmetros obrigatórios, definidos em config/routes.php, não foram
+     * preenchidos. Caso existam parâmetros não preenchidos, o método retorna false ou, opcionalmente
+     * redireciona para outra URL.
+     * 
+     * @param string $redirect         URL ou alias para onde o usuário será redirecionado.
+     */
+    protected function checkRequiredParameters($redirect = false)
+    {
+        $parameters = $this->parameters;
+        
+        if(array_search(false, $parameters, true)){
+            if($redirect){
+                Redirect::location($redirect);
+            } else {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
     /**
      * Método exclusivo para o renderizador file, usado para quando se quer alterar o caminho do
      * arquivo para um caminho específico. Ideal para arquivos restritos ou que não podem ter o
@@ -104,7 +139,8 @@ class Controller {
      * 
      * @param string $path             Endereço que irá substituir o endereço dos parâmetros.
      */
-    protected function filePath($path){
+    protected function filePath($path)
+    {
         if(Route::renderer() === "file"){
             $this->path       = "";
             $this->parameters = $path;

@@ -64,7 +64,8 @@
  */
 namespace galastri\core;
 
-class Authentication {
+class Authentication
+{
     private static $authTag;
     
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
@@ -75,7 +76,8 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag.
      */
-    public static function setTag($authTag){
+    public static function setTag($authTag)
+    {
         self::$authTag = $authTag;
         return __CLASS__;
     }
@@ -95,7 +97,8 @@ class Authentication {
      * 
      * @param mixed $value             Valor do campo.
      */
-    public static function addField($field, $value){
+    public static function addField($field, $value)
+    {
         if($field === "token" or $field === "ip"){
             Debug::error("AUTH001", $field)::print();
         } else {
@@ -116,8 +119,9 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag que terá os dados armazenados.
      */
-    public static function start($authTag = FALSE){
-        $authTag = $authTag === FALSE ? self::$authTag : $authTag;
+    public static function start($authTag = false)
+    {
+        $authTag = $authTag === false ? self::$authTag : $authTag;
 
         $_SESSION[$authTag]["token"] = base64_encode(random_bytes(48));
         $_SESSION[$authTag]["ip"] = $_SERVER['REMOTE_ADDR'];
@@ -131,11 +135,12 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag que terá os dados atualizados.
      */
-    public static function update($authTag){
+    public static function update($authTag)
+    {
         if(self::check($authTag)){
             self::start($authTag);
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -144,23 +149,25 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag que terá os dados removidos.
      */
-    public static function unset($authTag){
+    public static function unset($authTag)
+    {
         if(self::check($authTag)){
             unset($_SESSION[$authTag]);
-            setcookie($authTag, NULL, time() - 3600);
+            setcookie($authTag, null, time() - 3600);
             unset($_COOKIE[$authTag]);
-            return TRUE;
+            return true;
         }
-        return FALSE;
+        return false;
     }
     
     /**
      * Método que destrói toda a sessão, fazendo com que o usuário seja deslogado de todas as áreas
      * que requerer autenticação.
      */
-    public static function destroy(){
+    public static function destroy()
+    {
         foreach($_SESSION as $key => $value){
-            setcookie($key, NULL, time() - 3600);
+            setcookie($key, null, time() - 3600);
             unset($_COOKIE[$key]);
         }
         session_unset();
@@ -172,7 +179,8 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag que terá os dados recuperados.
      */
-    public static function getData($authTag){
+    public static function getData($authTag)
+    {
         if(self::check($authTag)){
             $session = new \StdClass;
             foreach($_SESSION[$authTag] as $authTag => $value){
@@ -180,7 +188,7 @@ class Authentication {
             }
             return $session;
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -188,7 +196,7 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag que terá os dados validados.
      * 
-     * @param bool $ipCheck            Habilita (TRUE) ou desabilita (FALSE) a verificação de que
+     * @param bool $ipCheck            Habilita (true) ou desabilita (false) a verificação de que
      *                                 o IP do usuário ainda bate com o IP armazenado. Trata-se
      *                                 de uma verificação adicional.
      *                                         
@@ -204,21 +212,22 @@ class Authentication {
      *                                 Por isso não é inesperado que uma autenticação de um
      *                                 usuário seja considerada inválida devido a estes fatores.
      */
-    public static function validate($authTag, $ipCheck = FALSE){
+    public static function validate($authTag, $ipCheck = false)
+    {
         if(self::check($authTag)){
             if($_SESSION[$authTag]["token"] === $_COOKIE[$authTag]){
                 if($ipCheck){
                     if($_SESSION[$authTag]["ip"] === $_SERVER['REMOTE_ADDR']){
-                        return TRUE;
+                        return true;
                     } else {
-                        return FALSE;
+                        return false;
                     }
                 } else {
-                    return TRUE;
+                    return true;
                 }
             }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -228,14 +237,15 @@ class Authentication {
      * 
      * @param string $authTag          Nome da tag que será verificada.
      */
-    private static function check($authTag){
+    private static function check($authTag)
+    {
         if(session_status() === PHP_SESSION_NONE){
-            return FALSE;
+            return false;
         }
 
         if(!isset($_SESSION[$authTag]["token"])){
-            return FALSE;
+            return false;
         }
-        return TRUE;
+        return true;
     }
 }

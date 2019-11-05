@@ -19,12 +19,25 @@
  * Todas as outras áreas e páginas podem ter quaisquer nomes especificados, desde que se defina
  * se são classes (/) ou métodos (@).
  * 
+ * Métodos podem conter parâmetros definidos na barra de endereços que funcionam como querystrings.
+ * Por exemplo:
+ * 
+ *      dominio.com/pagina/param0/param1
+ * 
+ * Para isto, é necessário configurar um parâmetro chamado parameters, que é descrito no tópico
+ * PARÂMETROS PARA MÉTODOS.
+ * 
  * - PARÂMETROS PARA CLASSES OU MÉTODOS -
- * renderer          (string) Indica um renderizador para a área ou método. Os padrões são "view"
- *                   "json" e "file".
+ * renderer          (string) Indica um renderizador para a área ou método. Os padrões são view
+ *                   json e file.
  *                             
- * offline           (bool) Opcional. Indica se a área ou método está offline. Esta configuração
- *                   afeta todos as áreas e métodos filhos.
+ * offline           (array) Opcional. Quando definido, indica que a área ou método está offline.
+ *                   Esta configuração afeta todos as áreas e métodos filhos.
+ * 
+ *   redirect        (string) Opcional. Redireciona para uma URL. Não funciona nao renderizador
+ *                   json.
+ * 
+ *   message         (string) Opcional. Exibe uma mensagem.
  *                             
  * authTag           (string) Opcional. Indica que a área ou método requer autenticação ativa para
  *                   ser acessada. É necessário especificar um nome que servirá como tag de acesso
@@ -72,18 +85,35 @@
  * 
  * downloadable      (bool) Opcional. Força a página a ser baixada. É usada principalmente para
  *                   fazer com que arquivos, imagens e documentos sejam baixaveis.
+ * 
+ * parameters        (array) Opcional. Define rótulos para parâmetros passados via URL. Os parâmetros
+ *                   são definidos pela ordem. Por exemplo dominio.com/pagina/param0/param1. No
+ *                   caso, o índice 0 desta array refere-se ao param0, o índice 1 refere-se ao
+ *                   param1, e assim sucessivamente. Cada índice da array refere-se, portanto a um
+ *                   parâmetro definido a cada barra / usada na URL.
+ *                   
+ *                   Por padrão, parâmetros são obrigatórios. Caso algum parâmetro não seja
+ *                   obrigatório, basta adicionar um símbolo de interrogação ? antes do nome.
+ *                   Exemplo:
+ *                      
+ *                       'parameters' => ['id', '?user'],
+ *                  
+ *                   No exemplo acima, 'id' é um parâmetro obrigatório. Já 'user' é um parâmetro
+ *                   opcional.
+ *                   
+ *                   Estes parâmetros podem ser recuperados na controller através do método
+ *                   $this->getParameter(<nome do parâmetro>);
+ * 
  */
 return [
-    "/" => [
-        "@main"                  => [
-            "renderer"           => "view",
+    '/' => [
+        '@main'                  => [
+            'renderer'           => 'view',
         ],
         
-        "@pagina_nao_encontrada" => [
-            "renderer"           => "view",
-            "view"               => "pagina_nao_encontrada.php",
+        '@pagina_nao_encontrada' => [
+            'renderer'           => 'view',
+            'view'               => 'pagina_nao_encontrada.php',
         ],
     ],
 ];
-
-    

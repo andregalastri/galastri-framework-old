@@ -41,7 +41,8 @@
  */
 namespace galastri\core;
 
-class Database {
+class Database
+{
     private $conn;
     private $pdo;
     private $result;
@@ -51,16 +52,17 @@ class Database {
      * Quando a instância da classe é criada, alguns atributos são configurados para terem valores
      * padrão.
      */
-    public function __construct(){
+    public function __construct()
+    {
         $this->conn         = new \StdClass;
-        $this->conn->status = FALSE;
+        $this->conn->status = false;
         
         $this->result       = [];
         $this->pagination   = [];
         
         $this->query        = new \StdClass();
-        $this->query->sql   = NULL;
-        $this->query->label = NULL;
+        $this->query->sql   = null;
+        $this->query->label = null;
         
         $this->setDefaultConfig();
     }
@@ -79,7 +81,8 @@ class Database {
     /**
      * Método que define as configurações padrão para conexão.
      */
-    public function setDefaultConfig(){
+    public function setDefaultConfig()
+    {
         $this->conn->active   = GALASTRI["database"]["active"];
         $this->conn->driver   = GALASTRI["database"]["driver"];
         $this->conn->host     = GALASTRI["database"]["host"];
@@ -96,7 +99,8 @@ class Database {
      * no arquivo config/database.php ou caso novas configurações sejam definidas diretamente pelos
      * métodos de configuração.
      */
-    public function connect(){
+    public function connect()
+    {
         $active   = $this->conn->active;
         $driver   = $this->conn->driver;
         $host     = $this->conn->host;
@@ -108,7 +112,7 @@ class Database {
         if($active){
             try {
                 $this->pdo = new \PDO("$driver:host=$host;dbname=$database", $user, $password, $options);
-                $this->conn->status = TRUE;
+                $this->conn->status = true;
             } catch (\PDOException $e) {}
         }
         return $this;
@@ -126,8 +130,9 @@ class Database {
      * Método que verifica se existe um elo da corrente ativo antes de executar um novo teste.
      * Caso positivo, a corrente deverá ser resolvida antes da criação de uma nova.
      */
-    private    function beforeTest(){
-        if($this->conn->status === FALSE){
+    private    function beforeTest()
+    {
+        if($this->conn->status === false){
             Debug::error("DATABASE001");
         } else {
             if($this->conn->active){
@@ -178,7 +183,8 @@ class Database {
      * 
      * @param string $label            Rótulo da consulta para ser armazenado individualmente.
      */
-    public function query($queryString, $label = "galastriDefaultQuery"){
+    public function query($queryString, $label = "galastriDefaultQuery")
+    {
         $this->beforeTest();
 
         /** Este método cria um elo em uma corrente, o que permite que sejam concatenados outros
@@ -189,7 +195,7 @@ class Database {
                 "name"        => "query",
                 "queryString" => $queryString,
                 "label"       => $label,
-                "attach"      => TRUE,
+                "attach"      => true,
             ],
             (
                 function($chainData, $data){
@@ -211,7 +217,7 @@ class Database {
                         $resultLog  = [];
 
                         $pagQuery   = $data["queryString"];
-                        $pagStatus  = FALSE;
+                        $pagStatus  = false;
                         $pagLog     = [];
 
                         $queryType  = lower(explode(" ", $mainQuery)[0]);
@@ -221,7 +227,7 @@ class Database {
                          * necessita de uma querystring livre de limitações, já que a paginação
                          * se utiliza, em suma, de um limitador próprio. */
                         preg_match('/limit/', lower($mainQuery), $limitMatch);
-                        $limitMatch = empty($limitMatch[0]) ? FALSE : $limitMatch[0];
+                        $limitMatch = empty($limitMatch[0]) ? false : $limitMatch[0];
 
                         foreach($chainData as $parameter){
                             switch($parameter["name"]){
@@ -234,8 +240,8 @@ class Database {
                                  * bind() ou bindArray() são unificados na variável bindArray().
                                  * 
                                  * Cada um dos valores informados nos binds são verificados, já
-                                 * que valores do tipo NULL precisam ser explicitamente declarados
-                                 * com o parâmetro PDO::PARAM_NULL.*/
+                                 * que valores do tipo null precisam ser explicitamente declarados
+                                 * com o parâmetro PDO::PARAM_null.*/
                                 case "query":
 
                                     if(!$limitMatch and $pagStatus){
@@ -246,9 +252,9 @@ class Database {
                                     $bindArray = array_merge($bind, $bindArray);
 
                                     foreach($bindArray as $key => &$value){
-                                        if($value === NULL){
-                                            $sql->bindParam($key, $value, \PDO::PARAM_NULL);
-                                            $value = NULL;
+                                        if($value === null){
+                                            $sql->bindParam($key, $value, \PDO::PARAM_null);
+                                            $value = null;
                                         }
                                     }
 
@@ -258,7 +264,7 @@ class Database {
                                      * tais resultados precisam ser organizados em uma array
                                      * associativa.
                                      * 
-                                     * A variável/array $resultLog["found"] é definida como TRUE,
+                                     * A variável/array $resultLog["found"] é definida como true,
                                      * para que seja fácil identificar quando a consulta encontra
                                      * ou não resultados.
                                      * 
@@ -270,7 +276,7 @@ class Database {
                                         switch($queryType){
                                             case "select":
                                                 if($sql->rowCount() > 0){
-                                                    $resultLog["found"] = TRUE;
+                                                    $resultLog["found"] = true;
 
                                                     while($found = $sql->fetch(\PDO::FETCH_ASSOC)){
                                                         $resultLog["data"][] = $found;
@@ -287,7 +293,7 @@ class Database {
                                                      * a página atual e a quantidade de resultados
                                                      * por página.*/
                                                     if(!$limitMatch and $pagStatus){
-                                                        $pagLog["status"] = TRUE;
+                                                        $pagLog["status"] = true;
 
                                                         $sql = $this->pdo->prepare(trim($pagQuery));
                                                         $sql->execute($bindArray);
@@ -339,7 +345,7 @@ class Database {
                                     break;
 
                                 case "pagination":
-                                    $pagStatus    = TRUE;
+                                    $pagStatus    = true;
                                     $pagPage      = $parameter["page"];
                                     $pagPerPage   = $parameter["perPage"];
                                     break;
@@ -377,7 +383,8 @@ class Database {
      * @param mixed $value             Valor real a qual o argumento de referência se refere e que
      *                                 será o dado real usado na consulta.
      */
-    public function bind($field, $value){
+    public function bind($field, $value)
+    {
         if($this->conn->active){
             Chain::create(
                 "bind",
@@ -385,7 +392,7 @@ class Database {
                     "name"         => "bind",
                     "field"        => $field,
                     "value"        => $value,
-                    "attach"    => TRUE,
+                    "attach"    => true,
                 ],
                 (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
@@ -416,14 +423,15 @@ class Database {
      * @param array $fields            Armazena os nomes de referência ou números de ocorrência
      *                                 da querystring e seus respectivos valores reais.
      */
-    public function bindArray(array $fields){
+    public function bindArray(array $fields)
+    {
         if($this->conn->active){
             Chain::create(
                 "bindArray",
                 [
                     "name"   => "bindArray",
                     "fields" => $fields,
-                    "attach" => TRUE,
+                    "attach" => true,
                 ],
                 (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
@@ -453,7 +461,8 @@ class Database {
      *                                 serão retornados na consulta.
      * 
      */
-    public function pagination($page, $perPage){
+    public function pagination($page, $perPage)
+    {
         if($this->conn->active){
             Chain::create(
                 "pagination",
@@ -461,7 +470,7 @@ class Database {
                     "name"    => "pagination",
                     "page"    => $page,
                     "perPage" => $perPage,
-                    "attach"  => TRUE,
+                    "attach"  => true,
                 ],
                 (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
@@ -474,7 +483,8 @@ class Database {
      * apenas armazenado. Por isso, o método submit() é necessário, pois é ele que inicia a
      * resolução da corrente executando cada um dos elos armazenados.
      */
-    public function submit(){
+    public function submit()
+    {
         if($this->conn->active){
             return Chain::resolve();
         }
@@ -490,16 +500,17 @@ class Database {
      *                                 seja um INSERT, ou ainda a quantidade de resultados
      *                                 afetados, em qualquer tipo de consulta.
      */
-    private function setResult($result){
+    private function setResult($result)
+    {
         $label                = $this->query->label;
         $this->result[$label] = new \StdClass;
         
         $this->result[$label]->label        = $label;
-        $this->result[$label]->queryType    = keyExists("queryType", $result, FALSE);
-        $this->result[$label]->affectedRows = keyExists("affectedRows", $result, FALSE);
-        $this->result[$label]->found        = keyExists("found", $result, FALSE);
-        $this->result[$label]->data         = keyExists("data", $result, NULL);
-        $this->result[$label]->lastId       = keyExists("lastId", $result, NULL);
+        $this->result[$label]->queryType    = keyExists("queryType", $result, false);
+        $this->result[$label]->affectedRows = keyExists("affectedRows", $result, false);
+        $this->result[$label]->found        = keyExists("found", $result, false);
+        $this->result[$label]->data         = keyExists("data", $result, null);
+        $this->result[$label]->lastId       = keyExists("lastId", $result, null);
     }
     
     /**
@@ -509,16 +520,17 @@ class Database {
      * @param array $result            Armazena a array que retorna os dados de paginação
      *                                 retornados pela consulta de paginação.
      */
-    private function setPagination($result){
+    private function setPagination($result)
+    {
         $label                    = $this->query->label;
         $this->pagination[$label] = new \StdClass;
         
         $this->pagination[$label]->label   = $label;
-        $this->pagination[$label]->status  = keyExists("status", $result, FALSE);
-        $this->pagination[$label]->entries = keyExists("entries", $result, NULL);
-        $this->pagination[$label]->pages   = keyExists("pages", $result, NULL);
-        $this->pagination[$label]->page    = keyExists("page", $result, NULL);
-        $this->pagination[$label]->perPage = keyExists("perPage", $result, NULL);
+        $this->pagination[$label]->status  = keyExists("status", $result, false);
+        $this->pagination[$label]->entries = keyExists("entries", $result, null);
+        $this->pagination[$label]->pages   = keyExists("pages", $result, null);
+        $this->pagination[$label]->page    = keyExists("page", $result, null);
+        $this->pagination[$label]->perPage = keyExists("perPage", $result, null);
     }
     
     /**
@@ -528,7 +540,8 @@ class Database {
      *                                 que armazena o resultado que se quer recuperar. Quando
      *                                 não informado, utiliza o rótulo padrão.
      */
-    public function getResult($label = "galastriDefaultQuery"){
+    public function getResult($label = "galastriDefaultQuery")
+    {
         return $this->propertyResults($label, "result");
     }
     
@@ -539,7 +552,8 @@ class Database {
      *                                 que armazena o resultado que se quer recuperar. Quando
      *                                 não informado, utiliza o rótulo padrão.
      */
-    public function getPagination($label = "galastriDefaultQuery"){
+    public function getPagination($label = "galastriDefaultQuery")
+    {
         return $this->propertyResults($label, "pagination");
     }
     
@@ -553,7 +567,8 @@ class Database {
      * @param string $property         Informa o nome da propriedade que representa qual o
      *                                 método está sendo executado.
      */
-    private function propertyResults($label, $property){
+    private function propertyResults($label, $property)
+    {
         Debug::trace(debug_backtrace()[0]);
         
         $keys = array_keys($this->$property);
@@ -575,9 +590,10 @@ class Database {
      * 
      * @param string $label            Informa o rótulo de consulta utilizado no método query().
      */
-    public function clearResult($label){
-        $this->result[$label]     = NULL;
-        $this->pagination[$label] = NULL;
+    public function clearResult($label)
+    {
+        $this->result[$label]     = null;
+        $this->pagination[$label] = null;
     }
     
     /**
@@ -585,7 +601,8 @@ class Database {
      * 
      * @param string $label            Informa o rótulo de consulta utilizado no método query().
      */
-    public function removeResult($label){
+    public function removeResult($label)
+    {
         $this->clearResult($label);
 
         if($label != "galastriDefaultQuery"){

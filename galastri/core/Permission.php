@@ -98,9 +98,10 @@
  */
 namespace galastri\core;
 
-class Permission {
+class Permission
+{
     private static $groups   = [];
-    private static $resource = NULL;
+    private static $resource = null;
     private static $result   = [];
     
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
@@ -113,7 +114,8 @@ class Permission {
      * @param string $groupName        Nome do grupo, igual como definido nas arrays que armazenam
      *                                 as listas de grupos do site.
      */
-    public static function addGroup($groupName){
+    public static function addGroup($groupName)
+    {
         self::$groups[] = $groupName;
         return __CLASS__;
     }
@@ -125,7 +127,8 @@ class Permission {
      * @param string $groupName        Nome do grupo, igual como definido nas arrays que armazenam
      *                                 as listas de grupos do site.
      */
-    public static function removeGroup($groupName){
+    public static function removeGroup($groupName)
+    {
         unset(self::$groups[$groupName]);
         return __CLASS__;
     }
@@ -158,15 +161,16 @@ class Permission {
      * @param array $groupTags         Array contendo todos os grupos existentes no sistema de
      *                                 permissões.
      */
-    public static function checkGroup($userGroup, $groupTags = GALASTRI["permission"]["groups"]){
+    public static function checkGroup($userGroup, $groupTags = GALASTRI["permission"]["groups"])
+    {
         $groups = self::$groups;
         
         foreach($groups as $groupName){
             if($groupTags[$groupName] === $userGroup){
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -176,7 +180,8 @@ class Permission {
      * @param string $resourceName     Nome do recurso, igual como definido nas arrays que
      *                                 armazenam as listas de recursos do site.
      */
-    public static function setResource($resourceName){
+    public static function setResource($resourceName)
+    {
         self::$resource = $resourceName;
         return __CLASS__;
     }
@@ -212,15 +217,16 @@ class Permission {
      * @param array $resourceTags      Array contendo todos os recursos existentes no sistema de
      *                                 permissões.
      */
-    public static function checkResource($userResources, $resourceTags = GALASTRI["permission"]["resources"]){
+    public static function checkResource($userResources, $resourceTags = GALASTRI["permission"]["resources"])
+    {
         $resource = self::$resource;
         $resourceIds = array_flip($resourceTags);
         
         foreach($userResources as $resourceId){
                 if($resourceIds[$resourceId] === $resource){
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
 }

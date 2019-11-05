@@ -44,7 +44,8 @@ define ("GALASTRI", (
                          require("config/default.php"),
         ["database"   => require("config/database.php")],
         ["routes"     => require("config/routes.php")],
-        ["permission" => require("config/permission.php")]
+        ["permission" => require("config/permission.php")],
+        ["url_alias"  => require("config/url_alias.php")]
     )
 ));
 

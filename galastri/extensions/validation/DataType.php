@@ -13,11 +13,12 @@
  *         ->execute();
  */
 namespace galastri\extensions\validation;
-use       galastri\core\Chain;
-use       galastri\core\Debug;
 
-trait DataType {
-    
+use galastri\core\Chain;
+use galastri\core\Debug;
+
+trait DataType
+{
     /**
      * Método que realiza o teste verificando se o dado testado é do tipo permitido.
      * 
@@ -25,7 +26,8 @@ trait DataType {
      *                                 dos tipos que fazem parte da lista, a validação retorna
      *                                 erro.
      */
-    public function dataType(...$allowedTypes){
+    public function dataType(...$allowedTypes)
+    {
         $this->beforeTest();
         
         Chain::create(
@@ -33,10 +35,11 @@ trait DataType {
             [
                 "name"         => "dataType",
                 "allowedTypes" => is_array($allowedTypes[0]) ? $allowedTypes[0] : $allowedTypes,
-                "attach"       => TRUE,
+                "attach"       => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
                     $error = $this->error->status;
 
@@ -70,8 +73,8 @@ trait DataType {
                         foreach($allowedTypes as &$type) $type = keyExists($type, $dataTypes, $type);
                         unset($type);
                         
-                        $search = array_search(gettype($testValue), $allowedTypes, TRUE);
-                        $error  = $search === FALSE ? TRUE : FALSE;
+                        $search = array_search(gettype($testValue), $allowedTypes, true);
+                        $error  = $search === false ? true : false;
 
                         if($error){
                             $errorLog["error"]       = $error;

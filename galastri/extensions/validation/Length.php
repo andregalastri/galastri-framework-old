@@ -20,21 +20,24 @@
  */
 namespace galastri\extensions\validation;
 
-trait Length {
+trait Length
+{
     /**
      * Método que verifica a quantidade de caracteres do dado.
      */
-    public function length(){
+    public function length()
+    {
         $this->beforeTest();
         
         Chain::create(
             "length",
             [
                 "name"   => "length",
-                "attach" => TRUE,
+                "attach" => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
                     
                     $error = $this->error->status;
@@ -50,7 +53,7 @@ trait Length {
                                 case "length":
                                     foreach($operation as $operator){
                                         if(!$this->compare(strlen($testValue), $operator["operator"], $operator["delimiter"])){
-                                            $error                        = TRUE;
+                                            $error                        = true;
                                             $errorLog["invalidData"]     = strlen($testValue);
                                             $errorLog["reason"]            = "length_".strlen($testValue);
                                             break 3;

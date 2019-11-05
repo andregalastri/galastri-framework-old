@@ -14,7 +14,7 @@
  * semelhante. Numa comparação estrita, estes dois dados são considerados diferentes. Já numa
  * comparação não estrita, estes dados são iguais.
  * 
- * O mesmo ocorre numa comparação entre 0 e FALSE, ou 1 e TRUE.
+ * O mesmo ocorre numa comparação entre 0 e false, ou 1 e true.
  * 
  * Para se definir que a comparação é estrita ou não, basta utilizar um dos métodos de restrição
  * logo após o método shortList(): o método strict() configura a comparação para ser estrita; o
@@ -50,17 +50,20 @@
  *             ->execute();
  */
 namespace galastri\extensions\validation;
-use       galastri\core\Chain;
-use       galastri\core\Debug;
 
-trait ShortList {
+use galastri\core\Chain;
+use galastri\core\Debug;
+
+trait ShortList
+{
     /**
      * Método que verifica se o dado corresponde a um dos itens da lista, não sendo validado caso
      * ele tenha outro valor.
      * 
      * @param mixed $shortList         Lista de valores possíveis que o dado pode possuir.
      */
-    public function shortList(...$shortList){
+    public function shortList(...$shortList)
+    {
         $this->beforeTest();
         
         Chain::create(
@@ -68,10 +71,11 @@ trait ShortList {
             [
                 "name"      => "shortList",
                 "shortList" => is_array($shortList[0]) ? $shortList[0] : $shortList,
-                "attach"    => TRUE,
+                "attach"    => true,
             ],
             (
-                function($chainData, $data) {
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
 
                     $error     = $this->error->status;
@@ -84,26 +88,26 @@ trait ShortList {
                         foreach($chainData as $parameter) {
                             switch($parameter["name"]) {
                                 case "shortList":
-                                    $found = FALSE;
+                                    $found = false;
                                     
                                     foreach($shortList as $delimiter){
                                         switch($strict){
                                             case "notStrict":
                                                 if($testValue ==  $delimiter){
-                                                    $found = TRUE;
+                                                    $found = true;
                                                     break 2;
                                                 }
                                                 break;
                                                 
                                             case "strict":
                                                 if($testValue ===  $delimiter){
-                                                    $found = TRUE;
+                                                    $found = true;
                                                     break 2;
                                                 }
                                                 break;
                                         }
                                     }
-                                    if(!$found) $error = TRUE;
+                                    if(!$found) $error = true;
                                     break;
 
                                 case "strict":    $strict = "strict";    break;

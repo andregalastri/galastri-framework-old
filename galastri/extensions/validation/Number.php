@@ -20,24 +20,27 @@
  */
 namespace galastri\extensions\validation;
 
-trait Number {
+trait Number
+{
     /**
      * Método que verifica se o dado é um número de um tipo específico e permite fazer a comparação
      * deste dado com delimitadores através de métodos de comparação.
      * 
      * @param string $type             Nome do tipo de dado que se espera que o número seja.
      */
-    public function number($type){
+    public function number($type)
+    {
         $this->beforeTest();
         Chain::create(
             "number",
             [
                 "name"   => "number",
                 "type"   => $type,
-                "attach" => TRUE,
+                "attach" => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
 
                     $error = $this->error->status;
@@ -63,7 +66,7 @@ trait Number {
 
                                     if($dataTypes[$type] !== gettype($testValue)){
                                         if(!($dataTypes[$type] === "double" and gettype($testValue) === "integer")){
-                                            $error = TRUE;
+                                            $error = true;
                                             $errorLog["invalidData"] = $testValue;
                                             $errorLog["reason"]      = "number_type";
                                             break 2;
@@ -73,7 +76,7 @@ trait Number {
                                     if(isset($operation)){
                                         foreach($operation as $operator){
                                             if(!$this->compare($testValue, $operator["operator"], $operator["delimiter"])){
-                                                $error = TRUE;
+                                                $error = true;
                                                 $errorLog["invalidData"] = $testValue;
                                                 $errorLog["reason"]      = "number_size";
                                                 break 3;

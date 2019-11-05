@@ -29,7 +29,7 @@
  *                ->execute();
  * 
  * No caso, o validador CharSet irá verificar se $minhaString possui apenas letras ou números. Caso
- * positivo, a validação retorna TRUE, do contrário, retornará FALSE.
+ * positivo, a validação retorna true, do contrário, retornará false.
  * 
  * Um validador pode conter modificadores. O validador CharSet possui um modificador chamado
  * charException(), para caso existam caracteres que são excessão à permissão dada. Por exemplo:
@@ -75,7 +75,8 @@
  */
 namespace galastri\core;
 
-class Validation {
+class Validation
+{
     /**
      * Importação dos validadores.
      * Todos eles foram escritos como sendo traits ao invés de classes.
@@ -91,7 +92,7 @@ class Validation {
      * 
      * denyEmpty        Impede que o dado seja vazio.
      * 
-     * denyFalse        Impede que o dado seja FALSE.
+     * denyFalse        Impede que o dado seja false.
      * 
      * length           Verifica se o dado possui uma determinada quantidade de caracteres.
      * 
@@ -123,7 +124,8 @@ class Validation {
      * O método contruct() define vários atributos padrão e principalmente alguns objetos StdClass
      * que servirão para retornar os dados.
      */
-    public function __construct(){
+    public function __construct()
+    {
         Debug::trace(debug_backtrace()[0]);
 
         $this->charSet             = new \StdClass();
@@ -131,25 +133,25 @@ class Validation {
         $this->onError             = new \StdClass();
 
         $this->validation          = new \StdClass();
-        $this->validation->value   = NULL;
+        $this->validation->value   = null;
         $this->validation->counter = 0;
-        $this->validation->label   = NULL;
+        $this->validation->label   = null;
 
-        $this->validator           = NULL;
+        $this->validator           = null;
 
         $this->error               = new \StdClass();
-        $this->error->status       = FALSE;
-        $this->error->data         = NULL;
-        $this->error->reason       = NULL;
+        $this->error->status       = false;
+        $this->error->data         = null;
+        $this->error->reason       = null;
 
         $this->result              = new \StdClass();
-        $this->result->error       = FALSE;
-        $this->result->label       = NULL;
-        $this->result->message     = NULL;
-        $this->result->testValue   = NULL;
-        $this->result->testName    = NULL;
-        $this->result->invalidData = NULL;
-        $this->result->reason      = NULL;
+        $this->result->error       = false;
+        $this->result->label       = null;
+        $this->result->message     = null;
+        $this->result->testValue   = null;
+        $this->result->testName    = null;
+        $this->result->invalidData = null;
+        $this->result->reason      = null;
     }
     
     /**
@@ -165,14 +167,15 @@ class Validation {
      * 
      * @param int|string $label        Armazena o rótulo identificador do teste.
      */
-    public function validate($testValue, $label = 0){
+    public function validate($testValue, $label = 0)
+    {
         if(Chain::hasLinks()){
             $this->execute();
         }
         
         if(!$this->error->status){
             $this->charSet->case    = "all";
-            $this->onError->message = NULL;
+            $this->onError->message = null;
             
             $this->validation->counter++;
             $this->validation->value = $testValue;
@@ -186,7 +189,8 @@ class Validation {
      * Método que deve ser usado no final da cadeia de testes com o objetivo de executar a última
      * corrente que estiver em aberto.
      */
-    public function execute(){
+    public function execute()
+    {
         return Chain::resolve();
     }
 
@@ -200,13 +204,14 @@ class Validation {
      * @param string $message          Mensagem de texto que será armazenada caso haja falha em
      *                                 algum dos testes.
      */
-    public function onError($message){
+    public function onError($message)
+    {
         Chain::create(
             "onError",
             [
                 "name"    => "onError",
                 "message" => $message,
-                "attach"  => FALSE,
+                "attach"  => false,
             ],
             (
                 function($chainData, $data){
@@ -221,16 +226,17 @@ class Validation {
     /**
      * Método que recupera o resultado da validação.
      */
-    public function getResult(){
+    public function getResult()
+    {
         $result        = new \StdClass();
         $result->error = $this->error->status;
 
-        $result->invalidData = NULL;
-        $result->reason      = NULL;
-        $result->message     = NULL;
-        $result->label       = NULL;
-        $result->value       = NULL;
-        $result->validator   = NULL;
+        $result->invalidData = null;
+        $result->reason      = null;
+        $result->message     = null;
+        $result->label       = null;
+        $result->value       = null;
+        $result->validator   = null;
         
         if($this->error->status){
             $result->invalidData = $this->error->data;
@@ -249,11 +255,12 @@ class Validation {
      * 
      * @param array $testResult        Array contendo informações sobre o erro.
      */
-    private function setValidationError($testResult){
-        $this->error->status = keyExists("error",       $testResult, NULL);
-        $this->validator     = keyExists("testName",    $testResult, NULL);
-        $this->error->data   = keyExists("invalidData", $testResult, NULL);
-        $this->error->reason = keyExists("reason",      $testResult, NULL);
+    private function setValidationError($testResult)
+    {
+        $this->error->status = keyExists("error",       $testResult, null);
+        $this->validator     = keyExists("testName",    $testResult, null);
+        $this->error->data   = keyExists("invalidData", $testResult, null);
+        $this->error->reason = keyExists("reason",      $testResult, null);
 
         throw new \Exception($this->onError->message);
     }
@@ -261,8 +268,8 @@ class Validation {
     /**
      * Método usado antes de cada validador para verificar se o método validade() foi usado antes.
      */
-    private function beforeTest(){
-
+    private function beforeTest()
+    {
         if($this->validation->counter === 0){
            Debug::error("VALIDATION001")::print(); 
         }
@@ -278,7 +285,8 @@ class Validation {
      * 
      * @param mixed $delimiter         Delimitador que será testado junto ao valor.
      */
-    private function compare($value, $operator, $delimiter){
+    private function compare($value, $operator, $delimiter)
+    {
         switch($operator){
             case "=="    :    return    $value == $delimiter;
             case ">"    :    return    $value >  $delimiter;

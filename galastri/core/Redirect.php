@@ -6,7 +6,8 @@
  */
 namespace galastri\core;
 
-class Redirect {
+class Redirect
+{
     /**
      * Método que faz o redirecionamento para uma URL específica ou para um atalho configurado
      * nas configurações do arquivo config/default.php.
@@ -14,14 +15,15 @@ class Redirect {
      * @param string $to               URL para redirecionamento ou o nome da chave com o atalho
      *                                 configurado.
      */
-    public static function location($to = FALSE){
+    public static function location($to = false)
+    {
         Debug::trace(debug_backtrace()[0]);
 
-        if($to === FALSE){
+        if($to === false){
            Debug::error("REDIRECT000")::print();
         } else {
-            if(array_key_exists(lower($to), GALASTRI["urls"])){
-                exit(header("Location: ".GALASTRI["urls"][$to]));
+            if(array_key_exists(lower($to), GALASTRI["url_alias"])){
+                exit(header("Location: ".GALASTRI["url_alias"][$to]));
             } else {
                 exit(header("Location: ".$to));
             }

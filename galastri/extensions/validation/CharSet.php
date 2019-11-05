@@ -55,10 +55,12 @@
  *             ->execute();
  */
 namespace galastri\extensions\validation;
-use       galastri\core\Chain;
-use       galastri\core\Debug;
 
-trait CharSet {
+use galastri\core\Chain;
+use galastri\core\Debug;
+
+trait CharSet
+{
     /**
      * Método validador que cria um elo na corrente de verificações que testa se o dado testado
      * possui um caractere ou conjunto de caracteres configurado. Caso o dado possua algum
@@ -106,7 +108,8 @@ trait CharSet {
      * 
      * @param string $charSet          Caractere, conjunto de caracteres ou tag de predefinição.
      */
-    public function charSet(...$charSet){
+    public function charSet(...$charSet)
+    {
         $this->beforeTest();
         
         Chain::create(
@@ -114,10 +117,11 @@ trait CharSet {
             [
                 "name"    => "charSet",
                 "charSet" => is_array($charSet[0]) ? $charSet[0] : $charSet,
-                "attach"  => TRUE,
+                "attach"  => true,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     Debug::trace(debug_backtrace()[0]);
                     $error   = $this->error->status;
                     $charSet = $data["charSet"];
@@ -152,7 +156,7 @@ trait CharSet {
                                  * de permissão, significa que o dado informado é inválido. */
                                 case "charSet":
                                     if(!empty($finalOutside)){
-                                        $error = TRUE;
+                                        $error = true;
                                         $errorLog["invalidData"] = $finalOutside;
                                         $errorLog["reason"]      = "invalid_char";
                                         break 2;
@@ -199,23 +203,23 @@ trait CharSet {
                                             foreach($operation as $operator){
 
                                                 if(!$this->compare($sum, $operator["operator"], $operator["delimiter"])){
-                                                    $error = TRUE;
+                                                    $error = true;
                                                     $errorLog["invalidData"] = $matchSum;
                                                     $errorLog["reason"]      = "requiared_char_qty_".$operator["delimiter"];
                                                     break 4;
                                                 }
                                             }
                                         }
-                                        $matchSum = NULL;
+                                        $matchSum = null;
 
                                     } else {
-                                        $error = TRUE;
+                                        $error = true;
                                         $errorLog["invalidData"] = $parameter["charSet"];
                                         $errorLog["reason"]      = "required_char";
                                         break 2;
                                     }
 
-                                    $operation = NULL;
+                                    $operation = null;
                                     break;
                                     
                                 /** Verifica o modificador charException que, se estiver definido,
@@ -234,7 +238,7 @@ trait CharSet {
                                     $finalOutside  = array_merge($mainOutside, $exceptInside);
 
                                     if(!empty($exceptInside)){
-                                        $error = TRUE;
+                                        $error = true;
                                         $errorLog["invalidData"] = $finalOutside;
                                         $errorLog["reason"]      = "invalid_char";
                                         break 2;
@@ -294,13 +298,14 @@ trait CharSet {
      * 
      * @param array $charSet           Conjunto de caracteres.
      */
-    private function modifierChain($name, $charSet){
+    private function modifierChain($name, $charSet)
+    {
         Chain::create(
             $name,
             [
                 "name"    => $name,
                 "charSet" => $charSet,
-                "attach"  => TRUE,
+                "attach"  => true,
             ],
             (function($chainData, $data){ return Chain::resolve($chainData, $data); })
         );
@@ -325,16 +330,18 @@ trait CharSet {
      * 
      * @param array $charCase          Definição da obrigatoriedade maiúsculo/minúsculo.
      */
-    private function caseChain($name, $charCase){
+    private function caseChain($name, $charCase)
+    {
         Chain::create(
             $name,
             [
                 "name"     => $name,
                 "charCase" => $charCase,
-                "attach"   => FALSE,
+                "attach"   => false,
             ],
             (
-                function($chainData, $data){
+                function($chainData, $data)
+                {
                     $this->charSet->case = $data["charCase"];
                     return Chain::resolve($chainData, $data); 
                 }
@@ -348,7 +355,8 @@ trait CharSet {
      * 
      * @param array $charSet           Conjunto de caracteres.
      */
-    private function charMatch($charSet){
+    private function charMatch($charSet)
+    {
         $case      = $this->charSet->case;
         $testValue = $this->validation->value;
 

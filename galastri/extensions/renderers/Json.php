@@ -7,13 +7,18 @@
  * URL, no arquivo config\routes.php.
  */
 namespace galastri\extensions\renderers;
-use       galastri\core\Debug;
-use       galastri\core\Route;
 
-trait Json {
+use galastri\core\Debug;
+use galastri\core\Route;
+
+trait Json
+{
     private static $json;
 
-    private static function jsonController(){ return TRUE; }
+    private static function jsonController()
+    {
+        return true;
+    }
 
     /**
      * Método principal que um único teste; verifica se o controller retorna um objeto.
@@ -21,7 +26,8 @@ trait Json {
      * Estando tudo correto, é verificado se a página foi configurada como sendo restrita, ou seja,
      * acessível apenas caso esteja com uma sessão configurada.
      */
-    private static function json(){
+    private static function json()
+    {
         Debug::trace(debug_backtrace()[0]);
         
         self::$json = new \StdClass;
@@ -40,7 +46,8 @@ trait Json {
      * retornados pelo controller. Estes dados serão codificados e exibidos na tela em formato
      * JSON.
      */
-    private static function jsonCheckObject(){
+    private static function jsonCheckObject()
+    {
         $controller = self::$controller;
 
         if(is_object($controller)){
@@ -55,16 +62,19 @@ trait Json {
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline.
      */
-    private static function jsonCheckOffline(){
+    private static function jsonCheckOffline()
+    {
         $offline = Route::offline();
         
         if($offline){
             header('Content-Type: application/json');
             
-            self::printContent(json_encode([
-                "pass" => FALSE,
-                "message" => "maintenance",
-            ]));
+            self::printContent(
+                json_encode([
+                    "pass" => false,
+                    "message" => $offline["message"] ?? "offline",
+                ])
+            );
         }
         return __CLASS__;
     }

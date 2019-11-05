@@ -22,11 +22,9 @@
  *                      tags <title>. O padrão é o título da página seguido do divisor e do nome
  *                      do site.
  * 
- * version              (string) Versão do site. Não tem uma função específica ainda.
- * 
  * timezone             (string) Timezone padrão do site.
  * 
- * debug                (bool) Ativa ou desativa as mensagens de debug quando TRUE ou FALSE. Quando
+ * debug                (bool) Ativa ou desativa as mensagens de debug quando true ou false. Quando
  *                      em produção é importante desativar pois em caso de erros nenhuma mensagem
  *                      de erro interno do servidor é exibida. Isso é importante pois as mensagens
  *                      de erro interno podem exibir informações restritas do servidor.
@@ -72,7 +70,7 @@
  * 
  * offline              (array) Agrupa configurações para desativar o site.
  * 
- *   status             (bool) Ativa ou desativa o site quando TRUE ou FALSE. Ideal para quando
+ *   status             (bool) Ativa ou desativa o site quando true ou false. Ideal para quando
  *                      o for realizar manutenção no site.
  * 
  *   message            (string) Mensagem que será impressa enquanto o site estiver offline.
@@ -80,8 +78,8 @@
  *   redirectTo         (string|null) Quando preenchido, redireciona o usuário para uma página
  *                      específica.
  * 
- *   forceMessage       (bool) Força ou não a exibição da mensagem de status offline quando TRUE
- *                      ou FALSE.
+ *   forceMessage       (bool) Força ou não a exibição da mensagem de status offline quando true
+ *                      ou false.
  * 
  * cache                (array) Configurações de cache para imagens e arquivos.
  * 
@@ -91,70 +89,68 @@
  *   expire             (int) Indica o valor em segundos para expiração do cache.
  */
 return [
-    "title" => [
-        "siteName"       =>     "Galastri Framework",
-        "divisor"        =>     " | ",
-        "template"       =>     ["title", "divisor", "siteName"],
+    'title' => [
+        'siteName'       =>    'Galastri Framework',
+        'divisor'        =>    ' | ',
+        'template'       =>    ['title', 'divisor', 'siteName'],
     ],
     
-    "version"            =>    "0.02",
-    "timezone"           =>    "America/Sao_Paulo",
-    "debug"              =>    TRUE,
+    'timezone'           =>    'America/Sao_Paulo',
     
-    "urls" => [
-        "index"          =>    "/",
-        "error404"       =>    "/pagina_nao_encontrada",
-        "maintenance"    =>    "/manutencao",
-        "forbidden"      =>    "/restrito",
+    'debug'              =>    true,
+    
+    'session'            =>    [
+        'expire'         =>    86400 * 1, /* Sessão expira em 1 dia */
     ],
     
-    "session"            =>    [
-        "expire"         =>    86400 * 1, /* Sessão expira em 1 dia */
+    'template' => [
+        'root'           =>    '../galastri/view/template/template.php',
+        'head'           =>    '../galastri/view/template/head.php',
+        'nav'            =>    '../galastri/view/template/nav.php',
+        'footer'         =>    '../galastri/view/template/footer.php',    
     ],
     
-    "template" => [
-        "root"           =>    "../galastri/view/template/template.php",
-        "head"           =>    "../galastri/view/template/head.php",
-        "nav"            =>    "../galastri/view/template/nav.php",
-        "footer"         =>    "../galastri/view/template/footer.php",    
+    'folders' => [
+        'root'           =>    '../galastri',
+        'controller'     =>    '../galastri/controller',
+        'view'           =>    '../galastri/view',
     ],
     
-    "folders" => [
-        "root"           =>    "../galastri",
-        "controller"     =>    "../galastri/controller",
-        "view"           =>    "../galastri/view",
+    'contentType' => [
+        'jpg'            =>    'image/jpg',
+        'png'            =>    'image/png',
+        'gif'            =>    'image/gif',
+        'ico'            =>    'image/ico',
+        'svg'            =>    'image/svg+xml',
+        'svgf'           =>    'font/svg+xml',
+        'pdf'            =>    'application/pdf',
+        'css'            =>    'text/css',
+        'js'             =>    'application/javascript',
+        'woff2'          =>    'font/woff2',
+        'woff'           =>    'font/woff',
+        'eot'            =>    'font/eot',
+        'ttf'            =>    'font/ttf',
     ],
     
-    "contentType" => [
-        "jpg"            =>    "image/jpg",
-        "png"            =>    "image/png",
-        "gif"            =>    "image/gif",
-        "ico"            =>    "image/ico",
-        "svg"            =>    "image/svg+xml",
-        "svgf"           =>    "font/svg+xml",
-        "pdf"            =>    "application/pdf",
-        "css"            =>    "text/css",
-        "js"             =>    "application/javascript",
-        "woff2"          =>    "font/woff2",
-        "woff"           =>    "font/woff",
-        "eot"            =>    "font/eot",
-        "ttf"            =>    "font/ttf",
+    'importTags'         =>    [
+        'js'             =>    '<script src="%s"></script>',
+        'css'            =>    '<link rel="stylesheet" type="text/css" href="%s">',
     ],
     
-    "importTags"         =>    [
-        "js"             =>    '<script src="%s"></script>',
-        "css"            =>    '<link rel="stylesheet" type="text/css" href="%s">',
+    'offline' => [
+        'status'         =>    false,
+        'message'        =>    'O sistema está em manutenção.',
+        'redirectTo'     =>    'index',
+        'forceMessage'   =>    false,
     ],
     
-    "offline" => [
-        "status"         =>    FALSE,
-        "message"        =>    "O sistema está em manutenção.",
-        "redirectTo"     =>    "maintenance",
-        "forceMessage"   =>    FALSE,
+    'cache'              =>    [
+        'status'         =>    true,
+        'expire'         =>    86400 * 2, /* Cache expira em 2 dias */
     ],
     
-    "cache"              =>    [
-        "status"         =>    TRUE,
-        "expire"         =>    86400 * 2, /* Cache expira em 2 dias */
+    'forceParameters'    =>    [
+        'status'         =>    true,
+        'redirectOnFail' =>    'error404',
     ],
 ];

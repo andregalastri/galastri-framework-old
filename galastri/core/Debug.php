@@ -15,10 +15,11 @@
  */
 namespace galastri\core;
 
-class Debug {
-    private static $message = NULL;
-    private static $error   = FALSE;
-    private static $trace   = FALSE;
+class Debug
+{
+    private static $message = null;
+    private static $error   = false;
+    private static $trace   = false;
     
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
@@ -29,7 +30,8 @@ class Debug {
      * 
      * @param array $trace              Armazena um dos vetores da função debug_backtrace().
      */
-    public static function trace($trace){
+    public static function trace($trace)
+    {
         self::$trace = $trace;
     }
     
@@ -42,7 +44,8 @@ class Debug {
      * @param mixed ...$data            Armazena dados quaisquer que são importantes de serem
      *                                  informados nas mensagens de erro.
      */
-    public static function error($tag, ...$data){
+    public static function error($tag, ...$data)
+    {
         if(!GALASTRI["debug"]){
             self::$message = "<code>OCORREU UM ERRO INTERNO. CONTATE O DESENVOLVEDOR.</code>";
         } else {
@@ -62,28 +65,31 @@ class Debug {
                     </small>
                 </code>";
         }
-        self::$error = TRUE;
+        self::$error = true;
         return __CLASS__;
     }
     
     /**
      * Método que retorna o status atual do atributo $error.
      */
-    public static function getError(){
+    public static function getError()
+    {
         return self::$error;
     }
     
     /**
      * Método que imprime uma mensagem de erro na tela.
      */
-    public static function print(){
+    public static function print()
+    {
         exit(print(self::$message));
     }
     
     /**
      * Método que retorna uma mensagem de erro, podendo ser armazenado em uma variável, por exemplo.
      */
-    public static function return(){
+    public static function return()
+    {
         return strip_tags(self::$message);
     }
     
@@ -97,7 +103,8 @@ class Debug {
      * @param array data                Armazena dados quaisquer que são importantes de serem
      *                                  informados nas mensagens de erro.
      */
-    private static function getMessage($tag, $data){
+    private static function getMessage($tag, $data)
+    {
         switch($tag){
             case "REDIRECT001":   return "Nenhum parâmetro foi informado. É necessário informar uma string contendo uma URL ou uma palavra chave para redirecionamento.";
             
@@ -114,6 +121,7 @@ class Debug {
             case "CONTROLLER001": return "O controller <b>'$data[0]'</b> não existe.";
             case "CONTROLLER002": return "O controller <b>'$data[0]'</b> não possui o método <b>'$data[1]'</b>.";
             case "CONTROLLER003": return "É esperado que o controller retorne um objeto, mas o retorno é um dado do tipo <b>'$data[0]'</b>.";
+            case "CONTROLLER004": return "O parâmetro <b>'$data[0]'</b> não existe. É preciso defini-lo no arquivo <b>'config/routes.php'</b>.";
 
             case "VIEW001":       return "O renderizador <b>'view'</b> não conseguiu localizar o arquivo <b>'$data[0]'</b>.";
             case "VIEW002":       return "A rota <b>'$data[0]'</b> requer uma view configurada no arquivo <b>'config/routes.php'</b>.";
@@ -141,7 +149,7 @@ class Debug {
             case "AUTH001":       return "O nome <b>'$data[0]'</b> é um nome de campo de sessão reservado pelo microframework.";
 
             case "DEFAULT":
-            default:              return FALSE;
+            default:              return false;
         }
     }
 }
