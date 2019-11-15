@@ -20,6 +20,9 @@
  */
 namespace galastri\extensions\validation;
 
+use galastri\core\Chain;
+use galastri\core\Debug;
+
 trait Number
 {
     /**

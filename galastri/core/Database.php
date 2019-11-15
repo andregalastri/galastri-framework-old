@@ -47,6 +47,7 @@ class Database
     private $pdo;
     private $result;
     private $pagination;
+    private $debugStatus;
 
     /**
      * Quando a instância da classe é criada, alguns atributos são configurados para terem valores
@@ -54,19 +55,21 @@ class Database
      */
     public function __construct()
     {
+        $this->debugStatus  = GALASTRI["debug"];
+
         $this->conn         = new \StdClass;
         $this->conn->status = false;
-        
+
         $this->result       = [];
         $this->pagination   = [];
-        
+
         $this->query        = new \StdClass();
         $this->query->sql   = null;
         $this->query->label = null;
-        
+
         $this->setDefaultConfig();
     }
-    
+
     /**
      * Métodos de configuração. Cada parâmetro define uma configuração.
      */
@@ -77,7 +80,7 @@ class Database
     public function setUser($user)         { $this->conn->user     = $user;     return $this; }
     public function setPassword($password) { $this->conn->password = $password; return $this; }
     public function setOptions($options)   { $this->conn->options  = $options;  return $this; }
-    
+
     /**
      * Método que define as configurações padrão para conexão.
      */
@@ -117,7 +120,7 @@ class Database
         }
         return $this;
     }
-    
+
     /**
      * Métodos de transação. Permite a definição de onde uma transação será iniciada e, caso algum
      * erro ocorra durante as consultas SQL, que todas as transações concluídas sejam desfeitas.
@@ -125,12 +128,12 @@ class Database
     public function begin()  { if($this->conn->active) $this->pdo->beginTransaction(); }
     public function cancel() { if($this->conn->active) $this->pdo->rollBack(); }
     public function commit() { if($this->conn->active) $this->pdo->commit(); }
-    
+
     /**
      * Método que verifica se existe um elo da corrente ativo antes de executar um novo teste.
      * Caso positivo, a corrente deverá ser resolvida antes da criação de uma nova.
      */
-    private    function beforeTest()
+    private function beforeTest()
     {
         if($this->conn->status === false){
             Debug::error("DATABASE001");
@@ -142,7 +145,7 @@ class Database
             }
         }
     }
-    
+
     /**
      * Método que faz as consultas SQL. Neste microframework optou-se pela execução das consultas
      * através da digitação completa das querystrings. Ou seja, não existem atalhos prontos para
@@ -221,7 +224,7 @@ class Database
                         $pagLog     = [];
 
                         $queryType  = lower(explode(" ", $mainQuery)[0]);
-                        
+
                         /** Verifica se o termo LIMIT foi usado na querystring. Caso tenha sido,
                          * então a paginação não será executada. Isso ocorre pois a paginação
                          * necessita de uma querystring livre de limitações, já que a paginação
@@ -231,7 +234,7 @@ class Database
 
                         foreach($chainData as $parameter){
                             switch($parameter["name"]){
-                                /** Execução da Query. Caso o LIMIT não esteja definido na própria
+                                    /** Execução da Query. Caso o LIMIT não esteja definido na própria
                                  * querystring e caso o status de paginação seja verdadeiro, então
                                  * é inserido, na consulta principal, um LIMIT baseado nas
                                  * configurações da paginação.
@@ -247,7 +250,7 @@ class Database
                                     if(!$limitMatch and $pagStatus){
                                         $mainQuery .= $pagPerPage ? " LIMIT ".(($pagPage-1)*$pagPerPage).", $pagPerPage" : "";
                                     }
-                                    
+
                                     $sql       = $this->pdo->prepare($mainQuery);
                                     $bindArray = array_merge($bind, $bindArray);
 
@@ -306,9 +309,10 @@ class Database
                                                 }
                                                 break;
 
-                                            /** Caso a consulta seja do tipo INSERT, então é
+                                                /** Caso a consulta seja do tipo INSERT, então é
                                              * armazenado o último ID inserido no banco de dados.*/
                                             case "insert":
+                                                $resultLog["found"] = true;
                                                 $resultLog["lastId"] = $this->pdo->lastInsertId();
                                                 break;
                                         }
@@ -318,11 +322,15 @@ class Database
                                         $this->setPagination($pagLog);
                                         $this->setResult($resultLog);
                                     } else {
-                                        Debug::error("DATABASE002", $mainQuery)->print();
+                                        //                                        if($this->debugStatus){
+                                        //                                            Debug::error("DATABASE002", $mainQuery)::print();
+                                        //                                        }
+                                        $this->setPagination($pagLog);
+                                        $this->setResult([]);
                                     }
                                     break;
-                                    
-                                /** Os casos abaixo fazem o armazenamento dos parâmetros informados
+
+                                    /** Os casos abaixo fazem o armazenamento dos parâmetros informados
                                  * nos métodos que estiverem encadeados na corrente. Cada elo
                                  * resolvido tem funções específicas.
                                  * 
@@ -358,7 +366,7 @@ class Database
         );
         return $this;
     }
-    
+
     /**
      * Método que cria um elo na corrente que armazena argumentos de referência e seu respectivo
      * valor real. Os argumentos de referência podem ser nomeados iniciando-se com dois pontos :
@@ -399,8 +407,8 @@ class Database
         }
         return $this;
     }
-    
-    
+
+
     /**
      * Método que faz a mesma coisa que o método bind(), com a diferença de que ao invés de receber
      * uma array com vários argumentos de referência e seus respectivos valores. O bind() aceita
@@ -438,7 +446,7 @@ class Database
         }
         return $this;
     }
-    
+
     /**
      * Método que cria um elo na corrente contendo dados para criar paginação.
      * 
@@ -477,7 +485,7 @@ class Database
         }
         return $this;
     }
-    
+
     /**
      * Método que faz a resolução dos elos da corrente. Cada um dos elos criados não é executado,
      * apenas armazenado. Por isso, o método submit() é necessário, pois é ele que inicia a
@@ -489,7 +497,7 @@ class Database
             return Chain::resolve();
         }
     }
-    
+
     /**
      * Método que armazena os resultados da consulta em um objeto StdClass que será acessível
      * através do método getResult().
@@ -504,7 +512,7 @@ class Database
     {
         $label                = $this->query->label;
         $this->result[$label] = new \StdClass;
-        
+
         $this->result[$label]->label        = $label;
         $this->result[$label]->queryType    = keyExists("queryType", $result, false);
         $this->result[$label]->affectedRows = keyExists("affectedRows", $result, false);
@@ -512,7 +520,7 @@ class Database
         $this->result[$label]->data         = keyExists("data", $result, null);
         $this->result[$label]->lastId       = keyExists("lastId", $result, null);
     }
-    
+
     /**
      * Método que armazena os resultados de paginação em um objeto StdClass que será acessível
      * através do método getPagination().
@@ -524,15 +532,15 @@ class Database
     {
         $label                    = $this->query->label;
         $this->pagination[$label] = new \StdClass;
-        
-        $this->pagination[$label]->label   = $label;
+
+        //        $this->pagination[$label]->label   = $label;
         $this->pagination[$label]->status  = keyExists("status", $result, false);
         $this->pagination[$label]->entries = keyExists("entries", $result, null);
         $this->pagination[$label]->pages   = keyExists("pages", $result, null);
         $this->pagination[$label]->page    = keyExists("page", $result, null);
         $this->pagination[$label]->perPage = keyExists("perPage", $result, null);
     }
-    
+
     /**
      * Recupera os resultados de consulta.
      * 
@@ -544,7 +552,7 @@ class Database
     {
         return $this->propertyResults($label, "result");
     }
-    
+
     /**
      * Recupera os resultados de paginação.
      * 
@@ -556,7 +564,7 @@ class Database
     {
         return $this->propertyResults($label, "pagination");
     }
-    
+
     /**
      * Este método é chamado quando algum dos métodos getResult() ou getPagination() é executado.
      * Como ambos executam comandos idênticos, optou-se por definir um bloco de comandos único que
@@ -570,21 +578,21 @@ class Database
     private function propertyResults($label, $property)
     {
         Debug::trace(debug_backtrace()[0]);
-        
+
         $keys = array_keys($this->$property);
-        
+
         if(isset($this->$property[$label])){
             return $this->$property[$label];
         } else {
             if($label === "galastriDefaultQuery"){
-                Debug::error("DATABASE003", $label)->print();
+                Debug::error("DATABASE003", $label)::print();
 
             } else {
-                Debug::error("DATABASE004", $label)->print();
+                Debug::error("DATABASE004", $label)::print();
             }
         }
     }
-    
+
     /**
      * Método que limpa os dados armazenados em um rótulo.
      * 
@@ -595,7 +603,7 @@ class Database
         $this->result[$label]     = null;
         $this->pagination[$label] = null;
     }
-    
+
     /**
      * Método que elimina um rótulo e, consequentemente, todos seus dados.
      * 

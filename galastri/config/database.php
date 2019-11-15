@@ -24,8 +24,8 @@
 return [
     "driver"        => "mysql",
     "active"        => true,
-    "host"          => "",
-    "database"      => "",
+    "host"          => "localhost",
+    "database"      => "test",
     "user"          => "",
     "password"      => "",
     

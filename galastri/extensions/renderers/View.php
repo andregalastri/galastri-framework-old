@@ -38,19 +38,19 @@ trait View
     private static function view()
     {
         Debug::trace(debug_backtrace()[0]);
-        
+
         self::$view = new \StdClass;
-        
+
         self::viewCheckObject()
             ::viewCheckHasView()
-            ::viewSetTemplate()
-            ::viewCheckExists();
-        
+                ::viewSetTemplate()
+                    ::viewCheckExists();
+
         self::$view = self::checkAuth(self::$view);
-        
+
         self::requireContent(self::$view, self::$view->template["root"]);
     }
-    
+
     /**
      * Verifica se o controller é um objeto. Caso seja, então é chamado o método getRendererData()
      * que trás uma StdClass com uma série de atributos que incluem os dados processados e
@@ -68,7 +68,7 @@ trait View
         }
         return __CLASS__;
     }
-    
+
     /**
      * Verifica se o caminho para o arquivo da view foi configurado.
      */
@@ -106,14 +106,14 @@ trait View
 
         $data = self::$view;
         $import = $data->import;
-        
+
         /** Configuração do template. */
         if(!empty($data->template)){
             foreach($data->template as $key => $value){
-                $template[$key] = keyExists($key, $data->template["parts"], $value);
+                $template[$key] = keyExists($key, $data->template, $value);
             }
         }
-        
+
         /** Configuração dos arquivos adicionais. */
         if(!empty($data->import)){
             $import = [];
@@ -153,7 +153,7 @@ trait View
             Debug::error("VIEW001", $view)::print();
         }
     }
-    
+
     /**
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline.
@@ -162,7 +162,7 @@ trait View
     {
         $offline   = Route::offline();
         $urlString = Route::urlString();
-        
+
         if($offline){
             if(isset($offline["redirect"]) and $urlString !== "/")
                 Redirect::location($offline["redirect"]);

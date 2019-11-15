@@ -36,8 +36,8 @@ trait Json
         
         self::$json = self::checkAuth(self::$json);
 
-        header('Content-Type: application/json');
-        self::printContent(json_encode(self::$json->data));
+//        header('Content-Type: application/json');
+        self::printContent(json_encode(self::$json->data[0]));
     }
     
     /**

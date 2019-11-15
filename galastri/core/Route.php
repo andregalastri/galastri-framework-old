@@ -12,6 +12,8 @@ class Route
     private static $cache;
     private static $controller;
     private static $method;
+    private static $routes;
+    private static $baseFolder;
     private static $view;
     private static $parameters;
     private static $path;
@@ -25,10 +27,10 @@ class Route
     private static $renderer;
     private static $downloadable;
     private static $inheritanceConfig;
-    
+
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-    
+
     /**
      * Este microframework se utiliza de URLs amigaveis para as requisições e navegação entre as
      * páginas. Por conta disso, toda URL sofre um tratamento de forma a impedir o comportamento
@@ -72,13 +74,13 @@ class Route
          * das barras /, pode ocorrer de a variáveis $url armazenar duas chaves vazias. Neste caso
          * é importante remover uma das chaves vazias. */
         if(empty($url[1])) array_shift($url);
-        
+
         /** Todos os valores da array $url serão acrescidas com uma barra / à frente do valor
          * atual. Isso é necessário pois todas as áreas armazenadas nas configurações das rotas
          * são iniciadas por uma barra. */
         foreach($url as $key => &$routeName) $routeName = "/$routeName";
         unset($routeName);
-        
+
         /** Aqui estão listados quais configurações da área pai, configurada em config/routes.php,
          * são herdáveis pelas áreas e paǵinas filhas.
          * 
@@ -116,12 +118,12 @@ class Route
         foreach($url as $routeName){
             if(array_key_exists($routeName, $routes)){
                 self::checkInheritanceData($routes[$routeName]);
-                
+
                 $routePath .= $routeName;
                 $routes     = $routes[$routeName];
             }
         }
-        
+
         /** A URL tratada será armazenada na variável $urlString em formato de string e será usada
          * posteriormente para se criar os parâmetros internos no microframework. Ela armazenará
          * o caminho completo da URL trata e servirá como base para se verificar o que será um
@@ -144,10 +146,8 @@ class Route
          * valor de um método. Todo método é precedido de um arroba @. */
         $urlString     = "/".ltrim(implode($url), "/");
         $routePath     = "/".ltrim($routePath, "/");
-        $preParameters = explode("/", ltrim(replaceOnce($routePath, "", $urlString), "/"));
-        $method        = "@".keyEmpty(0, $preParameters, "");
-        
-        $parameters    = [];
+        $parameters    = explode("/", ltrim(replaceOnce($routePath, "", $urlString), "/"));
+        $method        = "@".keyEmpty(0, $parameters, "");
 
         /** Da forma como tudo está sendo configurado, tudo o que é considerado um parâmetro é
          * interpretado apenas assim: como um parâmetro. Porém, quando se trata da index, a
@@ -156,20 +156,20 @@ class Route
          * está apontando para a index. Caso sim, é verificado se existem parâmetros. Caso sim,
          * é testado se o primeiro parâmetro é igual a uma página (um método). Caso não, então
          * haverá redirecionamento para uma página de erro 404. */
-        if($routePath !== "/"){
-            /**
+        //        if($routePath !== "/"){
+        /**
              * Este IF provavelmente será removido, mas deixei aqui por enquanto.
              */
-//            if(!array_key_exists($routeName, $routes) and !array_key_exists($method, $routes)){
-//               Redirect::location("error404");
-//            }
-            array_shift($preParameters);
-        }
+        //            if(!array_key_exists($routeName, $routes) and !array_key_exists($method, $routes)){
+        //               Redirect::location("error404");
+        //            }
+        //            array_shift($parameters);
+        //        }
 
         /** Verifica se o método existe na rota. Caso não, então o método padrão será o @main. */
         $method = array_key_exists($method, $routes) ? $method : "@main";
         $method = $method === "@" ? "" : $method;
-        
+
         /** Caso o método, seja ele @main ou qualquer outro, esteja configurado nas rotas, então
          * significa que há um controller. Aqui, portanto, é configurado qual é o controller (que
          * nada mais é do que a classe que contém os métodos e a view, que é configurada mesmo
@@ -178,58 +178,36 @@ class Route
          * Caso contrário, então método, view e controller serão vazios. */
         if(array_key_exists($method, $routes)){
             self::checkInheritanceData($routes[$method]);
-            
+
             $controller = $routePath === "/"  ? "/index" : $routePath;
             $view       = $method === "@main" ? "$controller.php" : "$controller/".ltrim("$method.php", "@");
 
-            if(array_key_exists("controller", $routes[$method]))    $controller = $routes[$method]["controller"];
+            $controller = str_replace(["/","."], ["\\",""], GALASTRI["folders"]["controller"]).str_replace("/", "\\", $controller);
+
+            if(array_key_exists("controller", $routes))             $controller = $routes["controller"];
             if(array_key_exists("view",       $routes[$method]))    $view       = $routes[$method]["view"];
-            
-            /**
-             * MELHORAR ESTA PARTE.
-             */
-            foreach(($routes[$method]["parameters"] ?? []) as $key => $label){
-                if($label[0] === "?"){
-                    $label = substr($label, 1, strlen($label));
-                    
-                    if(empty($preParameters[$key])){
-                        $parameters[$label] = null;
-                    } else {
-                        $parameters[$label] = $preParameters[$key];
-                    }
-                } else {
-                    if(empty($preParameters[$key])){
-                        if(GALASTRI["forceParameters"]["status"])
-                            Redirect::location(GALASTRI["forceParameters"]["redirectOnFail"]);
-                        else
-                            $parameters[$label] = false;
-                    } else {
-                        $parameters[$label] = $preParameters[$key];
-                    }
-                }
-            }
 
             $controller = str_replace("/", "\\", $controller);
         } else {
             $view       = null;
             $controller = null;
             $method     = null;
-            
+
             foreach($routes as $option => $value){
                 if(lower(gettype($value)) === "array") unset($routes[$option]);
             }
         }
-        
+
         /** A rota é armazenada na variável $route e contém todos os dados processados até aqui.
          * Caso se tenha configurado uma view e/ou um controller diretamente na rota, estes são
          * removidos da array. */
         $route = keyExists($method, $routes, $routes);
-        
+
         if(!empty(array_filter($route))){
             unset($route["controller"]);
             unset($route["view"]);
         }
-        
+
         /** Abaixo, cada um dos dados processados são armazenados em atributos. Estes atributos
          * serão acessíveis através de métodos getters com o mesmo nome dos atributos. */
         if(self::$inheritanceConfig["cache"] === false){
@@ -241,6 +219,7 @@ class Route
         }
         self::$controller   = $controller;
         self::$method       = ltrim($method,"@");
+        self::$routes       = $routes;
         self::$view         = $view;
         self::$parameters   = $parameters;
         self::$path         = $routePath;
@@ -252,15 +231,17 @@ class Route
         self::$template     = keyExists("template", $route, []);
         self::$import       = keyExists("import", $route, []);
         self::$renderer     = keyExists("renderer", $route, false);
+        self::$baseFolder   = keyExists("baseFolder", $route, null);
         self::$downloadable = self::$inheritanceConfig["downloadable"];
     }
-    
+
     /**
      * Métodos getters para recuperar o conteúdo dos atributos.
      */
     public static function cache()       { return self::$cache; }
     public static function controller()  { return self::$controller; }
     public static function method()      { return self::$method; }
+    public static function routes()      { return self::$routes; }
     public static function view()        { return self::$view; }
     public static function parameters()  { return self::$parameters; }
     public static function path()        { return self::$path; }
@@ -272,8 +253,9 @@ class Route
     public static function template()    { return self::$template; }
     public static function import()      { return self::$import; }
     public static function renderer()    { return self::$renderer; }
+    public static function baseFolder()  { return self::$baseFolder; }
     public static function downloadable(){ return self::$downloadable; }
-    
+
     /**
      * Método responsável por verificar se existem configurações herdáveis. Caso sim, então a
      * configuração é ativada para todas as áreas e páginas filhas.
