@@ -83,6 +83,9 @@
  *                   que poderá ser importado para a tag <head>. Por padrão pode-se informar arquivos
  *                   .js e .css.
  * 
+ * baseFolder        (string) Opcional. Funciona apenas para renderizadores file. Define uma pasta
+ *                   diferente do padrão definido na URL.
+ * 
  * downloadable      (bool) Opcional. Força a página a ser baixada. É usada principalmente para
  *                   fazer com que arquivos, imagens e documentos sejam baixaveis.
  * 
@@ -107,13 +110,13 @@
  */
 return [
     '/' => [
-        '@main'                  => [
-            'renderer'           => 'view',
+        '@main' => [
+            'renderer' => 'view',
         ],
         
-        '@pagina_nao_encontrada' => [
-            'renderer'           => 'view',
-            'view'               => 'pagina_nao_encontrada.php',
+		'@pagina-nao-encontrada' => [
+            'renderer' => 'view',
+            'view' => 'erro404.php',
         ],
-    ],
+    ]
 ];

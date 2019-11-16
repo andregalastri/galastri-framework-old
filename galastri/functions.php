@@ -221,6 +221,24 @@ function capitalize($string, $asArticle = FALSE, $keepChars = FALSE){
     return $string;
 }
 
+function camelCase($string, $wordDelimiter = false){
+    if($wordDelimiter)
+        $string = explode($wordDelimiter, $string);
+    else
+        $string = preg_split('/(-|_)/', $string);
+
+    $string = array_map('trim', $string);
+    
+    foreach($string as $key => &$value){
+        if($key == 0)
+            continue;
+        
+        $value = capitalize($value);
+    } unset($value);
+    
+    return implode($string);
+}
+
 /**
  * Função que converte todas as letras para maiúsculo levando em conta a codificação UTF-8
  * 

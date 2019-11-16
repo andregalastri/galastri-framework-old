@@ -181,7 +181,7 @@ class Route
 
             $controller = $routePath === "/"  ? "/index" : $routePath;
             $view       = $method === "@main" ? "$controller.php" : "$controller/".ltrim("$method.php", "@");
-
+            
             $controller = str_replace(["/","."], ["\\",""], GALASTRI["folders"]["controller"]).str_replace("/", "\\", $controller);
 
             if(array_key_exists("controller", $routes))             $controller = $routes["controller"];
@@ -218,7 +218,7 @@ class Route
             self::$cache["expire"] = keyExists("expire", $cache, GALASTRI["cache"]["expire"]);
         }
         self::$controller   = $controller;
-        self::$method       = ltrim($method,"@");
+        self::$method       = camelCase(ltrim($method,"@"));
         self::$routes       = $routes;
         self::$view         = $view;
         self::$parameters   = $parameters;

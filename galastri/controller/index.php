@@ -8,10 +8,10 @@ class index extends \galastri\core\Controller
     {
 		return [];
 	}
-	
-	protected function pagina_nao_encontrada()
+
+	protected function paginaNaoEncontrada()
     {
-		header("HTTP/1.0 404 Not Found");
+        header('HTTP/1.0 404 Not Found');
 		return [];
 	}
 }

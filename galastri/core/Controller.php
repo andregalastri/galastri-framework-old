@@ -38,19 +38,19 @@ class Controller
         $this->import       = Route::import();
         $this->downloadable = Route::downloadable();
         $this->authStatus   = TRUE;
-
+        
         $this->parameters   = $this->resolveParameters();
 
         if(Route::authTag()){
             $this->authStatus = Authentication::validate(Route::authTag());
         }
-
+        
         if($this->authStatus){
             $method     = Route::method();
             $this->data = $this->$method();
         }
     }
-
+    
     /**
      * Método que retorna um objeto StdClass contendo atributos que armazenam dados processados
      * pelo controller.
@@ -58,7 +58,7 @@ class Controller
     public function getRendererData()
     {
         $data               = new \StdClass;
-
+        
         $data->title        = $this->title;
         $data->view         = $this->view;
         $data->cache        = $this->cache;
@@ -68,14 +68,14 @@ class Controller
         $data->downloadable = $this->downloadable;
         $data->authStatus   = $this->authStatus;
         $data->data         = $this->data;
-
+        
         $data->path         = Route::path();
         $data->method       = Route::method();
         $data->urlString    = Route::urlString();
 
         return $data;
     }
-
+    
     /**
      * Método que resolve os parâmetros atribuindo nomes de rótulos baseado na definição em
      * config/routes.php.
@@ -88,9 +88,9 @@ class Controller
         $method        = "@".Route::method();
         $parameters    = [];
 
-        //        if(Route::path() !== "/"){
-        //            array_shift($preParameters);
-        //        }
+//        if(Route::path() !== "/"){
+//            array_shift($preParameters);
+//        }
 
         foreach(($routes[$method]["parameters"] ?? []) as $key => $label){
             if($label[0] === "?"){
@@ -112,10 +112,10 @@ class Controller
                 }
             }
         }
-
+        
         return $parameters;
     }
-
+    
     /**
      * Métodos setters para armazenar dados da rota. Foi escolhido assim para que os atributos
      * da rota estejam protegidos e para melhor legibilidade dos códigos da controller.
@@ -127,7 +127,7 @@ class Controller
     protected function setImport($import)             { $this->import       = $import; }
     protected function setDownloadable($downloadable) { $this->downloadable = $downloadable; }
     protected function setAuthStatus($authStatus)     { $this->authStatus   = $authStatus; }
-
+    
     /**
      * Métodos getters para recuperar dados da rota. Foi escolhido assim para que os atributos
      * da rota estejam protegidos e para melhor legibilidade dos códigos da controller.
@@ -140,7 +140,7 @@ class Controller
     protected function getDownloadable() { return $this->downloadable; }
     protected function getParameters()   { return $this->parameters; }
     protected function getAuthStatus()   { return $this->authStatus; }
-
+    
     protected function getParameter($parameter)
     {
         Debug::trace(debug_backtrace()[0]);
@@ -150,7 +150,7 @@ class Controller
         }
         return $this->parameters[$parameter];
     }
-
+    
     /**
      * Método que verifica se parâmetros obrigatórios, definidos em config/routes.php, não foram
      * preenchidos. Caso existam parâmetros não preenchidos, o método retorna false ou, opcionalmente
@@ -161,7 +161,7 @@ class Controller
     protected function checkRequiredParameters($redirect = false)
     {
         $parameters = $this->parameters;
-
+        
         if(array_search(false, $parameters, true)){
             if($redirect){
                 Redirect::location($redirect);
@@ -169,7 +169,7 @@ class Controller
                 return false;
             }
         }
-
+        
         return true;
     }
 

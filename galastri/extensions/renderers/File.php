@@ -103,18 +103,18 @@ trait File
      */
     private static function file()
     {
-        Debug::trace(debug_backtrace()[0]);
+       Debug::trace(debug_backtrace()[0]);
 
         self::$file = new \StdClass;
 
         self::fileCheckObject()
             ::fileCheckPath()
-                ::fileCheckExtension()
-                    ::fileCheckContentType()
-                        ::fileCheckExists();
-
+            ::fileCheckExtension()
+            ::fileCheckContentType()
+            ::fileCheckExists();
+        
         self::$file = self::checkAuth(self::$file);
-
+        
         /** Tags responsáveis por controlar o cache do arquivo no navegador do usuário. O uso de
          * uma e-tag permite que o arquivo seja armazenado em cache e, caso seja modificado, o
          * novo arquivo seja carregado no lugar do arquivo em cache. Lembrando que tudo isso só
@@ -125,7 +125,7 @@ trait File
         header("Cache-Control: must-revalidate");
         header('Expires: '.gmdate('r', time()+self::$file->cache["expire"]));
         header("Etag: ".$etag); 
-
+        
         /** Cabeçalhos para caso o arquivo esteja configurado para ser baixável. */
         if(self::$file->downloadable){
             header('Content-Description: File Transfer');
@@ -169,12 +169,12 @@ trait File
                     exit();
                 }
             }
-
+            
             header("Content-type: ".GALASTRI["contentType"][self::$file->extension]);
             self::printContent(file_get_contents(self::$file->path));
         }
     }
-
+    
     /**
      * Verifica se o controller foi definido. Este renderizador não obriga o uso de um controller,
      * por isso, caso não haja controller definido, o os parâmetros e configurações usados serão
@@ -192,11 +192,11 @@ trait File
         if($controller){
             if(is_object($controller)){
                 self::$file = $controller->getRendererData();
-                //                self::$file->parameters   = $controller->getRendererData()->parameters;
-                //                self::$file->downloadable = $controller->getRendererData()->downloadable;
-                //                self::$file->cache        = $controller->getRendererData()->cache;
+//                self::$file->parameters   = $controller->getRendererData()->parameters;
+//                self::$file->downloadable = $controller->getRendererData()->downloadable;
+//                self::$file->cache        = $controller->getRendererData()->cache;
             } else {
-                Debug::error("CONTROLLER003", gettype($controller))::print();
+               Debug::error("CONTROLLER003", gettype($controller))::print();
             }
         } else {
             self::$file->parameters   = Route::parameters();
@@ -212,13 +212,13 @@ trait File
     private static function fileCheckPath()
     {
         $parameters = self::$file->parameters;
-
+        
         if(!empty($parameters)){
             if(is_array($parameters)){
                 self::$file->parameters = rtrim(implode("/", $parameters), "/");
             }
         } else {
-            Debug::error("FILE002")::print();
+           Debug::error("FILE002")::print();
         }
         return __CLASS__;
     }
@@ -234,13 +234,13 @@ trait File
         $folder = GALASTRI["folders"]["root"];
         $path = Route::baseFolder() ?? Route::path();
         $path = $path === "/" ? "/" : "$path/";
-
+       
         self::$file->path = $folder.$path.$parameters;
 
         if(sizeof(explode(".", $parameters))>=2){
             self::$file->extension = lower(array_slice(explode(".", $parameters), -1, 1)[0]);
         } else {
-            Debug::error("FILE003")::print();
+           Debug::error("FILE003")::print();
         }
         return __CLASS__;
     }
@@ -252,25 +252,25 @@ trait File
     {
         $extension = self::$file->extension;
         $contentType = GALASTRI["contentType"];
-
+        
         if(!array_key_exists($extension, $contentType)){
-            Debug::error("FILE001", $extension)::print();
+           Debug::error("FILE001", $extension)::print();
         }
         return __CLASS__;
     }
-
+    
     /**
      * Verifica se o arquivo requisitado existe.
      */
     private static function fileCheckExists()
     {
         $path = self::$file->path;
-
+        
         if(!is_file($path)){
-            Debug::error("FILE004", $path)::print();
+           Debug::error("FILE004", $path)::print();
         }
     }
-
+    
     /**
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline. Aqui foi reaproveitado o método da view, pois o teste é exatamente

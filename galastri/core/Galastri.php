@@ -39,10 +39,10 @@ class Galastri
     use \galastri\extensions\renderers\File;
     use \galastri\extensions\renderers\Json;
     use \galastri\extensions\renderers\View;
-
+    
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-
+    
     /**
      * Execução do microframework.
      * Uma série de testes são executados em série para verificar se as configurações foram feitas
@@ -62,17 +62,17 @@ class Galastri
 
         self::checkRendererExists()
             ::checkOffline("global")
-                ::checkOffline(Route::renderer())
-                    ::checkRequiredController()
-                        ::checkController()
-                            ::checkClass()
-                                ::checkMethod()
-                                    ::callController();
+            ::checkOffline(Route::renderer())
+            ::checkRequiredController()
+            ::checkController()
+            ::checkClass()
+            ::checkMethod()
+            ::callController();
 
         $renderer = Route::renderer();
         self::$renderer();
     }
-
+    
     /**
      * Verifica se a configuração offline está ativa ou não. Este método executa outro método cujo
      * nome é formado pelo nome do renderizador e seguido pelo termo "CheckOffline". Por exemplo,
@@ -90,7 +90,7 @@ class Galastri
     {
         return self::{$scope."CheckOffline"}();
     }
-
+    
     /**
      * Verifica se a opção global offline está ativa. Caso esteja, verifica se a configuração
      * redirectTo está prenchida. Caso sim, o usuário é redirecionado para aquela página configurada
@@ -100,17 +100,17 @@ class Galastri
     {
         if(GALASTRI["offline"]["status"]){
             $redirectTo = GALASTRI["offline"]["redirectTo"];
-
+            
             if($redirectTo){
                 $url = GALASTRI["url_alias"][$redirectTo];
                 if(Route::urlString() !== $url) Redirect::location($url);
             }
-
+            
             if(($redirectTo and GALASTRI["offline"]["forceMessage"]) or !$redirectTo) self::printContent(GALASTRI["offline"]["message"]);
         }
         return __CLASS__;
     }
-
+    
     /**
      * Verifica se o renderizador especificado na configuração existe. É importante ressaltar que
      * os renderizadores são traits importadas logo após a definição desta classe.
@@ -118,7 +118,7 @@ class Galastri
     private static function checkRendererExists()
     {
         Debug::trace(debug_backtrace()[0]);
-
+        
         $renderer = Route::renderer();
         $path     = Route::path();
 
@@ -129,10 +129,10 @@ class Galastri
         } else {
             Debug::error("CONFIG001", $path)::print();
         }
-
+        
         return __CLASS__;
     }
-
+    
     /**
      * Verifica se o renderizador obriga que um controller esteja configurado e que ele exista
      * na pasta controller. Os renderizadores view e json, por padrão, exigem que existam controllers
@@ -142,12 +142,12 @@ class Galastri
     private static function checkRequiredController()
     {
         Debug::trace(debug_backtrace()[0]);
-
+        
         $renderer   = Route::renderer();
         $controller = Route::controller();
         $method     = Route::renderer();
         $path       = Route::path();
-
+        
         $requireController = self::{$renderer."Controller"}();
 
         if($method === null and $requireController){
@@ -157,7 +157,7 @@ class Galastri
         }
         return __CLASS__;
     }
-
+    
     /**
      * Verifica se o controller existe ou não. Quando o controller não é obrigatório, e ele não
      * foi definido, o valor do atributo $controller é false. Já quando o controller existe, o
@@ -181,7 +181,7 @@ class Galastri
     {
         Debug::trace(debug_backtrace()[0]);
         $controller = self::$controller;
-
+        
         if($controller){
             if(!class_exists($controller)){
                 Debug::error("CONTROLLER001", $controller)::print();
@@ -197,10 +197,10 @@ class Galastri
     private static function checkMethod()
     {
         Debug::trace(debug_backtrace()[0]);
-
+        
         $controller = self::$controller;
         $method     = Route::method();
-
+        
         if($controller){
             if(!method_exists($controller, $method)){
                 Debug::error("CONTROLLER002", $controller, $method)::print();
@@ -208,7 +208,7 @@ class Galastri
         }
         return __CLASS__;
     }
-
+    
     /**
      * Estando tudo correto e sem erros, uma instância desta classe controladora é criada dentro
      * do atributo $controller, seguido da execução do método que representa a página requisita.
@@ -225,7 +225,7 @@ class Galastri
             self::$controller->startController();
         }
     }
-
+    
     /**
      * Método usado apenas pelos renderizadores. Verifica se a página requer autenticação. Neste
      * caso, é verificado se a sessão está ativa. Caso não esteja, será necessário ou redirecionar
@@ -257,7 +257,7 @@ class Galastri
         }
         return $data;
     }
-
+    
     /**
      * Métodos para impressão ou requerimento de conteúdo.
      */
