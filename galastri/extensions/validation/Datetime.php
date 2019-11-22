@@ -10,9 +10,9 @@
  * se utiliza da classe/método DateTime::createFromFormat, que requer que o formato da string de
  * data seja informado. Por exemplo:
  * 
- *     $data = "01/01/2019";
- *     $validation->validate($data, "Data venda")
- *                ->dateTime("d/m/Y")
+ *     $data = '01/01/2019';
+ *     $validation->validate($data, 'Data venda')
+ *                ->dateTime('d/m/Y')
  *                ->execute();
  * 
  * Os métodos de configuração de comparação podem ser strings como o dado testado. Caso este seja
@@ -20,10 +20,10 @@
  * diferente, então é necessário informar, como segundo parâmetro, o formato da data delimitadora.
  * Por exemplo:
  * 
- *     $data = "01/01/2019";
- *     $validation->validate($data, "Data venda")
- *                ->dateTime("d/m/Y")
- *                ->max("2019-02-01", "Y-m-d")
+ *     $data = '01/01/2019';
+ *     $validation->validate($data, 'Data venda')
+ *                ->dateTime('d/m/Y')
+ *                ->max('2019-02-01', 'Y-m-d')
  *                ->execute();
  * 
  * Este método permite também o uso de objetos da classe DateTime como dados de teste.
@@ -31,11 +31,11 @@
  * Por fim, o uso de configurações de comparação permite o uso de strings como as usadas na classe
  * DateTime para especificar datas baseadas na data atual.
  * 
- *     $data = "01/01/2019";
- *     $validation->validate($data, "Data venda")
- *                ->dateTime("d/m/Y")
- *                ->min("Today")
- *                ->max("Today +5 days")
+ *     $data = '01/01/2019';
+ *     $validation->validate($data, 'Data venda')
+ *                ->dateTime('d/m/Y')
+ *                ->min('Today')
+ *                ->max('Today +5 days')
  *                ->execute();
  * 
  * Forma de uso (o comando abaixo não se trata de um exemplo):
@@ -68,21 +68,22 @@ trait Datetime
     {
         $this->beforeTest();
         Chain::create(
-            "dateTime",
+            'dateTime',
             [
-                "name"       => "dateTime",
-                "dateformat" => $dateFormat,
-                "attach"     => true,
+                'name'       => 'dateTime',
+                'dateformat' => $dateFormat,
+                'attach'     => true,
             ],
             (
                 function($chainData, $data)
                 {
                     Debug::trace(debug_backtrace()[0]);
+
                     $error = $this->error->status;
 
                     if(!$error){
                         $testValue  = $this->validation->value;
-                        $dateFormat = $data["dateformat"];
+                        $dateFormat = $data['dateformat'];
 
                         /** Verifica se o dado informado é um objeto do tipo DateTime. Caso seja,
                          * então ele será utilizado. Caso seja apenas uma string, então ele deverá
@@ -90,8 +91,8 @@ trait Datetime
                          * 
                          * Caso a conversão da data dê errado, ocorrerá um erro. */
                         if(is_object($testValue)){
-                            if(get_class($testValue) !== "DateTime"){
-                                $this->executeError (true, "DATETIME_INVALID_OBJECT", $this->debug);
+                            if(get_class($testValue) !== 'DateTime'){
+                                Debug::error('DATETIME002');
                             } else {
                                 $testDatetime = $testValue;
                                 $testDatetime->format($dateFormat);
@@ -101,22 +102,23 @@ trait Datetime
 
                             if(!empty(array_filter(\DateTime::getLastErrors()))){
                                 $error = true;
-                                $errorLog["reason"] = "invalid_datetime";
+                                $errorLog['reason'] = 'invalid_datetime';
+                                $errorLog['message'] = $data['message'];
                             }
                         }
 
                         if(!$error){
                             foreach($chainData as $parameter){
-                                switch($parameter["name"]){
-                                    /** Caso a data tenha formato válido, então é verificado se
+                                switch($parameter['name']){
+                                        /** Caso a data tenha formato válido, então é verificado se
                                      * existem operações configuradas nos métodos de comparação.
                                      * Caso existam, então o delimitador sofre a mesma verificação
                                      * que o dado testado, para se garantir que o delimitador
                                      * também seja uma data válida.
                                      * 
                                      * Caso ela seja um objeto do tipo DateTime, então ela é apenas
-                                     * usada como está. Caso o delimitador for uma flag como "Now",
-                                     * "Today", etc, esta será convertida para um objeto DateTime
+                                     * usada como está. Caso o delimitador for uma flag como 'Now',
+                                     * 'Today', etc, esta será convertida para um objeto DateTime
                                      * válido baseado nestas flags.
                                      * 
                                      * As flags possíveis são:
@@ -130,27 +132,27 @@ trait Datetime
                                      * Juntamente com flags é possível usar incrementos ou decrementos,
                                      * adicionando ou removendo dias, horas, da flag usada.
                                      * 
-                                     * Exemplo: ->min("Today + 2 Days")
-                                     *              ->max("Yesterday + 5 Years")
+                                     * Exemplo: ->min('Today + 2 Days')
+                                     *              ->max('Yesterday + 5 Years')
                                      * */
-                                    case "dateTime":
+                                    case 'dateTime':
                                         if(isset($operation)){
                                             foreach($operation as $operator){
-                                                $delimiterValue  = $operator["delimiterValue"];
-                                                $delimiterFormat = $operator["delimiterFormat"] === false ? $dateFormat : $operator["delimiterFormat"];
-                                                
+                                                $delimiterValue  = $operator['delimiterValue'];
+                                                $delimiterFormat = $operator['delimiterFormat'] === false ? $dateFormat : $operator['delimiterFormat'];
+
                                                 if(is_object($delimiterValue)){
-                                                    if(get_class($delimiterValue) !== "DateTime"){
-                                                        $this->executeError (true, "DATETIME_INVALID_DELIMITER_OBJECT", $this->debug);
+                                                    if(get_class($delimiterValue) !== 'DateTime'){
+                                                        Debug::error('DATETIME004');
                                                     } else {
                                                         $delimiterDatetime = $delimiterValue;
                                                     }
                                                 } else {
-                                                    $flags          = ["Now","Yesterday","Today","Tomorrow"];
-                                                    $increment      = ["Millisecond","Second","Minute","Hour","Day","Week","Month","Year"];
-                                                    $regexDatetime  = ".*(?=[\+|\-]?)";
-                                                    $regexFlag      = implode("|",$flags);
-                                                    $regexIncrement = "[\+|\-][\s]?[0-9].+[".implode("|",$increment)."]";
+                                                    $flags          = ['Now','Yesterday','Today','Tomorrow'];
+                                                    $increment      = ['Millisecond','Second','Minute','Hour','Day','Week','Month','Year'];
+                                                    $regexDatetime  = '.*(?=[\+|\-]?)';
+                                                    $regexFlag      = implode('|',$flags);
+                                                    $regexIncrement = '[\+|\-][\s]?[0-9].+['.implode('|',$increment).']';
 
                                                     preg_match("/$regexDatetime/u", $delimiterValue, $matchDatetime);
                                                     preg_match("/$regexFlag/u", $delimiterValue, $matchFlag);
@@ -168,7 +170,8 @@ trait Datetime
 
                                                         if(!empty(array_filter(\DateTime::getLastErrors()))){
                                                             $error = true;
-                                                            $errorLog["reason"] = "invalid_delimiter_datetime";
+                                                            $errorLog['reason'] = 'invalid_delimiter_datetime';
+                                                            $errorLog['message'] = $parameter['message'];
                                                             break 3;
                                                         } else {
                                                             if($matchIncrement){
@@ -182,9 +185,10 @@ trait Datetime
                                                  * a comparação entre as datas é executada,
                                                  * retornando seu resultado. */
                                                 if(!$error){
-                                                    if(!$this->compare($testDatetime, $operator["operator"], $delimiterDatetime)){
+                                                    if(!$this->compare($testDatetime, $operator['operator'], $delimiterDatetime)){
                                                         $error = true;
-                                                        $errorLog["reason"] = "datetime_doesnt_passed_the_test";
+                                                        $errorLog['reason']  = 'datetime_doesnt_passed_the_test';
+                                                        $errorLog['message'] = $operator['message'];
                                                         break 3;
                                                     }
                                                 }
@@ -192,16 +196,17 @@ trait Datetime
                                         }
                                         break;
 
-                                    case "min":
-                                    case "max":
-                                    case "smaller":
-                                    case "greater":
-                                    case "equal":
-                                    case "diff":
+                                    case 'min':
+                                    case 'max':
+                                    case 'smaller':
+                                    case 'greater':
+                                    case 'equal':
+                                    case 'diff':
                                         $operation[] = [
-                                            "operator"        => $parameter["operator"],
-                                            "delimiterValue"  => $parameter["delimiter"],
-                                            "delimiterFormat" => $parameter["optional"],
+                                            'operator'        => $parameter['operator'],
+                                            'delimiterValue'  => $parameter['delimiter'],
+                                            'delimiterFormat' => $parameter['optional'],
+                                            'message'         => $parameter['message'],
                                         ];
                                         break;
                                 }
@@ -209,9 +214,9 @@ trait Datetime
                         }
 
                         if($error){
-                            $errorLog["error"]       = $error;
-                            $errorLog["testName"]    = "dateTime";
-                            $errorLog["invalidData"] = $testValue;
+                            $errorLog['error']       = $error;
+                            $errorLog['testName']    = 'dateTime';
+                            $errorLog['invalidData'] = $testValue;
 
                             $this->setValidationError($errorLog);
                         }

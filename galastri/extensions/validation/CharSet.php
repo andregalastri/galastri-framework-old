@@ -111,26 +111,27 @@ trait CharSet
     public function charSet(...$charSet)
     {
         $this->beforeTest();
-        
+
         Chain::create(
-            "charSet",
+            'charSet',
             [
-                "name"    => "charSet",
-                "charSet" => is_array($charSet[0]) ? $charSet[0] : $charSet,
-                "attach"  => true,
+                'name'    => 'charSet',
+                'charSet' => is_array($charSet[0]) ? $charSet[0] : $charSet,
+                'attach'  => true,
             ],
             (
                 function($chainData, $data)
                 {
                     Debug::trace(debug_backtrace()[0]);
+
                     $error   = $this->error->status;
-                    $charSet = $data["charSet"];
+                    $charSet = $data['charSet'];
 
                     if(!$error){
                         $testValue = $this->validation->value;
-                        $require   = "any";
+                        $require   = 'any';
                         $exception = [];
-                        
+
                         /** O dado é testado logo de início, verificando os caracteres que
                          * correspondem e os que não correspondem com a definição.
                          * 
@@ -139,7 +140,7 @@ trait CharSet
                          * correspondem com a definição são considerados os que estão FORA do
                          * grupo permitido. */
                         $mainMatch   = $this->charMatch($charSet);
-                        
+
                         $mainInside  = $mainMatch[0];
                         $mainOutside = $mainMatch[1];
 
@@ -148,22 +149,23 @@ trait CharSet
                          * isso poderá mudar caso existam modificadores charException(). */
                         $finalInside  = $mainInside;
                         $finalOutside = $mainOutside;
-                        
+
                         foreach($chainData as $parameter){
-                            switch($parameter["name"]){
-                                
-                                /** Verifica o resultado final. Caso existam dados fora do grupo
+                            switch($parameter['name']){
+
+                                    /** Verifica o resultado final. Caso existam dados fora do grupo
                                  * de permissão, significa que o dado informado é inválido. */
-                                case "charSet":
+                                case 'charSet':
                                     if(!empty($finalOutside)){
                                         $error = true;
-                                        $errorLog["invalidData"] = $finalOutside;
-                                        $errorLog["reason"]      = "invalid_char";
+                                        $errorLog['invalidData'] = $finalOutside;
+                                        $errorLog['reason']      = 'invalid_char';
+                                        $errorLog['message']     = $parameter['message'];
                                         break 2;
                                     }
                                     break;
 
-                                /** Verifica o modificador charRequired que, se estiver definido,
+                                    /** Verifica o modificador charRequired que, se estiver definido,
                                  * então fará um novo teste de correspondência dos caracteres.
                                  * Neste novo teste, é levado em conta se existem caracteres fora
                                  * do grupo de permitidos.
@@ -172,40 +174,42 @@ trait CharSet
                                  * deverão existir os caracteres definidos no conjunto de caracteres
                                  * obrigatórios.
                                  * 
-                                 * Caso haja configuração de restrição para o tipo "all", então
+                                 * Caso haja configuração de restrição para o tipo 'all', então
                                  * cada um dos caracteres requeridos deverá estar contido ao menos
-                                 * uma vez no dado testado. Caso seja do tipo "any", então a
+                                 * uma vez no dado testado. Caso seja do tipo 'any', então a
                                  * quantidade será a soma destes caracteres quando encontrados.
                                  * 
                                  * É realizado o teste através do comparador. Caso haja configuração
                                  * de comparação, então as quantidades são definidas pela operação.
                                  * */
-                                case "charRequired":
-                                    $requiredMatch = $this->charMatch($parameter["charSet"])[0];
+                                case 'charRequired':
+                                    $requiredMatch = $this->charMatch($parameter['charSet'])[0];
 
                                     if(!empty($requiredMatch)){
                                         $matchCount = array_count_values($finalInside);
 
-                                        foreach($parameter["charSet"] as $requiredChar){
-                                            $matchSum[$requiredChar] = keyExists($requiredChar, $matchCount, 0);
+                                        foreach($parameter['charSet'] as $requiredChar){
+                                            $matchSum[$requiredChar] = $matchCount[$requiredChar] ?? 0;
                                         }
 
-                                        $compareValues = $require === "all" ? $matchSum : [array_sum($matchSum)];
+                                        $compareValues = $require === 'all' ? $matchSum : [array_sum($matchSum)];
 
                                         if(!isset($operation)){
                                             $operation[] = [
-                                                "operator"  => ">=",
-                                                "delimiter" => 1,
+                                                'operator'  => '>=',
+                                                'delimiter' => 1,
+                                                'message' => $parameter['message'],
                                             ];
                                         }
 
                                         foreach($compareValues as $key => $sum){
                                             foreach($operation as $operator){
 
-                                                if(!$this->compare($sum, $operator["operator"], $operator["delimiter"])){
+                                                if(!$this->compare($sum, $operator['operator'], $operator['delimiter'])){
                                                     $error = true;
-                                                    $errorLog["invalidData"] = $matchSum;
-                                                    $errorLog["reason"]      = "requiared_char_qty_".$operator["delimiter"];
+                                                    $errorLog['invalidData'] = $matchSum;
+                                                    $errorLog['reason']      = 'requiared_char_qty_'.$operator['delimiter'];
+                                                    $errorLog['message']     = $operator['message'];
                                                     break 4;
                                                 }
                                             }
@@ -214,15 +218,16 @@ trait CharSet
 
                                     } else {
                                         $error = true;
-                                        $errorLog["invalidData"] = $parameter["charSet"];
-                                        $errorLog["reason"]      = "required_char";
+                                        $errorLog['invalidData'] = $parameter['charSet'];
+                                        $errorLog['reason']      = 'required_char';
+                                        $errorLog['message']      = $parameter['message'];
                                         break 2;
                                     }
 
                                     $operation = null;
                                     break;
-                                    
-                                /** Verifica o modificador charException que, se estiver definido,
+
+                                    /** Verifica o modificador charException que, se estiver definido,
                                  * então fará um novo teste de correspondência dos caracteres.
                                  * Neste novo teste verifica-se se o dado testado possui caracteres
                                  * que fazem parte da exceção.
@@ -230,8 +235,8 @@ trait CharSet
                                  * Os dados que fazem parte da exceção são removidos do grupo de
                                  * caracteres que estão dentro do grupo de permitidos e inseridos
                                  * no grupo de caracteres que estão fora do grupo de permitidos. */
-                                case "charException":
-                                    $exceptMatch   = $this->charMatch($parameter["charSet"]);
+                                case 'charException':
+                                    $exceptMatch   = $this->charMatch($parameter['charSet']);
                                     $exceptInside  = $exceptMatch[0];
                                     $exceptOutside = $exceptMatch[1];
                                     $finalInside   = array_intersect($exceptOutside, $mainInside);
@@ -239,36 +244,38 @@ trait CharSet
 
                                     if(!empty($exceptInside)){
                                         $error = true;
-                                        $errorLog["invalidData"] = $finalOutside;
-                                        $errorLog["reason"]      = "invalid_char";
+                                        $errorLog['invalidData'] = $finalOutside;
+                                        $errorLog['reason']      = 'invalid_char';
+                                        $errorLog['message']     = $parameter['message'];
                                         break 2;
                                     }
                                     break;
 
-                                /** Definição de operações quando se usa as configurações de
+                                    /** Definição de operações quando se usa as configurações de
                                  * comparação. */
-                                case "min":
-                                case "max":
-                                case "smaller":
-                                case "greater":
-                                case "equal":
-                                case "diff":
+                                case 'min':
+                                case 'max':
+                                case 'smaller':
+                                case 'greater':
+                                case 'equal':
+                                case 'diff':
                                     $operation[] = [
-                                        "operator"  => $parameter["operator"],
-                                        "delimiter" => $parameter["delimiter"],
+                                        'operator'  => $parameter['operator'],
+                                        'delimiter' => $parameter['delimiter'],
+                                        'message'   => $parameter['message'],
                                     ];
                                     break;
 
-                                /** Definição de restrição quando se usa as configurações de
+                                    /** Definição de restrição quando se usa as configurações de
                                  * restrição. */
-                                case "all": $require = "all"; break;
-                                case "any": $require = "any"; break;
+                                case 'all': $require = 'all'; break;
+                                case 'any': $require = 'any'; break;
                             }
                         }
 
                         if($error){
-                            $errorLog["error"]    = $error;
-                            $errorLog["testName"] = "charSet";
+                            $errorLog['error']    = $error;
+                            $errorLog['testName'] = 'charSet';
                             $this->setValidationError($errorLog);
                         }
 
@@ -279,16 +286,16 @@ trait CharSet
         );
         return $this;
     }
-    
+
     /**
      * Métodos de restrição. Respectivamente definem um conjunto de caracteres que fazem parte
      * das exceção ou de caracteres que são obrigatórios.
      * 
      * @param string $charSet          Caractere, conjunto de caracteres ou tag de predefinição.
      */
-    public function charException(...$charSet) { $this->modifierChain("charException", is_array($charSet[0]) ? $charSet[0] : $charSet); return $this; }
-    public function charRequired(...$charSet)  { $this->modifierChain("charRequired",  is_array($charSet[0]) ? $charSet[0] : $charSet); return $this; }
-    
+    public function charException(...$charSet) { $this->modifierChain('charException', is_array($charSet[0]) ? $charSet[0] : $charSet); return $this; }
+    public function charRequired(...$charSet)  { $this->modifierChain('charRequired',  is_array($charSet[0]) ? $charSet[0] : $charSet); return $this; }
+
     /**
      * Método usado pelos métodos de restrição. Todos eles utilizam comandos idênticos com a única
      * diferença de terem nomenclaturas diferentes, então utilizou-se um método único que pode ser
@@ -303,23 +310,23 @@ trait CharSet
         Chain::create(
             $name,
             [
-                "name"    => $name,
-                "charSet" => $charSet,
-                "attach"  => true,
+                'name'    => $name,
+                'charSet' => $charSet,
+                'attach'  => true,
             ],
             (function($chainData, $data){ return Chain::resolve($chainData, $data); })
         );
 
         return $this;
     }
-    
+
     /**
      * Métodos modificadores que definem a obrigatoriedade das letras serem, respectivamente,
      * minúsculas ou maiúsculas, ou se esta obrigatoriedade não é necessária.
      */
-    public function caseLower() { $this->caseChain("charCase", "lower"); return $this; }
-    public function caseUpper() { $this->caseChain("charCase", "upper"); return $this; }
-    public function caseAll()   { $this->caseChain("charCase", "all");   return $this; }
+    public function caseLower() { $this->caseChain('charCase', 'lower'); return $this; }
+    public function caseUpper() { $this->caseChain('charCase', 'upper'); return $this; }
+    public function caseAll()   { $this->caseChain('charCase', 'all');   return $this; }
 
     /**
      * Método usado pelos métodos de modificação maiúsculo/minúsculo. Todos eles utilizam comandos
@@ -335,20 +342,20 @@ trait CharSet
         Chain::create(
             $name,
             [
-                "name"     => $name,
-                "charCase" => $charCase,
-                "attach"   => false,
+                'name'     => $name,
+                'charCase' => $charCase,
+                'attach'   => false,
             ],
             (
                 function($chainData, $data)
                 {
-                    $this->charSet->case = $data["charCase"];
+                    $this->charSet->case = $data['charCase'];
                     return Chain::resolve($chainData, $data); 
                 }
             )
         );
     }
-    
+
     /**
      * Método que faz a verificação de correspondência do conjunto de caracteres. Este método
      * também resolve o uso de tags e a configuração de obrigatoriedade maiúsculo/minúculo.
@@ -360,68 +367,68 @@ trait CharSet
         $case      = $this->charSet->case;
         $testValue = $this->validation->value;
 
-        $lowerAccents         = "àáâãäåçèéêëìíîïñòóôõöùúûüýÿŕ";
-        $upperAccents         = "ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝŸŔ";
+        $lowerAccents         = 'àáâãäåçèéêëìíîïñòóôõöùúûüýÿŕ';
+        $upperAccents         = 'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝŸŔ';
         $specialChars         = "¹²³£¢¬º\s\\\\\/\-,.!@#$%\"'&*()_°ª+=\[\]{}^~`?<>:;";
-        $lowerExtendedAccents = "ẃṕśǵḱĺźǘńḿẁỳǜǹẽỹũĩṽŵŷŝĝĥĵẑẅẗḧẍæœ";
-        $upperExtendedAccents = "ẂṔŚǴḰĹŹǗŃḾẀỲǛǸẼỸŨĨṼŴŶŜĜĤĴẐẄT̈ḦẌÆŒ";
-        
+        $lowerExtendedAccents = 'ẃṕśǵḱĺźǘńḿẁỳǜǹẽỹũĩṽŵŷŝĝĥĵẑẅẗḧẍæœ';
+        $upperExtendedAccents = 'ẂṔŚǴḰĹŹǗŃḾẀỲǛǸẼỸŨĨṼŴŶŜĜĤĴẐẄT̈ḦẌÆŒ';
+
         switch($case){
-            case "upper":
+            case 'upper':
                 $regexCase =  [
-                    "a-z"             => "A-Z",
-                    "utf8"            => "\p{Lu}",
-                    "accents"         => $upperAccents,
-                    "extendedaccents" => $upperExtendedAccents,
+                    'a-z'             => 'A-Z',
+                    'utf8'            => '\p{Lu}',
+                    'accents'         => $upperAccents,
+                    'extendedaccents' => $upperExtendedAccents,
                 ];
                 break;
 
-            case "lower":
+            case 'lower':
                 $regexCase =  [
-                    "a-z"             => "a-z",
-                    "utf8"            => "\p{Ll}",
-                    "accents"         => $lowerAccents,
-                    "extendedaccents" => $lowerExtendedAccents,
+                    'a-z'             => 'a-z',
+                    'utf8'            => '\p{Ll}',
+                    'accents'         => $lowerAccents,
+                    'extendedaccents' => $lowerExtendedAccents,
                 ];
                 break;
 
-            case "all":
+            case 'all':
             default:
                 $regexCase =  [
-                    "a-z"             => "a-zA-Z",
-                    "utf8"            => "\p{L}",
-                    "accents"         => $lowerAccents.$upperAccents,
-                    "extendedaccents" => $lowerExtendedAccents.$upperExtendedAccents,
+                    'a-z'             => 'a-zA-Z',
+                    'utf8'            => '\p{L}',
+                    'accents'         => $lowerAccents.$upperAccents,
+                    'extendedaccents' => $lowerExtendedAccents.$upperExtendedAccents,
                 ];
         }
 
         $flagList = [
-            "Numbers"         => "0-9",
-            "NumbersUtf8"     => "\p{Nl}",
-            "Letters"         => $regexCase["a-z"],
-            "LettersUtf8"     => $regexCase["utf8"],
-            "Article"         => "0-9".$regexCase["utf8"].$specialChars,
-            "Namefield"       => $regexCase["utf8"]."\s",
-            "SpecialChars"    => $specialChars,
-            "Accents"         => $regexCase["accents"],
-            "ExtendedAccents" => $regexCase["extendedaccents"],
-            "Spaces"          => "\s",
-            "Backslashes"     => "\\\\",
-            "\\"              => "\\\\",
+            'Numbers'         => '0-9',
+            'NumbersUtf8'     => '\p{Nl}',
+            'Letters'         => $regexCase['a-z'],
+            'LettersUtf8'     => $regexCase['utf8'],
+            'Article'         => '0-9'.$regexCase['utf8'].$specialChars,
+            'Namefield'       => $regexCase['utf8'].'\s',
+            'SpecialChars'    => $specialChars,
+            'Accents'         => $regexCase['accents'],
+            'ExtendedAccents' => $regexCase['extendedaccents'],
+            'Spaces'          => '\s',
+            'Backslashes'     => '\\\\',
+            '\\'              => '\\\\',
             "\""              => "\\\"",
-            "DoubleQuotes"    => "\\\"",
+            'DoubleQuotes'    => "\\\"",
             "'"               => "\\'",
-            "SingleQuotes"    => "\\'",
-            "/"               => "\\/",
-            "-"               => "\\-",
-            "["               => "\\[",
-            "]"               => "\\]",
+            'SingleQuotes'    => "\\'",
+            '/'               => '\\/',
+            '-'               => '\\-',
+            '['               => '\\[',
+            ']'               => '\\]',
         ];
 
-        foreach ($charSet as &$char){ $char = keyExists($char, $flagList, $char); unset($char); }
-        preg_match_all ("/[" .implode($charSet)."]/u", (string)$testValue, $match) ;
-        preg_match_all ("/[^".implode($charSet)."]/u", (string)$testValue, $unmatch);
-        
+        foreach ($charSet as &$char){ $char = $flagList[$char] ?? $char; unset($char); }
+        preg_match_all ('/[' .implode($charSet).']/u', (string)$testValue, $match) ;
+        preg_match_all ('/[^'.implode($charSet).']/u', (string)$testValue, $unmatch);
+
         return [$match[0], $unmatch[0]];
     }
 }

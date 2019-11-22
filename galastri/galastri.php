@@ -35,23 +35,23 @@
  */
 namespace galastri;
 
-require_once("functions.php");
+require_once('functions.php');
 
 /** Faz a importação das constantes dos arquivos de configuração e armazena tudo em uma constante.
  * Desta forma, todas as configurações são acessadas através da constante GALASTRI. */
-define ("GALASTRI", (
+define ('GALASTRI', (
     array_merge(
-                         require("config/default.php"),
-        ["database"   => require("config/database.php")],
-        ["routes"     => require("config/routes.php")],
-        ["permission" => require("config/permission.php")],
-        ["url_alias"  => require("config/url_alias.php")]
+                         require('config/default.php'),
+        ['database'   => require('config/database.php')],
+        ['routes'     => require('config/routes.php')],
+        ['permission' => require('config/permission.php')],
+        ['url_alias'  => require('config/url_alias.php')]
     )
 ));
 
 error_reporting(E_ALL);
-ini_set('display_errors', GALASTRI["debug"] ? "On" : "Off");
+ini_set('display_errors', GALASTRI['debug'] ? 'On' : 'Off');
 
-require_once("autoload.php");
+require_once('autoload.php');
 
 core\Galastri::execute();

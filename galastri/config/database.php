@@ -22,14 +22,14 @@
  * options     (array) Opções do PDO.
  */
 return [
-    "driver"        => "mysql",
-    "active"        => true,
-    "host"          => "",
-    "database"      => "",
-    "user"          => "",
-    "password"      => "",
+    'driver'        => 'mysql',
+    'active'        => true,
+    'host'          => '',
+    'database'      => '',
+    'user'          => '',
+    'password'      => '',
     
-    "options"       => [
+    'options'       => [
         PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
     ],
 ];

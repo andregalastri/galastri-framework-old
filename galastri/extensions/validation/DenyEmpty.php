@@ -25,12 +25,12 @@ trait DenyEmpty
     public function denyEmpty()
     {
         $this->beforeTest();
-        
+
         Chain::create(
-            "denyEmpty",
+            'denyEmpty',
             [
-                "name"   => "denyEmpty",
-                "attach" => true,
+                'name'   => 'denyEmpty',
+                'attach' => true,
             ],
             (
                 function($chainData, $data)
@@ -42,17 +42,18 @@ trait DenyEmpty
                     if(!$error){
                         $testValue = $this->validation->value;
 
-                        if(!is_bool($testValue) and ($testValue === "" or $testValue === null)){
+                        if(!is_bool($testValue) and ($testValue === '' or $testValue === null)){
                             $error = true;
                         } elseif(is_array($testValue) === 0){
                             if(count([$testValue])) $error = true;
                         }
 
                         if($error){
-                            $errorLog["error"]       = $error;
-                            $errorLog["testName"]    = "denyEmpty";
-                            $errorLog["invalidData"] = null;
-                            $errorLog["reason"]      = "empty_is_denied";
+                            $errorLog['error']       = $error;
+                            $errorLog['testName']    = 'denyEmpty';
+                            $errorLog['invalidData'] = null;
+                            $errorLog['reason']      = 'empty_is_denied';
+                            $errorLog['message']      = $data['message'];
 
                             $this->setValidationError($errorLog);
                         }

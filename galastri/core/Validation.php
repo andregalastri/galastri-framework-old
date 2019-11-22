@@ -15,17 +15,17 @@
  * dito e opcionalmente um rótulo de identificação, que pode ser uma string que facilite a
  * identificação a qual dado pertence aquela validação. Por exemplo:
  * 
- *     $validation->validate($minhaString, "Nome do cliente")
+ *     $validation->validate($minhaString, 'Nome do cliente')
  * 
- * No caso, o dado a ser validado é o conteúdo de $minhaString enquanto que "Nome do cliente" é
+ * No caso, o dado a ser validado é o conteúdo de $minhaString enquanto que 'Nome do cliente' é
  * o rótulo que permite que se identifique esta validação. Caso não se informe um rótulo, então
  * é atribuído um número referente à posição da validação. Se esta for a primeira validação, então
  * o o rótulo será o número 1, e assim por diante.
  * 
  * Um validador é usado logo seguido do dado informado. Por exemplo:
  * 
- *     $validation->validate($minhaString, "Nome do cliente")
- *                ->charSet("Letters", "Numbers)
+ *     $validation->validate($minhaString, 'Nome do cliente')
+ *                ->charSet('Letters', 'Numbers)
  *                ->execute();
  * 
  * No caso, o validador CharSet irá verificar se $minhaString possui apenas letras ou números. Caso
@@ -34,9 +34,9 @@
  * Um validador pode conter modificadores. O validador CharSet possui um modificador chamado
  * charException(), para caso existam caracteres que são excessão à permissão dada. Por exemplo:
  * 
- *     $validation->validate($minhaString, "Nome do cliente")
- *                ->charSet("Letters", "Numbers)
- *                ->charException("1", "2")
+ *     $validation->validate($minhaString, 'Nome do cliente')
+ *                ->charSet('Letters', 'Numbers)
+ *                ->charException('1', '2')
  *                ->execute();
  * 
  * No caso, o validador CharSet irá permitir todas as letras e números, mas o modificador
@@ -50,12 +50,12 @@
  * Ainda é possível configurar mensagens de erros específicas para caso haja dados inválidos através
  * do método onError(). Por exemplo:
  * 
- *     $validation->validate($minhaString, "Nome do cliente")
- *                ->charSet("Letters", "Numbers)
- *                ->onError("Apenas letras ou números são permitidos")
+ *     $validation->validate($minhaString, 'Nome do cliente')
+ *                ->charSet('Letters', 'Numbers)
+ *                ->onError('Apenas letras ou números são permitidos')
  *                ->execute();
  * 
- * Neste caso a validação irá retornar a mensagem "Apenas letras ou números são permitidos" caso
+ * Neste caso a validação irá retornar a mensagem 'Apenas letras ou números são permitidos' caso
  * o dado contenha caracteres diferentes de letras e números.
  * 
  * IMPORTANTE:
@@ -65,15 +65,17 @@
  * por exemplo:
  * 
  *     try {
- *         $validation->validate($minhaString, "Nome do cliente")
- *                    ->charSet("Letters", "Numbers)
+ *         $validation->validate($minhaString, 'Nome do cliente')
+ *                    ->charSet('Letters', 'Numbers')
  *                    ->execute();
- *     catch(\Exception $e){}
+ *     } catch(Exception $e){}
  *     
  * Caso não compreenda como funciona o try/catch, basta usár a validação exatamente desta forma,
  * e tudo funcionará conforme o esperado, sem erros do PHP.
  */
 namespace galastri\core;
+
+use \galastri\core\Exception;
 
 class Validation
 {
@@ -112,14 +114,14 @@ class Validation
     use \galastri\extensions\validation\Datetime;
     use \galastri\extensions\validation\ShortList;
     use \galastri\extensions\validation\DenyEmpty;
-    
+
     private $charSet;
     private $onError;
     private $validation;
     private $validator;
     private $error;
     private $result;
-    
+
     /**
      * O método contruct() define vários atributos padrão e principalmente alguns objetos StdClass
      * que servirão para retornar os dados.
@@ -153,7 +155,7 @@ class Validation
         $this->result->invalidData = null;
         $this->result->reason      = null;
     }
-    
+
     /**
      * Método que armazena o valor a ser validado e seu rótulo. Caso o rótulo não seja definido,
      * então é especificado um rótulo padrão que armazena o número com a posição do teste.
@@ -172,19 +174,19 @@ class Validation
         if(Chain::hasLinks()){
             $this->execute();
         }
-        
+
         if(!$this->error->status){
-            $this->charSet->case    = "all";
+            $this->charSet->case    = 'all';
             $this->onError->message = null;
-            
+
             $this->validation->counter++;
             $this->validation->value = $testValue;
             $this->validation->label = $label === 0 ? $this->validation->counter : $label;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Método que deve ser usado no final da cadeia de testes com o objetivo de executar a última
      * corrente que estiver em aberto.
@@ -207,22 +209,17 @@ class Validation
     public function onError($message)
     {
         Chain::create(
-            "onError",
+            'onError',
             [
-                "name"    => "onError",
-                "message" => $message,
-                "attach"  => false,
+                'name'    => 'onError',
+                'message' => $message,
+                'attach'  => false,
             ],
-            (
-                function($chainData, $data){
-                    $this->onError->message = $data["message"];
-                    return Chain::resolve($chainData, $data);
-                }
-            )
+            (function($chainData, $data){ return Chain::resolve($chainData, $data); })
         );
         return $this;
     }
-    
+
     /**
      * Método que recupera o resultado da validação.
      */
@@ -237,7 +234,7 @@ class Validation
         $result->label       = null;
         $result->value       = null;
         $result->validator   = null;
-        
+
         if($this->error->status){
             $result->invalidData = $this->error->data;
             $result->reason      = $this->error->reason;
@@ -249,7 +246,7 @@ class Validation
 
         return $result;
     }
-    
+
     /**
      * Método que define alguns valores caso a validação tenha encontrado algum erro.
      * 
@@ -257,24 +254,25 @@ class Validation
      */
     private function setValidationError($testResult)
     {
-        $this->error->status = keyExists("error",       $testResult, null);
-        $this->validator     = keyExists("testName",    $testResult, null);
-        $this->error->data   = keyExists("invalidData", $testResult, null);
-        $this->error->reason = keyExists("reason",      $testResult, null);
+        $this->error->status    = $testResult['error'] ?? null;
+        $this->validator        = $testResult['testName'] ?? null;
+        $this->error->data      = $testResult['invalidData'] ?? null;
+        $this->error->reason    = $testResult['reason'] ?? null;
+        $this->onError->message = $testResult['message'] ?? null;
 
-        throw new \Exception($this->onError->message);
+        throw new Exception($this->onError->message, $this->error->reason);
     }
-    
+
     /**
      * Método usado antes de cada validador para verificar se o método validade() foi usado antes.
      */
     private function beforeTest()
     {
         if($this->validation->counter === 0){
-           Debug::error("VALIDATION001")::print(); 
+            Debug::error('VALIDATION001')::print(); 
         }
     }
-    
+
     /**
      * Método que faz a comparação entre o valor e o delimitador. É usado em valores numéricos e
      * datas.
@@ -288,12 +286,12 @@ class Validation
     private function compare($value, $operator, $delimiter)
     {
         switch($operator){
-            case "=="    :    return    $value == $delimiter;
-            case ">"    :    return    $value >  $delimiter;
-            case "<"    :    return    $value <  $delimiter;
-            case ">="    :    return    $value >= $delimiter;
-            case "<="    :    return    $value <= $delimiter;
-            case "!="    :    return    $value != $delimiter;
+            case '=='    :    return    $value == $delimiter;
+            case '>'    :    return    $value >  $delimiter;
+            case '<'    :    return    $value <  $delimiter;
+            case '>='    :    return    $value >= $delimiter;
+            case '<='    :    return    $value <= $delimiter;
+            case '!='    :    return    $value != $delimiter;
         }
     }
 }

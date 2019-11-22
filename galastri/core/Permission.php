@@ -38,9 +38,9 @@
  * Por exemplo:
  * 
  *     array(
- *         "grupoVendas"        => 1,
- *         "grupoGerentes"      => 2,
- *         "grupoAdministração" => 3,
+ *         'grupoVendas'        => 1,
+ *         'grupoGerentes'      => 2,
+ *         'grupoAdministração' => 3,
  *     );
  * 
  * - Listas de permissão dinâmicas -
@@ -57,10 +57,10 @@
  * ID como valor. Por exemplo:
  * 
  *     $groupArray = [
- *         "grupoVendas"        => 1,
- *         "grupoGerentes"      => 2,
- *         "grupoAdministração" => 3,
- *         "grupoSuperUser"     => 4,
+ *         'grupoVendas'        => 1,
+ *         'grupoGerentes'      => 2,
+ *         'grupoAdministração' => 3,
+ *         'grupoSuperUser'     => 4,
  *     ];
  * 
  * Mais informações nas explicações dos métodos checkGroup() e checkResource().
@@ -71,13 +71,13 @@
  *     $userGroup = 2;
  * 
  *     $groupArray = [
- *         "vendedores"    => 1,
- *         "gerentes"      => 2,
- *         "proprietarios" => 3,
+ *         'vendedores'    => 1,
+ *         'gerentes'      => 2,
+ *         'proprietarios' => 3,
  *     ];
  * 
- *     $permission = Permission::addGroup("vendedores")
- *                             ::addGroup("gerentes")
+ *     $permission = Permission::addGroup('vendedores')
+ *                             ::addGroup('gerentes')
  *                             ::checkGroup($userGroup, $groupArray);
  *     vdump($permission);
  * 
@@ -87,12 +87,12 @@
  *     $userIdPermissions = [1, 2];
  * 
  *     $resourceArray = [
- *         "listar_venda"  => 1,
- *         "editar_venda"  => 2,
- *         "remover_venda" => 3,
+ *         'listar_venda'  => 1,
+ *         'editar_venda'  => 2,
+ *         'remover_venda' => 3,
  *     ];
  * 
- *     $permission = Permission::setResource("remover_venda")
+ *     $permission = Permission::setResource('remover_venda')
  *                             ::checkResource($userIdPermissions, $resourceArray);
  *     vdump($permission);
  */
@@ -147,9 +147,9 @@ class Permission
      * parâmetro do método que fará o teste.
      * 
      *     $groupArray = [
-     *         "vendedores"    => 1,
-     *         "gerentes"      => 2,
-     *         "administrador" => 3,
+     *         'vendedores'    => 1,
+     *         'gerentes'      => 2,
+     *         'administrador' => 3,
      *     ];
      * 
      *     $userGroup = 3;
@@ -161,7 +161,7 @@ class Permission
      * @param array $groupTags         Array contendo todos os grupos existentes no sistema de
      *                                 permissões.
      */
-    public static function checkGroup($userGroup, $groupTags = GALASTRI["permission"]["groups"])
+    public static function checkGroup($userGroup, $groupTags = GALASTRI['permission']['groups'])
     {
         $groups = self::$groups;
         
@@ -202,9 +202,9 @@ class Permission
      * parâmetro do método que fará o teste.
      * 
      *     $resourceArray = [
-     *         "listar_venda"     => 1,
-     *         "editar_venda"    => 2,
-     *         "remover_venda" => 3,
+     *         'listar_venda'     => 1,
+     *         'editar_venda'    => 2,
+     *         'remover_venda' => 3,
      *     ];
      * 
      *     $userIdPermissions = [1, 2];
@@ -217,7 +217,7 @@ class Permission
      * @param array $resourceTags      Array contendo todos os recursos existentes no sistema de
      *                                 permissões.
      */
-    public static function checkResource($userResources, $resourceTags = GALASTRI["permission"]["resources"])
+    public static function checkResource($userResources, $resourceTags = GALASTRI['permission']['resources'])
     {
         $resource = self::$resource;
         $resourceIds = array_flip($resourceTags);

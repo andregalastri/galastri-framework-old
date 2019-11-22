@@ -35,11 +35,11 @@ trait Number
     {
         $this->beforeTest();
         Chain::create(
-            "number",
+            'number',
             [
-                "name"   => "number",
-                "type"   => $type,
-                "attach" => true,
+                'name'   => 'number',
+                'type'   => $type,
+                'attach' => true,
             ],
             (
                 function($chainData, $data)
@@ -50,61 +50,64 @@ trait Number
 
                     if(!$error){
                         $testValue = $this->validation->value;
-                        $type      = $data["type"];
+                        $type      = $data['type'];
 
                         foreach($chainData as $parameter){
-                            switch($parameter["name"]){
-                                case "number":
+                            switch($parameter['name']){
+                                case 'number':
                                     $dataTypes = [
-                                        "int"     => "integer",
-                                        "integer" => "integer",
-                                        "float"   => "double",
-                                        "double"  => "double",
-                                        "decimal" => "double",
+                                        'int'     => 'integer',
+                                        'integer' => 'integer',
+                                        'float'   => 'double',
+                                        'double'  => 'double',
+                                        'decimal' => 'double',
                                     ];
-                                    
+
                                     if(!isset($dataTypes[$type])){
-                                        $this->debug->error("NUMBER001", $type, implode(",", array_keys($dataTypes))); 
+                                        Debug::error('NUMBER001', $type, implode(',', array_keys($dataTypes))); 
                                     }
 
                                     if($dataTypes[$type] !== gettype($testValue)){
-                                        if(!($dataTypes[$type] === "double" and gettype($testValue) === "integer")){
+                                        if(!($dataTypes[$type] === 'double' and gettype($testValue) === 'integer')){
                                             $error = true;
-                                            $errorLog["invalidData"] = $testValue;
-                                            $errorLog["reason"]      = "number_type";
+                                            $errorLog['invalidData'] = $testValue;
+                                            $errorLog['reason']      = 'number_type';
+                                            $errorLog['message']     = $parameter['message'];
                                             break 2;
                                         }
                                     }
 
                                     if(isset($operation)){
                                         foreach($operation as $operator){
-                                            if(!$this->compare($testValue, $operator["operator"], $operator["delimiter"])){
+                                            if(!$this->compare($testValue, $operator['operator'], $operator['delimiter'])){
                                                 $error = true;
-                                                $errorLog["invalidData"] = $testValue;
-                                                $errorLog["reason"]      = "number_size";
+                                                $errorLog['invalidData'] = $testValue;
+                                                $errorLog['reason']      = 'number_size';
+                                                $errorLog['message']     = $operator['message'];
                                                 break 3;
                                             }
                                         }
                                     }
                                     break;
 
-                                case "min":
-                                case "max":
-                                case "smaller":
-                                case "greater":
-                                case "equal":
-                                case "diff":
+                                case 'min':
+                                case 'max':
+                                case 'smaller':
+                                case 'greater':
+                                case 'equal':
+                                case 'diff':
                                     $operation[] = [
-                                        "operator"  => $parameter["operator"],
-                                        "delimiter" => $parameter["delimiter"],
+                                        'operator'  => $parameter['operator'],
+                                        'delimiter' => $parameter['delimiter'],
+                                        'message'   => $parameter['message'],
                                     ];
                                     break;
                             }
                         }
 
                         if($error){
-                            $errorLog["error"]    = $error;
-                            $errorLog["testName"] = "number";
+                            $errorLog['error']    = $error;
+                            $errorLog['testName'] = 'number';
 
                             $this->setValidationError($errorLog);
                         }

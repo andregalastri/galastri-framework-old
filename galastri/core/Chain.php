@@ -11,11 +11,12 @@ namespace galastri\core;
 
 class Chain
 {
-    private static $links = [];
-    
+    public static $links = [];
+    private static $message;
+
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-    
+
     /**
      * Método que cria um elo na corrente.
      * 
@@ -28,9 +29,9 @@ class Chain
     public static function create($name, $data, $function)
     {
         self::$links[]     =  [
-            "name"        => $name,
-            "data"        => $data,
-            "function"    => $function,
+            'name'        => $name,
+            'data'        => $data,
+            'function'    => $function,
         ];
     }
     /**
@@ -50,13 +51,20 @@ class Chain
         $chain = self::pop();
 
         if($chain !== null){
-            if($chain["data"]["attach"]){
-                $chainData[] = $chain["data"];
+            if($chain['name'] == 'onError')
+                self::$message = $chain['data']['message'];
+
+            $chain['data']['message'] = self::$message;
+
+            if($chain['data']['attach']){
+                $chainData[] = $chain['data'];
             }
-            return $chain["function"]($chainData, $chain["data"]);
+
+
+            return $chain['function']($chainData, $chain['data']);
         }
     }
-    
+
     /**
      * Método que checa se existem elos na corrente.
      */
@@ -64,7 +72,7 @@ class Chain
     {
         return !empty(self::$links);
     }
-    
+
     /**
      * Método que desempilha um elo da corrente.
      */

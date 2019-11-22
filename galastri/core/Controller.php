@@ -38,19 +38,19 @@ class Controller
         $this->import       = Route::import();
         $this->downloadable = Route::downloadable();
         $this->authStatus   = TRUE;
-        
+
         $this->parameters   = $this->resolveParameters();
 
         if(Route::authTag()){
             $this->authStatus = Authentication::validate(Route::authTag());
         }
-        
+
         if($this->authStatus){
             $method     = Route::method();
             $this->data = $this->$method();
         }
     }
-    
+
     /**
      * Método que retorna um objeto StdClass contendo atributos que armazenam dados processados
      * pelo controller.
@@ -58,7 +58,7 @@ class Controller
     public function getRendererData()
     {
         $data               = new \StdClass;
-        
+
         $data->title        = $this->title;
         $data->view         = $this->view;
         $data->cache        = $this->cache;
@@ -68,14 +68,14 @@ class Controller
         $data->downloadable = $this->downloadable;
         $data->authStatus   = $this->authStatus;
         $data->data         = $this->data;
-        
+
         $data->path         = Route::path();
         $data->method       = Route::method();
         $data->urlString    = Route::urlString();
 
         return $data;
     }
-    
+
     /**
      * Método que resolve os parâmetros atribuindo nomes de rótulos baseado na definição em
      * config/routes.php.
@@ -84,38 +84,45 @@ class Controller
      */
     private function resolveParameters(){
         $routes        = Route::routes();
+        $routePath     = Route::path();
         $preParameters = Route::parameters();
-        $method        = "@".Route::method();
+        $method        = Route::method();
         $parameters    = [];
 
-//        if(Route::path() !== "/"){
-//            array_shift($preParameters);
-//        }
+        /** DOCUMENTAR AQUI */
+        if($routePath === '/' or $method === $preParameters[0] or empty($preParameters[0]))
+            array_shift($preParameters);
 
-        foreach(($routes[$method]["parameters"] ?? []) as $key => $label){
-            if($label[0] === "?"){
-                $label = substr($label, 1, strlen($label));
+        $methodParameter = $routes["@$method"]['parameters'] ?? [];
 
-                if(empty($preParameters[$key])){
-                    $parameters[$label] = null;
+        if(!empty($preParameters) and empty($methodParameter) and GALASTRI['forceParameters']['status']){
+            Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
+        } else {
+            foreach($methodParameter as $key => $label){
+                if($label[0] === '?'){
+                    $label = substr($label, 1, strlen($label));
+
+                    if(empty($preParameters[$key])){
+                        $parameters[$label] = null;
+                    } else {
+                        $parameters[$label] = $preParameters[$key];
+                    }
                 } else {
-                    $parameters[$label] = $preParameters[$key];
-                }
-            } else {
-                if(empty($preParameters[$key])){
-                    if(GALASTRI["forceParameters"]["status"])
-                        Redirect::location(GALASTRI["forceParameters"]["redirectOnFail"]);
-                    else
-                        $parameters[$label] = false;
-                } else {
-                    $parameters[$label] = $preParameters[$key];
+                    if(empty($preParameters[$key])){
+                        if(GALASTRI['forceParameters']['status'])
+                            Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
+                        else
+                            $parameters[$label] = false;
+                    } else {
+                        $parameters[$label] = $preParameters[$key];
+                    }
                 }
             }
         }
-        
+
         return $parameters;
     }
-    
+
     /**
      * Métodos setters para armazenar dados da rota. Foi escolhido assim para que os atributos
      * da rota estejam protegidos e para melhor legibilidade dos códigos da controller.
@@ -127,7 +134,7 @@ class Controller
     protected function setImport($import)             { $this->import       = $import; }
     protected function setDownloadable($downloadable) { $this->downloadable = $downloadable; }
     protected function setAuthStatus($authStatus)     { $this->authStatus   = $authStatus; }
-    
+
     /**
      * Métodos getters para recuperar dados da rota. Foi escolhido assim para que os atributos
      * da rota estejam protegidos e para melhor legibilidade dos códigos da controller.
@@ -140,17 +147,17 @@ class Controller
     protected function getDownloadable() { return $this->downloadable; }
     protected function getParameters()   { return $this->parameters; }
     protected function getAuthStatus()   { return $this->authStatus; }
-    
+
     protected function getParameter($parameter)
     {
         Debug::trace(debug_backtrace()[0]);
 
         if(!isset($this->parameters[$parameter])){
-            Debug::error("CONTROLLER004", $parameter)::print();
+            Debug::error('CONTROLLER004', $parameter)::print();
         }
         return $this->parameters[$parameter];
     }
-    
+
     /**
      * Método que verifica se parâmetros obrigatórios, definidos em config/routes.php, não foram
      * preenchidos. Caso existam parâmetros não preenchidos, o método retorna false ou, opcionalmente
@@ -161,7 +168,7 @@ class Controller
     protected function checkRequiredParameters($redirect = false)
     {
         $parameters = $this->parameters;
-        
+
         if(array_search(false, $parameters, true)){
             if($redirect){
                 Redirect::location($redirect);
@@ -169,7 +176,7 @@ class Controller
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -182,11 +189,11 @@ class Controller
      */
     protected function filePath($path)
     {
-        if(Route::renderer() === "file"){
-            $this->path       = "";
+        if(Route::renderer() === 'file'){
+            $this->path       = '';
             $this->parameters = $path;
         } else {
-            Debug::error("FILE005")->print();
+            Debug::error('FILE005')->print();
         }
     }
 }

@@ -16,7 +16,7 @@ function vdump(...$variable){
     $debug = debug_backtrace()[0];
     $format = dump($variable);
 
-    printDump("var_dump", $format, $debug);
+    printDump('var_dump', $format, $debug);
 }
 
 /**
@@ -30,8 +30,8 @@ function vdump(...$variable){
 function ddump(...$variable){
     $debug = debug_backtrace()[0];
     $format = dump($variable);
-    
-    printDump("exit_dump", $format, $debug);
+
+    printDump('exit_dump', $format, $debug);
     exit();
 }
 
@@ -45,11 +45,11 @@ function dump($variable){
         foreach($variable as $key => $value) var_dump($value);
         $content = ob_get_contents();
         ob_end_clean();
-        $content = preg_replace('/([a|s|b|i|f|N|o].*?)({\n)/', "<b>$1</b>\n$2", $content, 1);
+        $content = preg_replace('/([a|s|b|i|f|N|o].*?)({\n)/', '<b>$1</b>\n$2', $content, 1);
         $content = preg_replace('/=>\n/', '=>', $content);
-        $content = preg_replace('/(])(=>).*?(a|s|b|i|f|N|o)/', "$1 $2 $3", $content);
-        $content = preg_replace('/(\[.*?\])/', "<small><b>$1</b></small>", $content);
-        $content = preg_replace('/(=> )(.*?)( {\n|\n\s|\n})/', "$1$2$3", $content);
+        $content = preg_replace('/(])(=>).*?(a|s|b|i|f|N|o)/', '$1 $2 $3', $content);
+        $content = preg_replace('/(\[.*?\])/', '<small><b>$1</b></small>', $content);
+        $content = preg_replace('/(=> )(.*?)( {\n|\n\s|\n})/', '$1$2$3', $content);
         return $content;
     })($variable);
 
@@ -61,8 +61,8 @@ function dump($variable){
  * funções vdump() e ddump().
  */
 function printDump($name, $format, $debug){
-echo
-<<<DDUMP
+    echo
+        <<<DDUMP
 <pre style='white-space:pre-wrap;'>
 <big><b>$name DEBUG</b></big>
 <div style='padding-left: 12px;margin-left: 3px;border-left: 1px dashed #000;'>
@@ -78,7 +78,7 @@ DDUMP;
 }
 
 /**
- * Função que faz um "replace" apenas da primeira ocorrência.
+ * Função que faz um 'replace' apenas da primeira ocorrência.
  * 
  * @param string $search           Termo que deverá ser procurado para ser substituídos.
  * 
@@ -92,9 +92,9 @@ function replaceOnce($search, $replace, $string, $reverse = FALSE){
     if(empty($string) or empty($search)){
         return $string;
     } else {
-        $callFunction = $reverse ? "strrpos" : "strpos";
+        $callFunction = $reverse ? 'strrpos' : 'strpos';
         $position = $callFunction($string, $search);
-        
+
         return $position !== false ? substr_replace($string, $replace, $position, strlen($search)) : $string;    
     }
 }
@@ -110,20 +110,20 @@ function replaceOnce($search, $replace, $string, $reverse = FALSE){
  * 
  * @param mixed $defaultValue      Valor padrão caso a chave não seja encontrada.
  */
-function keyExists($keys, $array, $defaultValue = ""){
-    if(!is_array($keys)){
-        $keys = [$keys];
-    }
-    foreach($keys as $key){
-        if(array_key_exists($key, $array)){
-            $result = $array[$key];
-            break;
-        } else {
-            $result = $defaultValue;
-        }
-    }
-    return $result;
-}
+//function keyExists($keys, $array, $defaultValue = ''){
+//    if(!is_array($keys)){
+//        $keys = [$keys];
+//    }
+//    foreach($keys as $key){
+//        if(array_key_exists($key, $array)){
+//            $result = $array[$key];
+//            break;
+//        } else {
+//            $result = $defaultValue;
+//        }
+//    }
+//    return $result;
+//}
 
 /**
  * Função que faz atribuição de valores baseado em uma array e sua chave. Se a chave informada
@@ -136,20 +136,20 @@ function keyExists($keys, $array, $defaultValue = ""){
  * 
  * @param mixed $defaultValue      Valor padrão caso a chave seja vazia.
  */
-function keyEmpty($keys, $array, $defaultValue = ""){
-    if(!is_array($keys)){
-        $keys = [$keys];
-    }
-    foreach($keys as $key){
-        if(!empty($array[$key])){
-            $result = $array[$key];
-            break;
-        } else {
-            $result = $defaultValue;
-        }
-    }
-    return $result;
-}
+//function keyEmpty($keys, $array, $defaultValue = ''){
+//    if(!is_array($keys)){
+//        $keys = [$keys];
+//    }
+//    foreach($keys as $key){
+//        if(!empty($array[$key])){
+//            $result = $array[$key];
+//            break;
+//        } else {
+//            $result = $defaultValue;
+//        }
+//    }
+//    return $result;
+//}
 
 /**
  * Função que faz o implode() de múltiplas arrays.
@@ -159,7 +159,7 @@ function keyEmpty($keys, $array, $defaultValue = ""){
  * @param array $arrays            Arrays que sofrerão o implode();
  */
 function implodeMultiple($glue, $arrays){
-    $string = "";
+    $string = '';
 
     foreach($arrays as $array){
         $string .= implode($glue, $array);
@@ -172,9 +172,9 @@ function implodeMultiple($glue, $arrays){
  * chamada. Ela só é utilizada pela função capitalize().
  */
 if (!function_exists('mb_ucfirst')) {
-    function mb_ucfirst($string, $encoding = "UTF-8", $lowerStringEnd = false) {
+    function mb_ucfirst($string, $encoding = 'UTF-8', $lowerStringEnd = false) {
         $firstLetter = mb_strtoupper(mb_substr($string, 0, 1, $encoding), $encoding);
-        $stringingEnd = "";
+        $stringingEnd = '';
         if ($lowerStringEnd) {
             $stringingEnd = mb_strtolower(mb_substr($string, 1, mb_strlen($string, $encoding), $encoding), $encoding);
         }
@@ -208,35 +208,17 @@ function capitalize($string, $asArticle = FALSE, $keepChars = FALSE){
     }
 
     foreach($string as $key => $value){
-        $value = $asArticle ? mb_ucfirst($value, "UTF-8", !$keepChars) : mb_convert_case($value, MB_CASE_TITLE, "UTF-8");;
-        
-        preg_match("/(\.|\!|\?)/", $value, $match);
+        $value = $asArticle ? mb_ucfirst($value, 'UTF-8', !$keepChars) : mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');;
+
+        preg_match('/(\.|\!|\?)/', $value, $match);
         if(!array_key_exists(1, $match)) $match[1] = FALSE;
-        
-        $space = $value != $match[1] ? " " : "";
+
+        $space = $value != $match[1] ? ' ' : '';
         $string[$key] = $space.$value;
     }
 
-    $string = trim(implode("", $string));
+    $string = trim(implode('', $string));
     return $string;
-}
-
-function camelCase($string, $wordDelimiter = false){
-    if($wordDelimiter)
-        $string = explode($wordDelimiter, $string);
-    else
-        $string = preg_split('/(-|_)/', $string);
-
-    $string = array_map('trim', $string);
-    
-    foreach($string as $key => &$value){
-        if($key == 0)
-            continue;
-        
-        $value = capitalize($value);
-    } unset($value);
-    
-    return implode($string);
 }
 
 /**
@@ -245,7 +227,7 @@ function camelCase($string, $wordDelimiter = false){
  * @param string $string           Texto que será formatado.
  */
 function upper($string){
-    return mb_convert_case($string, MB_CASE_UPPER, "UTF-8");
+    return mb_convert_case($string, MB_CASE_UPPER, 'UTF-8');
 }
 
 /**
@@ -254,5 +236,38 @@ function upper($string){
  * @param string $string           Texto que será formatado.
  */
 function lower($string){
-    return mb_convert_case($string, MB_CASE_LOWER, "UTF-8");
+    return mb_convert_case($string, MB_CASE_LOWER, 'UTF-8');
+}
+
+/**
+ * Converte a string em um tipo camelCase ou PascalCase.
+ * 
+ * @param string $string           Texto que será formatado.
+ * 
+ * @param string $type             Tipo da conversão, que pode ser 'camel' ou 'pascal'.
+ * 
+ * @param string $regex    Por padrão, cada palavra a ser convertida deve estar separada
+ *                                 por traços - ou underlines _. Caso se queira usar outro tipo
+ *                                 de delimitador, é necessário informá-lo aqui em formato regex.
+ */
+function convertCase($string, $type, $regex = '/(-|_)/'){
+    $string = preg_split($regex, $string);
+    $string = array_map('trim', $string);
+    
+    foreach($string as $key => &$value){
+        if(empty($value))
+            continue;
+
+        switch($type){
+            case 'camel':
+                if($key == 0)
+                    continue 2;
+                break;
+            case 'pascal':
+                break;
+        }
+
+        $value = capitalize($value);
+    } unset($value);
+    return implode($string);
 }

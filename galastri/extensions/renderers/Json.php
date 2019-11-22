@@ -29,17 +29,17 @@ trait Json
     private static function json()
     {
         Debug::trace(debug_backtrace()[0]);
-        
+
         self::$json = new \StdClass;
 
         self::jsonCheckObject();
-        
+
         self::$json = self::checkAuth(self::$json);
 
-//        header('Content-Type: application/json');
+        //        header('Content-Type: application/json');
         self::printContent(json_encode(self::$json->data));
     }
-    
+
     /**
      * Verifica se o controller é um objeto. Caso seja, então é chamado o método getRendererData()
      * que trás uma StdClass com uma série de atributos que incluem os dados processados e
@@ -53,11 +53,11 @@ trait Json
         if(is_object($controller)){
             self::$json = $controller->getRendererData();
         } else {
-            Debug::error("CONTROLLER003", gettype($controller))::print();
+            Debug::error('CONTROLLER003', gettype($controller))::print();
         }
         return __CLASS__;
     }
-    
+
     /**
      * Este método é usado no arquivo Galastri.php para verificar se a rota foi configurada com
      * o status de offline.
@@ -65,14 +65,14 @@ trait Json
     private static function jsonCheckOffline()
     {
         $offline = Route::offline();
-        
+
         if($offline){
             header('Content-Type: application/json');
-            
+
             self::printContent(
                 json_encode([
-                    "pass" => false,
-                    "message" => $offline["message"] ?? "offline",
+                    'pass' => false,
+                    'message' => $offline['message'] ?? 'offline',
                 ])
             );
         }

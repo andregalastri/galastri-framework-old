@@ -48,7 +48,7 @@ trait View
         
         self::$view = self::checkAuth(self::$view);
         
-        self::requireContent(self::$view, self::$view->template["root"]);
+        self::requireContent(self::$view, self::$view->template['root']);
     }
     
     /**
@@ -64,7 +64,7 @@ trait View
         if(is_object($controller)){
             self::$view = $controller->getRendererData();
         } else {
-            Debug::error("CONTROLLER003", gettype($controller))::print();
+            Debug::error('CONTROLLER003', gettype($controller))::print();
         }
         return __CLASS__;
     }
@@ -78,7 +78,7 @@ trait View
         $path = self::$view->path;
 
         if($path === false){
-            Debug::error("VIEW002", $view)::print();
+            Debug::error('VIEW002', $view)::print();
         }
         return __CLASS__;
     }
@@ -102,7 +102,7 @@ trait View
      */
     private static function viewSetTemplate()
     {
-        $template = GALASTRI["template"];
+        $template = GALASTRI['template'];
 
         $data = self::$view;
         $import = $data->import;
@@ -110,7 +110,7 @@ trait View
         /** Configuração do template. */
         if(!empty($data->template)){
             foreach($data->template as $key => $value){
-                $template[$key] = keyExists($key, $data->template, $value);
+                $template[$key] = $data->template[$key] ?? $value;
             }
         }
         
@@ -118,15 +118,15 @@ trait View
         if(!empty($data->import)){
             $import = [];
             foreach($data->import as $file){
-                $split = explode(".", $file);
-                $import[] = sprintf(GALASTRI["importTags"][$split[1]], $file);
+                $split = explode('.', $file);
+                $import[] = sprintf(GALASTRI['importTags'][$split[1]], $file);
             }
         }
 
         /** Configuração do título da página. */
-        foreach(GALASTRI["title"]["template"] as $part){
-            if(array_key_exists($part, GALASTRI["title"])){
-                $title[] = GALASTRI["title"][$part];
+        foreach(GALASTRI['title']['template'] as $part){
+            if(array_key_exists($part, GALASTRI['title'])){
+                $title[] = GALASTRI['title'][$part];
             } else {
                 if(property_exists($data, $part)){
                     $title[] = $data->$part;
@@ -136,8 +136,8 @@ trait View
 
         self::$view->template = $template;
         self::$view->import   = $import;
-        self::$view->title    = ltrim(implode("", $title), GALASTRI["title"]["divisor"]);
-        self::$view->view     = GALASTRI["folders"]["view"]."/".ltrim($data->view, "/");
+        self::$view->title    = ltrim(implode('', $title), GALASTRI['title']['divisor']);
+        self::$view->view     = GALASTRI['folders']['view'].'/'.ltrim($data->view, '/');
 
         return __CLASS__;
     }
@@ -150,7 +150,7 @@ trait View
         $view = self::$view->view;
 
         if(!is_file($view)){
-            Debug::error("VIEW001", $view)::print();
+            Debug::error('VIEW001', $view)::print();
         }
     }
     
@@ -164,10 +164,10 @@ trait View
         $urlString = Route::urlString();
         
         if($offline){
-            if(isset($offline["redirect"]) and $urlString !== "/")
-                Redirect::location($offline["redirect"]);
+            if(isset($offline['redirect']) and $urlString !== '/')
+                Redirect::location($offline['redirect']);
 
-            self::printContent($offline["message"] ?? "offline");
+            self::printContent($offline['message'] ?? 'offline');
         }
         return __CLASS__;
     }

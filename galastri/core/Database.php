@@ -17,27 +17,27 @@
  *     $database->begin();
  *
  *     $database
- *         ->query("SELECT * FROM autor WHERE id=:id", "lista_autores")
- *             ->bind(":id", 2)
+ *         ->query('SELECT * FROM autor WHERE id=:id', 'lista_autores')
+ *             ->bind(':id', 2)
  *            
- *          ->query("INSERT INTO autor(nome,email,formacao,foto) VALUES(:nome,:email,:formacao,:foto)", "insere_livros")
+ *          ->query('INSERT INTO autor(nome,email,formacao,foto) VALUES(:nome,:email,:formacao,:foto)', 'insere_livros')
  *             ->bindArray([
- *                 ":nome"        => "André Galastri",
- *                 ":email"    => "contato@andregalastri.com.br",
- *                 ":formacao"    => "Sistemas para Internet",
- *                 ":foto"        => "../fotos/andre.jpg",
+ *                 ':nome'        => 'André Galastri',
+ *                 ':email'    => 'contato@andregalastri.com.br',
+ *                 ':formacao'    => 'Sistemas para Internet',
+ *                 ':foto'        => '../fotos/andre.jpg',
  *             ])
  * 
- *          ->query("SELECT * FROM livro WHERE edicao=:edicao", "lista_livros")
- *             ->bind(":edicao", 1)
+ *          ->query('SELECT * FROM livro WHERE edicao=:edicao', 'lista_livros')
+ *             ->bind(':edicao', 1)
  *             ->pagination(1, 10)
  *             
  *         ->submit();
  *
  *     $database->commit();
  *
- *     vdump($database->getResult("lista_autores"));
- *     vdump($database->getPagination("lista_livros"));
+ *     vdump($database->getResult('lista_autores'));
+ *     vdump($database->getPagination('lista_livros'));
  */
 namespace galastri\core;
 
@@ -45,6 +45,7 @@ class Database
 {
     private $conn;
     private $pdo;
+    private $label;
     private $result;
     private $pagination;
     private $debugStatus;
@@ -55,21 +56,19 @@ class Database
      */
     public function __construct()
     {
-        $this->debugStatus  = GALASTRI["debug"];
+        $this->debugStatus  = GALASTRI['debug'];
 
         $this->conn         = new \StdClass;
         $this->conn->status = false;
-        
+
+        $this->label        = null;
+
         $this->result       = [];
         $this->pagination   = [];
-        
-        $this->query        = new \StdClass();
-        $this->query->sql   = null;
-        $this->query->label = null;
-        
+
         $this->setDefaultConfig();
     }
-    
+
     /**
      * Métodos de configuração. Cada parâmetro define uma configuração.
      */
@@ -80,19 +79,19 @@ class Database
     public function setUser($user)         { $this->conn->user     = $user;     return $this; }
     public function setPassword($password) { $this->conn->password = $password; return $this; }
     public function setOptions($options)   { $this->conn->options  = $options;  return $this; }
-    
+
     /**
      * Método que define as configurações padrão para conexão.
      */
     public function setDefaultConfig()
     {
-        $this->conn->active   = GALASTRI["database"]["active"];
-        $this->conn->driver   = GALASTRI["database"]["driver"];
-        $this->conn->host     = GALASTRI["database"]["host"];
-        $this->conn->database = GALASTRI["database"]["database"];
-        $this->conn->user     = GALASTRI["database"]["user"];
-        $this->conn->password = GALASTRI["database"]["password"];
-        $this->conn->options  = GALASTRI["database"]["options"];
+        $this->conn->active   = GALASTRI['database']['active'];
+        $this->conn->driver   = GALASTRI['database']['driver'];
+        $this->conn->host     = GALASTRI['database']['host'];
+        $this->conn->database = GALASTRI['database']['database'];
+        $this->conn->user     = GALASTRI['database']['user'];
+        $this->conn->password = GALASTRI['database']['password'];
+        $this->conn->options  = GALASTRI['database']['options'];
 
         return $this;
     }
@@ -120,7 +119,7 @@ class Database
         }
         return $this;
     }
-    
+
     /**
      * Métodos de transação. Permite a definição de onde uma transação será iniciada e, caso algum
      * erro ocorra durante as consultas SQL, que todas as transações concluídas sejam desfeitas.
@@ -128,7 +127,7 @@ class Database
     public function begin()  { if($this->conn->active) $this->pdo->beginTransaction(); }
     public function cancel() { if($this->conn->active) $this->pdo->rollBack(); }
     public function commit() { if($this->conn->active) $this->pdo->commit(); }
-    
+
     /**
      * Método que verifica se existe um elo da corrente ativo antes de executar um novo teste.
      * Caso positivo, a corrente deverá ser resolvida antes da criação de uma nova.
@@ -136,7 +135,7 @@ class Database
     private function beforeTest()
     {
         if($this->conn->status === false){
-            Debug::error("DATABASE001");
+            Debug::error('DATABASE001');
         } else {
             if($this->conn->active){
                 if(Chain::hasLinks()){
@@ -145,7 +144,7 @@ class Database
             }
         }
     }
-    
+
     /**
      * Método que faz as consultas SQL. Neste microframework optou-se pela execução das consultas
      * através da digitação completa das querystrings. Ou seja, não existem atalhos prontos para
@@ -186,26 +185,26 @@ class Database
      * 
      * @param string $label            Rótulo da consulta para ser armazenado individualmente.
      */
-    public function query($queryString, $label = "galastriDefaultQuery")
+    public function query($queryString, $label = 'galastriDefaultQuery')
     {
         $this->beforeTest();
 
         /** Este método cria um elo em uma corrente, o que permite que sejam concatenados outros
          * métodos junto a ela. */
         Chain::create(
-            "query",
+            'query',
             [
-                "name"        => "query",
-                "queryString" => $queryString,
-                "label"       => $label,
-                "attach"      => true,
+                'name'        => 'query',
+                'queryString' => $queryString,
+                'label'       => $label,
+                'attach'      => true,
             ],
             (
                 function($chainData, $data){
                     if($this->conn->active){
                         Debug::trace(debug_backtrace()[0]);
 
-                        $this->query->label = $data["label"] === 0 ? "defaultQuery" : $data["label"];
+                        $this->label = $data['label'];
 
                         $bind      = [];
                         $bindArray = [];
@@ -215,16 +214,15 @@ class Database
                          * um pouco diferente da consulta principal. A consulta de paginação
                          * leva a conta todos os resultados. Já a consulta principal leva em conta
                          * apenas o que se deseja exibir. */
-                        $mainQuery  = trim($data["queryString"]);
-                        $mainQuery  = preg_replace("/[\t\n]+/u", " ", $mainQuery);
+                        $mainQuery  = trim($data['queryString']);
+                        $mainQuery  = preg_replace('/[\t\n]+/u', ' ', $mainQuery);
                         $resultLog  = [];
 
-                        $pagQuery   = $data["queryString"];
+                        $pagQuery   = $data['queryString'];
                         $pagStatus  = false;
                         $pagLog     = [];
 
-                        $queryType  = lower(explode(" ", $mainQuery)[0]);
-                        
+                        $queryType  = lower(explode(' ', $mainQuery)[0]);
                         /** Verifica se o termo LIMIT foi usado na querystring. Caso tenha sido,
                          * então a paginação não será executada. Isso ocorre pois a paginação
                          * necessita de uma querystring livre de limitações, já que a paginação
@@ -233,24 +231,23 @@ class Database
                         $limitMatch = empty($limitMatch[0]) ? false : $limitMatch[0];
 
                         foreach($chainData as $parameter){
-                            switch($parameter["name"]){
-                                /** Execução da Query. Caso o LIMIT não esteja definido na própria
-                                 * querystring e caso o status de paginação seja verdadeiro, então
-                                 * é inserido, na consulta principal, um LIMIT baseado nas
-                                 * configurações da paginação.
-                                 * 
-                                 * A consulta é preparada e todos os valores inseridos nos métodos
-                                 * bind() ou bindArray() são unificados na variável bindArray().
-                                 * 
-                                 * Cada um dos valores informados nos binds são verificados, já
-                                 * que valores do tipo null precisam ser explicitamente declarados
-                                 * com o parâmetro PDO::PARAM_null.*/
-                                case "query":
-
+                            switch($parameter['name']){
+                                    /** Execução da Query. Caso o LIMIT não esteja definido na própria
+                                     * querystring e caso o status de paginação seja verdadeiro, então
+                                     * é inserido, na consulta principal, um LIMIT baseado nas
+                                     * configurações da paginação.
+                                     * 
+                                     * A consulta é preparada e todos os valores inseridos nos métodos
+                                     * bind() ou bindArray() são unificados na variável bindArray().
+                                     * 
+                                     * Cada um dos valores informados nos binds são verificados, já
+                                     * que valores do tipo null precisam ser explicitamente declarados
+                                     * com o parâmetro PDO::PARAM_null.*/
+                                case 'query':
                                     if(!$limitMatch and $pagStatus){
-                                        $mainQuery .= $pagPerPage ? " LIMIT ".(($pagPage-1)*$pagPerPage).", $pagPerPage" : "";
+                                        $mainQuery .= $pagPerPage ? ' LIMIT '.(($pagPage-1)*$pagPerPage).", $pagPerPage" : '';
                                     }
-                                    
+
                                     $sql       = $this->pdo->prepare($mainQuery);
                                     $bindArray = array_merge($bind, $bindArray);
 
@@ -267,22 +264,23 @@ class Database
                                      * tais resultados precisam ser organizados em uma array
                                      * associativa.
                                      * 
-                                     * A variável/array $resultLog["found"] é definida como true,
+                                     * A variável/array $resultLog['found'] é definida como true,
                                      * para que seja fácil identificar quando a consulta encontra
                                      * ou não resultados.
                                      * 
-                                     * A variável/array $resultLog["data"] armazena todos os
+                                     * A variável/array $resultLog['data'] armazena todos os
                                      * resultados encontrados em uma array associativa em que o
                                      * nome do campo da tabela é a chave o seu valor é o valor da
                                      * chave.*/
+
                                     if($sql->execute($bindArray)) {
                                         switch($queryType){
-                                            case "select":
+                                            case 'select':
                                                 if($sql->rowCount() > 0){
-                                                    $resultLog["found"] = true;
+                                                    $resultLog['found'] = true;
 
                                                     while($found = $sql->fetch(\PDO::FETCH_ASSOC)){
-                                                        $resultLog["data"][] = $found;
+                                                        $resultLog['data'][] = $found;
                                                     }
 
                                                     /** Não existindo LIMIT na consulta e a paginação
@@ -296,66 +294,71 @@ class Database
                                                      * a página atual e a quantidade de resultados
                                                      * por página.*/
                                                     if(!$limitMatch and $pagStatus){
-                                                        $pagLog["status"] = true;
+                                                        $pagLog['status'] = true;
 
                                                         $sql = $this->pdo->prepare(trim($pagQuery));
                                                         $sql->execute($bindArray);
 
-                                                        $pagLog["entries"] = $sql->rowCount();
-                                                        $pagLog["pages"]   = (int)ceil($sql->rowCount()/$pagPerPage);
-                                                        $pagLog["page"]    = $pagPage;
-                                                        $pagLog["perPage"] = $pagPerPage;
+                                                        $pagLog['entries'] = $sql->rowCount();
+                                                        $pagLog['pages']   = (int)ceil($sql->rowCount()/$pagPerPage);
+                                                        $pagLog['page']    = $pagPage;
+                                                        $pagLog['perPage'] = $pagPerPage;
                                                     }
                                                 }
                                                 break;
 
-                                            /** Caso a consulta seja do tipo INSERT, então é
-                                             * armazenado o último ID inserido no banco de dados.*/
-                                            case "insert":
-                                                $resultLog["found"] = true;
-                                                $resultLog["lastId"] = $this->pdo->lastInsertId();
+                                                /** Caso a consulta seja do tipo INSERT, então é
+                                                 * armazenado o último ID inserido no banco de
+                                                 * dados.*/
+                                            case 'insert':
+                                                $resultLog['found'] = true;
+                                                $resultLog['lastId'] = $this->pdo->lastInsertId();
+                                                break;
+
+                                            default:
+                                                $resultLog['found'] = true;
                                                 break;
                                         }
-                                        $resultLog["affectedRows"] = $sql->rowCount();
-                                        $resultLog["queryType"]    = $queryType;
+                                        $resultLog['affectedRows'] = $sql->rowCount();
+                                        $resultLog['queryType']    = $queryType;
 
                                         $this->setPagination($pagLog);
                                         $this->setResult($resultLog);
                                     } else {
 //                                        if($this->debugStatus){
-//                                            Debug::error("DATABASE002", $mainQuery)::print();
+//                                            Debug::error('DATABASE002', $mainQuery)::print();
 //                                        }
                                         $this->setPagination($pagLog);
                                         $this->setResult([]);
                                     }
                                     break;
-                                    
-                                /** Os casos abaixo fazem o armazenamento dos parâmetros informados
-                                 * nos métodos que estiverem encadeados na corrente. Cada elo
-                                 * resolvido tem funções específicas.
-                                 * 
-                                 * Os métodos bind() e bindArray() criam elos na corrente cujos
-                                 * dados são armazenados e usados no método principal query()
-                                 * com os argumentos de referência na querystring.
-                                 * 
-                                 * O método pagination() cria um elo na corrente que cujos dados
-                                 * são armazenados e usados no método principal query() a respeito
-                                 * de paginação. */
-                                case "bind":
-                                    $field        = $parameter["field"];
-                                    $value        = $parameter["value"];
+
+                                    /** Os casos abaixo fazem o armazenamento dos parâmetros informados
+                                     * nos métodos que estiverem encadeados na corrente. Cada elo
+                                     * resolvido tem funções específicas.
+                                     * 
+                                     * Os métodos bind() e bindArray() criam elos na corrente cujos
+                                     * dados são armazenados e usados no método principal query()
+                                     * com os argumentos de referência na querystring.
+                                     * 
+                                     * O método pagination() cria um elo na corrente que cujos dados
+                                     * são armazenados e usados no método principal query() a respeito
+                                     * de paginação.*/
+                                case 'bind':
+                                    $field        = $parameter['field'];
+                                    $value        = $parameter['value'];
 
                                     $bind[$field] = $value;
                                     break;
 
-                                case "bindArray":
-                                    $bindArray    = $parameter["fields"];
+                                case 'bindArray':
+                                    $bindArray    = $parameter['fields'];
                                     break;
 
-                                case "pagination":
+                                case 'pagination':
                                     $pagStatus    = true;
-                                    $pagPage      = $parameter["page"];
-                                    $pagPerPage   = $parameter["perPage"];
+                                    $pagPage      = $parameter['page'];
+                                    $pagPerPage   = $parameter['perPage'];
                                     break;
                             }
                         }
@@ -366,7 +369,7 @@ class Database
         );
         return $this;
     }
-    
+
     /**
      * Método que cria um elo na corrente que armazena argumentos de referência e seu respectivo
      * valor real. Os argumentos de referência podem ser nomeados iniciando-se com dois pontos :
@@ -376,13 +379,13 @@ class Database
      * Exemplos de uso:
      * 
      *     $database->query(SELECT * FROM tabela WHERE autor = :autor AND editora = :editora)
-     *              ->bind(":autor", $_POST["autor"])
-     *              ->bind(":editora", $_POST["editora"])
+     *              ->bind(':autor', $_POST['autor'])
+     *              ->bind(':editora', $_POST['editora'])
      *              ->submit();
      * 
      *     $database->query(SELECT * FROM tabela WHERE autor = ? AND editora = ?)
-     *              ->bind(1, $_POST["autor"])
-     *              ->bind(2, $_POST["editora"])
+     *              ->bind(1, $_POST['autor'])
+     *              ->bind(2, $_POST['editora'])
      *              ->submit();
      * 
      * @param int|string $field        Armazena o nome da referência ou o número da ocorrência da
@@ -395,20 +398,20 @@ class Database
     {
         if($this->conn->active){
             Chain::create(
-                "bind",
+                'bind',
                 [
-                    "name"         => "bind",
-                    "field"        => $field,
-                    "value"        => $value,
-                    "attach"    => true,
+                    'name'         => 'bind',
+                    'field'        => $field,
+                    'value'        => $value,
+                    'attach'    => true,
                 ],
                 (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
         }
         return $this;
     }
-    
-    
+
+
     /**
      * Método que faz a mesma coisa que o método bind(), com a diferença de que ao invés de receber
      * uma array com vários argumentos de referência e seus respectivos valores. O bind() aceita
@@ -420,8 +423,8 @@ class Database
      * Exemplo de uso:
      * 
      *     $dados = array(
-     *          ":autor" => $_POST["autor"],
-     *          ":editora" => $_POST["editora"],
+     *          ':autor' => $_POST['autor'],
+     *          ':editora' => $_POST['editora'],
      *     );
      * 
      *     $database->query(SELECT * FROM tabela WHERE autor = :autor AND editora = :editora)
@@ -435,18 +438,18 @@ class Database
     {
         if($this->conn->active){
             Chain::create(
-                "bindArray",
+                'bindArray',
                 [
-                    "name"   => "bindArray",
-                    "fields" => $fields,
-                    "attach" => true,
+                    'name'   => 'bindArray',
+                    'fields' => $fields,
+                    'attach' => true,
                 ],
                 (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
         }
         return $this;
     }
-    
+
     /**
      * Método que cria um elo na corrente contendo dados para criar paginação.
      * 
@@ -473,19 +476,19 @@ class Database
     {
         if($this->conn->active){
             Chain::create(
-                "pagination",
+                'pagination',
                 [
-                    "name"    => "pagination",
-                    "page"    => $page,
-                    "perPage" => $perPage,
-                    "attach"  => true,
+                    'name'    => 'pagination',
+                    'page'    => $page,
+                    'perPage' => $perPage,
+                    'attach'  => true,
                 ],
                 (function($chainData, $data){ return Chain::resolve($chainData, $data); })
             );
         }
         return $this;
     }
-    
+
     /**
      * Método que faz a resolução dos elos da corrente. Cada um dos elos criados não é executado,
      * apenas armazenado. Por isso, o método submit() é necessário, pois é ele que inicia a
@@ -497,7 +500,7 @@ class Database
             return Chain::resolve();
         }
     }
-    
+
     /**
      * Método que armazena os resultados da consulta em um objeto StdClass que será acessível
      * através do método getResult().
@@ -510,17 +513,17 @@ class Database
      */
     private function setResult($result)
     {
-        $label                = $this->query->label;
+        $label                = $this->label;
         $this->result[$label] = new \StdClass;
-        
+
         $this->result[$label]->label        = $label;
-        $this->result[$label]->queryType    = keyExists("queryType", $result, false);
-        $this->result[$label]->affectedRows = keyExists("affectedRows", $result, false);
-        $this->result[$label]->found        = keyExists("found", $result, false);
-        $this->result[$label]->data         = keyExists("data", $result, null);
-        $this->result[$label]->lastId       = keyExists("lastId", $result, null);
+        $this->result[$label]->queryType    = $result['queryType'] ?? false;
+        $this->result[$label]->affectedRows = $result['affectedRows'] ?? false;
+        $this->result[$label]->found        = $result['found'] ?? false;
+        $this->result[$label]->data         = $result['data'] ?? null;
+        $this->result[$label]->lastId       = $result['lastId'] ?? null;
     }
-    
+
     /**
      * Método que armazena os resultados de paginação em um objeto StdClass que será acessível
      * através do método getPagination().
@@ -530,17 +533,16 @@ class Database
      */
     private function setPagination($result)
     {
-        $label                    = $this->query->label;
+        $label = $this->label;
         $this->pagination[$label] = new \StdClass;
-        
-//        $this->pagination[$label]->label   = $label;
-        $this->pagination[$label]->status  = keyExists("status", $result, false);
-        $this->pagination[$label]->entries = keyExists("entries", $result, null);
-        $this->pagination[$label]->pages   = keyExists("pages", $result, null);
-        $this->pagination[$label]->page    = keyExists("page", $result, null);
-        $this->pagination[$label]->perPage = keyExists("perPage", $result, null);
+
+        $this->pagination[$label]->status  = $result['status'] ?? false;
+        $this->pagination[$label]->entries = $result['entries'] ?? null;
+        $this->pagination[$label]->pages   = $result['pages'] ?? null;
+        $this->pagination[$label]->page    = $result['page'] ?? null;
+        $this->pagination[$label]->perPage = $result['perPage'] ?? null;
     }
-    
+
     /**
      * Recupera os resultados de consulta.
      * 
@@ -548,11 +550,11 @@ class Database
      *                                 que armazena o resultado que se quer recuperar. Quando
      *                                 não informado, utiliza o rótulo padrão.
      */
-    public function getResult($label = "galastriDefaultQuery")
+    public function getResult($label = 'galastriDefaultQuery')
     {
-        return $this->propertyResults($label, "result");
+        return $this->propertyResults($label, 'result');
     }
-    
+
     /**
      * Recupera os resultados de paginação.
      * 
@@ -560,11 +562,11 @@ class Database
      *                                 que armazena o resultado que se quer recuperar. Quando
      *                                 não informado, utiliza o rótulo padrão.
      */
-    public function getPagination($label = "galastriDefaultQuery")
+    public function getPagination($label = 'galastriDefaultQuery')
     {
-        return $this->propertyResults($label, "pagination");
+        return $this->propertyResults($label, 'pagination');
     }
-    
+
     /**
      * Este método é chamado quando algum dos métodos getResult() ou getPagination() é executado.
      * Como ambos executam comandos idênticos, optou-se por definir um bloco de comandos único que
@@ -578,21 +580,21 @@ class Database
     private function propertyResults($label, $property)
     {
         Debug::trace(debug_backtrace()[0]);
-        
+
         $keys = array_keys($this->$property);
-        
+
         if(isset($this->$property[$label])){
             return $this->$property[$label];
         } else {
-            if($label === "galastriDefaultQuery"){
-                Debug::error("DATABASE003", $label)::print();
+            if($label === 'galastriDefaultQuery'){
+                Debug::error('DATABASE003', $label)::print();
 
             } else {
-                Debug::error("DATABASE004", $label)::print();
+                Debug::error('DATABASE004', $label)::print();
             }
         }
     }
-    
+
     /**
      * Método que limpa os dados armazenados em um rótulo.
      * 
@@ -603,7 +605,7 @@ class Database
         $this->result[$label]     = null;
         $this->pagination[$label] = null;
     }
-    
+
     /**
      * Método que elimina um rótulo e, consequentemente, todos seus dados.
      * 
@@ -613,9 +615,39 @@ class Database
     {
         $this->clearResult($label);
 
-        if($label != "galastriDefaultQuery"){
+        if($label != 'galastriDefaultQuery'){
             unset($this->result[$label]);
             unset($this->pagination[$label]);
         }
+    }
+    
+    /**
+     * Método que retorna o AUTO_INCREMENT de uma tabela do banco de dados informado.
+     * 
+     * @param string $table            Tabela de onde se quer verificar o próximo AUTO_INCREMENT.
+     */
+    public function getTableNexId($table)
+    {
+        $query = (function($driver){
+            switch($driver){
+                case 'mysql':
+                    return '
+                        SELECT
+                            AUTO_INCREMENT as autoIncrement
+                        FROM
+                            INFORMATION_SCHEMA.TABLES
+                        WHERE
+                            TABLE_SCHEMA = :database AND
+                            TABLE_NAME = :table';
+                    break;
+            }
+        })($this->conn->driver);
+
+        $this->query($query, 'galastriLastId')
+            ->bind(':database', $this->conn->database)
+            ->bind(':table', $table)
+            ->submit();
+
+        return $this->getResult('galastriLastId')->data[0]['autoIncrement'];
     }
 }

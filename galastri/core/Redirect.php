@@ -20,12 +20,12 @@ class Redirect
         Debug::trace(debug_backtrace()[0]);
 
         if($to === false){
-           Debug::error("REDIRECT000")::print();
+           Debug::error('REDIRECT000')::print();
         } else {
-            if(array_key_exists(lower($to), GALASTRI["url_alias"])){
-                exit(header("Location: ".GALASTRI["url_alias"][$to]));
+            if(array_key_exists(lower($to), GALASTRI['url_alias'])){
+                exit(header('Location: '.GALASTRI['url_alias'][$to]));
             } else {
-                exit(header("Location: ".$to));
+                exit(header('Location: '.$to));
             }
         }
     }

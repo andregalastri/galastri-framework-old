@@ -28,56 +28,58 @@ trait Length
     public function length()
     {
         $this->beforeTest();
-        
+
         Chain::create(
-            "length",
+            'length',
             [
-                "name"   => "length",
-                "attach" => true,
+                'name'   => 'length',
+                'attach' => true,
             ],
             (
                 function($chainData, $data)
                 {
                     Debug::trace(debug_backtrace()[0]);
-                    
+
                     $error = $this->error->status;
 
                     if(!$error){
                         $testValue = $this->validation->value;
 
                         foreach($chainData as $parameter){
-                            switch($parameter["name"]){
-                                
-                                /** Compara a quantidade de caracteres do dado com a quantidade
+                            switch($parameter['name']){
+
+                                    /** Compara a quantidade de caracteres do dado com a quantidade
                                  * especificada nos métodos de comparação. */
-                                case "length":
+                                case 'length':
                                     foreach($operation as $operator){
-                                        if(!$this->compare(strlen($testValue), $operator["operator"], $operator["delimiter"])){
-                                            $error                        = true;
-                                            $errorLog["invalidData"]     = strlen($testValue);
-                                            $errorLog["reason"]            = "length_".strlen($testValue);
+                                        if(!$this->compare(strlen($testValue), $operator['operator'], $operator['delimiter'])){
+                                            $error = true;
+                                            $errorLog['invalidData'] = strlen($testValue);
+                                            $errorLog['reason']      = 'length_'.strlen($testValue);
+                                            $errorLog['message']     = $operator['message'];
                                             break 3;
                                         }
                                     }
                                     break;
 
-                                case "min":
-                                case "max":
-                                case "lesser":
-                                case "greater":
-                                case "equal":
-                                case "diff":
+                                case 'min':
+                                case 'max':
+                                case 'lesser':
+                                case 'greater':
+                                case 'equal':
+                                case 'diff':
                                     $operation[] = [
-                                        "operator"  => $parameter["operator"],
-                                        "delimiter" => $parameter["delimiter"],
+                                        'operator'  => $parameter['operator'],
+                                        'delimiter' => $parameter['delimiter'],
+                                        'message'   => $parameter['message'],
                                     ];
                                     break;
                             }
                         }
 
                         if($error){
-                            $errorLog["error"]    = $error;
-                            $errorLog["testName"] = "length";
+                            $errorLog['error']    = $error;
+                            $errorLog['testName'] = 'length';
 
                             $this->setValidationError($errorLog);
                         }

@@ -65,10 +65,10 @@ class Route
          * serão armazenados em uma array, que é a própria variável $url.
          * 
          * Também serão utilizadas aqui as rotas configuradas no arquivo config/routes.php. */
-        $url       = explode("?", lower($_SERVER['REQUEST_URI']));
-        $url       = explode("/", $url[0]);
-        $routes    = GALASTRI["routes"];
-        $routePath = "";
+        $url       = explode('?', lower($_SERVER['REQUEST_URI']));
+        $url       = explode('/', $url[0]);
+        $routes    = GALASTRI['routes'];
+        $routePath = '';
 
         /** Quando se trata da index, ou seja, quando nenhum parâmetro é informado na URL através
          * das barras /, pode ocorrer de a variáveis $url armazenar duas chaves vazias. Neste caso
@@ -86,21 +86,21 @@ class Route
          * 
          * Por exemplo, suponha a seguinte configuração:
          * 
-         *     "/area1" => [
-         *         "@pagina_a" => [],
-         *         "@pagina_b" => [],
+         *     '/area1' => [
+         *         '@pagina_a' => [],
+         *         '@pagina_b' => [],
          *     ],
          * 
          * Suponha que se queira que todas as páginas de area1 fiquem offline para manutenção.
-         * Ao invés de se colocar uma chave "offline" => true para cada página, pode-se colocar
+         * Ao invés de se colocar uma chave 'offline' => true para cada página, pode-se colocar
          * uma única chave dessas logo após a declaração de area1. Esta chave é herdável, ou seja,
          * todas as páginas de area1 também possuirão esta chave o seu respectivo valor, fazendo
          * com que tornar uma área offline fique muito mais prática.
          * 
-         *     "/area1" => [
-         *         "offline" => true,
-         *         "@pagina_a" => [],
-         *         "@pagina_b" => [],
+         *     '/area1' => [
+         *         'offline' => true,
+         *         '@pagina_a' => [],
+         *         '@pagina_b' => [],
          *     ],
          * 
          * Cada uma das configurações abaixo são herdáveis seguindo este mesmo princípio. O loop
@@ -108,11 +108,11 @@ class Route
          * se verificar e armazenar valores herdados para todas as áreas e páginas que não
          * possuirem tal configuração. */
         self::$inheritanceConfig = [
-            "offline"      => false,
-            "downloadable" => false,
-            "cache"        => false,
-            "authTag"      => false,
-            "onAuthFail"   => false,
+            'offline'      => false,
+            'downloadable' => false,
+            'cache'        => false,
+            'authTag'      => false,
+            'onAuthFail'   => false,
         ];
 
         foreach($url as $routeName){
@@ -144,31 +144,14 @@ class Route
          * 
          * Tendo os parâmetros armazenados em uma array, verifica-se se o parâmetro 0 possui o
          * valor de um método. Todo método é precedido de um arroba @. */
-        $urlString     = "/".ltrim(implode($url), "/");
-        $routePath     = "/".ltrim($routePath, "/");
-        $parameters    = explode("/", ltrim(replaceOnce($routePath, "", $urlString), "/"));
-        $method        = "@".keyEmpty(0, $parameters, "");
-
-        /** Da forma como tudo está sendo configurado, tudo o que é considerado um parâmetro é
-         * interpretado apenas assim: como um parâmetro. Porém, quando se trata da index, a
-         * existência de parâmetros podem confundir. Isso por que espera-se que logo após a barra
-         * venha uma página e não um parâmetro. Por isto, esta verificação abaixo testa se a rota
-         * está apontando para a index. Caso sim, é verificado se existem parâmetros. Caso sim,
-         * é testado se o primeiro parâmetro é igual a uma página (um método). Caso não, então
-         * haverá redirecionamento para uma página de erro 404. */
-        //        if($routePath !== "/"){
-        /**
-             * Este IF provavelmente será removido, mas deixei aqui por enquanto.
-             */
-        //            if(!array_key_exists($routeName, $routes) and !array_key_exists($method, $routes)){
-        //               Redirect::location("error404");
-        //            }
-        //            array_shift($parameters);
-        //        }
-
+        $urlString     = '/'.ltrim(implode($url), '/');
+        $routePath     = '/'.ltrim($routePath, '/');
+        $parameters    = explode('/', ltrim(replaceOnce($routePath, '', $urlString), '/'));
+        $method        = '@'.($parameters[0] ?? '');
+        
         /** Verifica se o método existe na rota. Caso não, então o método padrão será o @main. */
-        $method = array_key_exists($method, $routes) ? $method : "@main";
-        $method = $method === "@" ? "" : $method;
+        $method = array_key_exists($method, $routes) ? $method : '@main';
+        $method = $method === '@' ? '' : $method;
 
         /** Caso o método, seja ele @main ou qualquer outro, esteja configurado nas rotas, então
          * significa que há um controller. Aqui, portanto, é configurado qual é o controller (que
@@ -179,60 +162,72 @@ class Route
         if(array_key_exists($method, $routes)){
             self::checkInheritanceData($routes[$method]);
 
-            $controller = $routePath === "/"  ? "/index" : $routePath;
-            $view       = $method === "@main" ? "$controller.php" : "$controller/".ltrim("$method.php", "@");
-            
-            $controller = str_replace(["/","."], ["\\",""], GALASTRI["folders"]["controller"]).str_replace("/", "\\", $controller);
+            if(array_key_exists('controller', $routes)){
+                $controller = $routes['controller'];
+                $controller = str_replace('/', '\\', $controller);
+            } else {
+                $controller = $routePath === '/'  ? '/index' : $routePath;
 
-            if(array_key_exists("controller", $routes))             $controller = $routes["controller"];
-            if(array_key_exists("view",       $routes[$method]))    $view       = $routes[$method]["view"];
+                $controller = explode('/', $controller);
+                foreach($controller as &$parts)
+                    $parts = convertCase($parts, 'pascal');
+                unset($parts);
 
-            $controller = str_replace("/", "\\", $controller);
+                $controller = implode('/', $controller);
+            }
+
+            if(array_key_exists('view', $routes[$method])){
+                $view = $routes[$method]['view'];
+            } else {
+                $view = $method === '@main' ? "$controller.php" : "$controller/".ltrim(convertCase($method, 'pascal').'.php', '@');
+            }
+
+            $controller = str_replace(['/','.'], ['\\',''], GALASTRI['folders']['controller']).str_replace('/', '\\', $controller);
         } else {
             $view       = null;
             $controller = null;
             $method     = null;
 
             foreach($routes as $option => $value){
-                if(lower(gettype($value)) === "array") unset($routes[$option]);
+                if(lower(gettype($value)) === 'array') unset($routes[$option]);
             }
         }
 
         /** A rota é armazenada na variável $route e contém todos os dados processados até aqui.
          * Caso se tenha configurado uma view e/ou um controller diretamente na rota, estes são
          * removidos da array. */
-        $route = keyExists($method, $routes, $routes);
+        $route = $routes[$method] ?? $routes;
 
         if(!empty(array_filter($route))){
-            unset($route["controller"]);
-            unset($route["view"]);
+            unset($route['controller']);
+            unset($route['view']);
         }
 
         /** Abaixo, cada um dos dados processados são armazenados em atributos. Estes atributos
          * serão acessíveis através de métodos getters com o mesmo nome dos atributos. */
-        if(self::$inheritanceConfig["cache"] === false){
-            self::$cache = GALASTRI["cache"];
+        if(self::$inheritanceConfig['cache'] === false){
+            self::$cache = GALASTRI['cache'];
         } else {
-            $cache = self::$inheritanceConfig["cache"];
-            self::$cache["status"] = keyExists("status", $cache, GALASTRI["cache"]["status"]);
-            self::$cache["expire"] = keyExists("expire", $cache, GALASTRI["cache"]["expire"]);
+            $cache = self::$inheritanceConfig['cache'];
+            self::$cache['status'] = $cache['status'] ?? GALASTRI['cache']['status'];
+            self::$cache['expire'] = $cache['expire'] ?? GALASTRI['cache']['expire'];
         }
         self::$controller   = $controller;
-        self::$method       = camelCase(ltrim($method,"@"));
+        self::$method       = convertCase(ltrim($method,'@'), 'camel');
         self::$routes       = $routes;
         self::$view         = $view;
         self::$parameters   = $parameters;
         self::$path         = $routePath;
-        self::$offline      = self::$inheritanceConfig["offline"];
-        self::$authTag      = self::$inheritanceConfig["authTag"];
-        self::$onAuthFail   = keyExists("onAuthFail", $route, self::$inheritanceConfig["onAuthFail"]);
+        self::$offline      = self::$inheritanceConfig['offline'];
+        self::$authTag      = self::$inheritanceConfig['authTag'];
+        self::$onAuthFail   = $route['onAuthFail'] ?? self::$inheritanceConfig['onAuthFail'];
         self::$urlString    = $urlString;
-        self::$title        = keyExists("title", $route, "");
-        self::$template     = keyExists("template", $route, []);
-        self::$import       = keyExists("import", $route, []);
-        self::$renderer     = keyExists("renderer", $route, false);
-        self::$baseFolder   = keyExists("baseFolder", $route, null);
-        self::$downloadable = self::$inheritanceConfig["downloadable"];
+        self::$title        = $route['title'] ?? '';
+        self::$template     = $route['template'] ?? [];
+        self::$import       = $route['import'] ?? [];
+        self::$renderer     = $route['renderer'] ?? false;
+        self::$baseFolder   = $route['baseFolder'] ?? null;
+        self::$downloadable = self::$inheritanceConfig['downloadable'];
     }
 
     /**

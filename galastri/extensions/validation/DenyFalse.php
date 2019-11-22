@@ -25,12 +25,12 @@ trait DenyFalse
     public function denyFalse()
     {
         $this->beforeTest();
-        
+
         Chain::create(
-            "denyFalse",
+            'denyFalse',
             [
-                "name"   => "denyFalse",
-                "attach" => true,
+                'name'   => 'denyFalse',
+                'attach' => true,
             ],
             (
                 function($chainData, $data)
@@ -45,10 +45,11 @@ trait DenyFalse
                         $error     = $testValue === false ? true : false;
 
                         if($error){
-                            $errorLog["error"]       = $error;
-                            $errorLog["testName"]    = "denyFalse";
-                            $errorLog["invalidData"] = $testValue;
-                            $errorLog["reason"]      = "false_is_denied";
+                            $errorLog['error']       = $error;
+                            $errorLog['testName']    = 'denyFalse';
+                            $errorLog['invalidData'] = $testValue;
+                            $errorLog['reason']      = 'false_is_denied';
+                            $errorLog['message']     = $data['message'];
 
                             $this->setValidationError($errorLog);
                         }

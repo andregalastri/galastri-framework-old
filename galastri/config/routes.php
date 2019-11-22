@@ -116,7 +116,7 @@ return [
         
 		'@pagina-nao-encontrada' => [
             'renderer' => 'view',
-            'view' => 'erro404.php',
+            'view' => 'Erro404.php',
         ],
     ]
 ];

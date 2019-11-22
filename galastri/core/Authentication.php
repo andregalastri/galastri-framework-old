@@ -21,8 +21,8 @@
  * 
  * Por exemplo, suponha que o site tenha dois locais de autenticação: clientes e administradores.
  * 
- * Na área de clientes, a tag que será verificada pode ser armazenada com o nome "clientes". Já
- * na área de administração, a tag pode ser outra, com o nome de "administradores", por exemplo.
+ * Na área de clientes, a tag que será verificada pode ser armazenada com o nome 'clientes'. Já
+ * na área de administração, a tag pode ser outra, com o nome de 'administradores', por exemplo.
  * 
  * Estas tags são armazenadas como chaves da array $_SESSION e cada uma conterá um token e um ip
  * do usuário armazenados. Não significa que ambos serão usados, apenas significa que uma área vai
@@ -30,13 +30,13 @@
  * 
  * Exemplo de uso da classe:
  * 
- *     Authentication::setTag("clientes")
- *                   ::addField("user_id", $userId)
+ *     Authentication::setTag('clientes')
+ *                   ::addField('user_id', $userId)
  *                   ::start();
  * 
  * O exemplo acima é usado quando o usuário realiza um login bem sucedido. A tag da autenticação
- * é "clientes". Esta tag não deve ser diferente para cada usuário, ela apenas representa uma
- * área. Ou seja, em todas as áreas que possuírem a tag "clientes", este usuário estará autenticado
+ * é 'clientes'. Esta tag não deve ser diferente para cada usuário, ela apenas representa uma
+ * área. Ou seja, em todas as áreas que possuírem a tag 'clientes', este usuário estará autenticado
  * e poderá obter acesso.
  * 
  * No arquivo config/routes.php esta tag é configurada usando o parâmetro authTag para uma área
@@ -48,13 +48,13 @@
  * ser configurado no mesmo local em que a authTag foi definida.
  * 
  * 2. O usuário não é redirecionado, mas o renderizador não recebe nenhum dado da controller. Os
- * únicos dados recebido são "error = -1" e "message = auth". Isso permite fazer com que uma view,
- * por exemplo, exiba uma mensagem alertando da impossibilidade de se exibir a página devido a
- * não autenticação.
+ * únicos dados recebido são 'status = deniedAuth' e 'message = deniedAuth'. Isso permite fazer
+ * com que uma view, por exemplo, exiba uma mensagem alertando da impossibilidade de se exibir a
+ * página devido a não autenticação.
  * 
  * Exemplo de validação:
  * 
- *     $check = Authentication::validate("clientes");
+ *     $check = Authentication::validate('clientes');
  * 
  *     if($check){
  *         // Usuário está autenticado.
@@ -67,10 +67,10 @@ namespace galastri\core;
 class Authentication
 {
     private static $authTag;
-    
+
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-    
+
     /**
      * Método que define a tag de uma área de autenticação quando um login é bem sucedido.
      * 
@@ -81,7 +81,7 @@ class Authentication
         self::$authTag = $authTag;
         return __CLASS__;
     }
-    
+
     /**
      * Método que adiciona campos adicionais para armazenamento referente a autenticação. Pode-se
      * armazenar dados do usuário, como seu ID, por exemplo, de forma que se possa verificar no
@@ -99,8 +99,8 @@ class Authentication
      */
     public static function addField($field, $value)
     {
-        if($field === "token" or $field === "ip"){
-            Debug::error("AUTH001", $field)::print();
+        if($field === 'token' or $field === 'ip'){
+            Debug::error('AUTH001', $field)::print();
         } else {
             $authTag = self::$authTag;
 
@@ -110,12 +110,12 @@ class Authentication
         }
         return __CLASS__;
     }
-    
+
     /**
      * Método que faz o armazenamento dos dados de autenticação. Por padrão, é criado um campo
      * token, que armazena um código randômico de 64 caracteres e que é armazenado tanto na
      * $_SESSION quanto em um cookie. Este token pode ser usado para autenticação automática, como
-     * quando o usuário habilita campos como "Lembrar no próximo login", por exemplo.
+     * quando o usuário habilita campos como 'Lembrar no próximo login', por exemplo.
      * 
      * @param string $authTag          Nome da tag que terá os dados armazenados.
      */
@@ -123,12 +123,12 @@ class Authentication
     {
         $authTag = $authTag === false ? self::$authTag : $authTag;
 
-        $_SESSION[$authTag]["token"] = base64_encode(random_bytes(48));
-        $_SESSION[$authTag]["ip"] = $_SERVER['REMOTE_ADDR'];
-        setcookie($authTag, $_SESSION[$authTag]["token"], time()+(int)GALASTRI["session"]["expire"]);
+        $_SESSION[$authTag]['token'] = base64_encode(random_bytes(48));
+        $_SESSION[$authTag]['ip'] = $_SERVER['REMOTE_ADDR'];
+        setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['session']['expire']);
         session_regenerate_id();
     }
-    
+
     /**
      * Método que atualiza todos os dados da tag de autenticação (token, id da sessão e IP do
      * usuário).
@@ -142,7 +142,7 @@ class Authentication
         }
         return false;
     }
-    
+
     /**
      * Método que remove uma tag de autenticação da sessão do usuário, fazendo com o que o usuário
      * seja deslogado apenas das áreas que utilizem aquela tag.
@@ -159,7 +159,7 @@ class Authentication
         }
         return false;
     }
-    
+
     /**
      * Método que destrói toda a sessão, fazendo com que o usuário seja deslogado de todas as áreas
      * que requerer autenticação.
@@ -173,7 +173,7 @@ class Authentication
         session_unset();
         session_destroy();
     }
-    
+
     /**
      * Método que resgata os dados da sessão do usuário.
      * 
@@ -190,7 +190,7 @@ class Authentication
         }
         return false;
     }
-    
+
     /**
      * Método que valida se a autenticação existe e se ela é válida.
      * 
@@ -215,9 +215,9 @@ class Authentication
     public static function validate($authTag, $ipCheck = false)
     {
         if(self::check($authTag)){
-            if($_SESSION[$authTag]["token"] === $_COOKIE[$authTag]){
+            if($_SESSION[$authTag]['token'] === $_COOKIE[$authTag]){
                 if($ipCheck){
-                    if($_SESSION[$authTag]["ip"] === $_SERVER['REMOTE_ADDR']){
+                    if($_SESSION[$authTag]['ip'] === $_SERVER['REMOTE_ADDR']){
                         return true;
                     } else {
                         return false;
@@ -243,7 +243,7 @@ class Authentication
             return false;
         }
 
-        if(!isset($_SESSION[$authTag]["token"])){
+        if(!isset($_SESSION[$authTag]['token'])){
             return false;
         }
         return true;

@@ -10,7 +10,7 @@
  * o valor quanto o tipo de dado é verificado. Já quando a comparação não é estrita, significa
  * que mesmo dados de tipos diferentes, mas cujo valor é comparável, serão considerados iguais.
  * 
- * Por exemplo: (int)0 e (string)"0" são de tipos diferentes, mas armazenam um valor comparativamente
+ * Por exemplo: (int)0 e (string)'0' são de tipos diferentes, mas armazenam um valor comparativamente
  * semelhante. Numa comparação estrita, estes dois dados são considerados diferentes. Já numa
  * comparação não estrita, estes dados são iguais.
  * 
@@ -20,9 +20,9 @@
  * logo após o método shortList(): o método strict() configura a comparação para ser estrita; o
  * método noStrict() configura a comparação para ser não estrita. Por exemplo:
  * 
- *     $status = "3";
+ *     $status = '3';
  *     $validation->validate($estado)
- *                ->shortList("0", "1", "2", "3")
+ *                ->shortList('0', '1', '2', '3')
  *                ->strict()
  *                ->execute();
  * 
@@ -32,8 +32,8 @@
  * A lista pode ser definida item a item, separando cada parâmetro por vírgulas, ou uma array contendo
  * todos os dados possíveis de uma vez. Por exemplo:
  * 
- *     $status = "3";
- *     $list = ["0", "1", "2", "3"];
+ *     $status = '3';
+ *     $list = ['0', '1', '2', '3'];
  * 
  *     $validation->validate($estado)
  *                ->shortList($list)
@@ -65,13 +65,13 @@ trait ShortList
     public function shortList(...$shortList)
     {
         $this->beforeTest();
-        
+
         Chain::create(
-            "shortList",
+            'shortList',
             [
-                "name"      => "shortList",
-                "shortList" => is_array($shortList[0]) ? $shortList[0] : $shortList,
-                "attach"    => true,
+                'name'      => 'shortList',
+                'shortList' => is_array($shortList[0]) ? $shortList[0] : $shortList,
+                'attach'    => true,
             ],
             (
                 function($chainData, $data)
@@ -79,27 +79,27 @@ trait ShortList
                     Debug::trace(debug_backtrace()[0]);
 
                     $error     = $this->error->status;
-                    $shortList = $data["shortList"];
+                    $shortList = $data['shortList'];
 
                     if(!$error) {
                         $testValue = $this->validation->value;
-                        $strict    = "notStrict";
-                        
+                        $strict    = 'notStrict';
+
                         foreach($chainData as $parameter) {
-                            switch($parameter["name"]) {
-                                case "shortList":
+                            switch($parameter['name']) {
+                                case 'shortList':
                                     $found = false;
-                                    
+
                                     foreach($shortList as $delimiter){
                                         switch($strict){
-                                            case "notStrict":
+                                            case 'notStrict':
                                                 if($testValue ==  $delimiter){
                                                     $found = true;
                                                     break 2;
                                                 }
                                                 break;
-                                                
-                                            case "strict":
+
+                                            case 'strict':
                                                 if($testValue ===  $delimiter){
                                                     $found = true;
                                                     break 2;
@@ -107,19 +107,29 @@ trait ShortList
                                                 break;
                                         }
                                     }
-                                    if(!$found) $error = true;
+
+                                    if(!$found){
+                                        $error = true;
+                                        $errorLog['message'] = $parameter['message'];
+                                    }
+
                                     break;
 
-                                case "strict":    $strict = "strict";    break;
-                                case "notStrict": $strict = "notStrict"; break;
+                                case 'strict':
+                                    $strict = 'strict';
+                                    break;
+
+                                case 'notStrict':
+                                    $strict = 'notStrict';
+                                    break;
                             }
                         }
 
                         if($error){
-                            $errorLog["error"]       = $error;
-                            $errorLog["testName"]    = "shortList";
-                            $errorLog["invalidData"] = $testValue;
-                            $errorLog["reason"]      = "option_not_found";
+                            $errorLog['error']       = $error;
+                            $errorLog['testName']    = 'shortList';
+                            $errorLog['invalidData'] = $testValue;
+                            $errorLog['reason']      = 'option_not_found';
                             $this->setValidationError($errorLog);
                         }
 
