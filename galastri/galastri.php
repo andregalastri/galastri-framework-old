@@ -41,14 +41,19 @@ require_once('functions.php');
  * Desta forma, todas as configurações são acessadas através da constante GALASTRI. */
 define ('GALASTRI', (
     array_merge(
-                         require('config/default.php'),
+        require('config/config.php'),
         ['database'   => require('config/database.php')],
         ['routes'     => require('config/routes.php')],
         ['permission' => require('config/permission.php')],
-        ['url_alias'  => require('config/url_alias.php')]
+        ['urlAlias'   => require('config/url-alias.php')]
     )
 ));
 
+/** Faz a importação de arquivos adicionais que podem ser configurados pelo usuário. */
+foreach(glob(GALASTRI['folders']['additional-config'].'/*.php') as $additionalConfig)
+    require($additionalConfig);
+
+/** Configura o debug, com base na configuração de config/config.php */
 error_reporting(E_ALL);
 ini_set('display_errors', GALASTRI['debug'] ? 'On' : 'Off');
 

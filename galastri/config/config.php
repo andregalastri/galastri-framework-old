@@ -90,67 +90,68 @@
  */
 return [
     'title' => [
-        'siteName'       =>    'Galastri Framework',
-        'divisor'        =>    ' | ',
-        'template'       =>    ['title', 'divisor', 'siteName'],
+        'siteName'       => 'Galastri Framework',
+        'divisor'        => ' | ',
+        'template'       => ['title', 'divisor', 'siteName'],
     ],
-    
-    'timezone'           =>    'America/Sao_Paulo',
-    
-    'debug'              =>    true,
-    
-    'session'            =>    [
-        'expire'         =>    86400 * 1, /* Sessão expira em 1 dia */
+
+    'timezone'           => 'America/Sao_Paulo',
+
+    'debug'              => true,
+
+    'session' => [
+        'expire'         => 86400 * 1, /* Sessão expira em 1 dia */
     ],
-    
+
     'template' => [
-        'root'           =>    '../galastri/view/template/template.php',
-        'head'           =>    '../galastri/view/template/head.php',
-        'nav'            =>    '../galastri/view/template/nav.php',
-        'footer'         =>    '../galastri/view/template/footer.php',    
+        'root'           => '../galastri/view/template/template.php',
+        'head'           => '../galastri/view/template/head.php',
+        'nav'            => '../galastri/view/template/nav.php',
+        'footer'         => '../galastri/view/template/footer.php',    
     ],
-    
+
     'folders' => [
-        'root'           =>    '../galastri',
-        'controller'     =>    '../galastri/controller',
-        'view'           =>    '../galastri/view',
+        'root'              => '../galastri',
+        'additional-config' => '../galastri/config/additional-config',
+        'controller'        => '../galastri/controller',
+        'view'              => '../galastri/view',
     ],
-    
+
     'contentType' => [
-        'jpg'            =>    'image/jpg',
-        'png'            =>    'image/png',
-        'gif'            =>    'image/gif',
-        'ico'            =>    'image/ico',
-        'svg'            =>    'image/svg+xml',
-        'svgf'           =>    'font/svg+xml',
-        'pdf'            =>    'application/pdf',
-        'css'            =>    'text/css',
-        'js'             =>    'application/javascript',
-        'woff2'          =>    'font/woff2',
-        'woff'           =>    'font/woff',
-        'eot'            =>    'font/eot',
-        'ttf'            =>    'font/ttf',
+        'jpg'            => 'image/jpg',
+        'png'            => 'image/png',
+        'gif'            => 'image/gif',
+        'ico'            => 'image/ico',
+        'svg'            => 'image/svg+xml',
+        'svgf'           => 'font/svg+xml',
+        'pdf'            => 'application/pdf',
+        'css'            => 'text/css',
+        'js'             => 'application/javascript',
+        'woff2'          => 'font/woff2',
+        'woff'           => 'font/woff',
+        'eot'            => 'font/eot',
+        'ttf'            => 'font/ttf',
     ],
-    
-    'importTags'         =>    [
-        'js'             =>    '<script src="%s"></script>',
-        'css'            =>    '<link rel="stylesheet" type="text/css" href="%s">',
+
+    'importTags' => [
+        'js'             => '<script src="%s"></script>',
+        'css'            => '<link rel="stylesheet" type="text/css" href="%s">',
     ],
-    
+
     'offline' => [
-        'status'         =>    false,
-        'message'        =>    'O sistema está em manutenção.',
-        'redirectTo'     =>    'index',
-        'forceMessage'   =>    false,
+        'status'         => false,
+        'message'        => 'O sistema está em manutenção.',
+        'redirectTo'     => 'index',
+        'forceMessage'   => false,
     ],
-    
-    'cache'              =>    [
-        'status'         =>    true,
-        'expire'         =>    86400 * 2, /* Cache expira em 2 dias */
+
+    'cache' => [
+        'status'         => true,
+        'expire'         => 86400 * 2, /* Cache expira em 2 dias */
     ],
-    
-    'forceParameters'    =>    [
-        'status'         =>    true,
-        'redirectOnFail' =>    'error404',
+
+    'forceParameters' => [
+        'status'         => true,
+        'redirectOnFail' => 'error404',
     ],
 ];

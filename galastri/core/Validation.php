@@ -75,7 +75,7 @@
  */
 namespace galastri\core;
 
-use \galastri\core\Exception;
+use \galastri\extensions\Exception;
 
 class Validation
 {
