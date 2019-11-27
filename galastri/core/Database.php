@@ -242,7 +242,7 @@ class Database
                                      * 
                                      * Cada um dos valores informados nos binds são verificados, já
                                      * que valores do tipo null precisam ser explicitamente declarados
-                                     * com o parâmetro PDO::PARAM_null.*/
+                                     * com o parâmetro PDO::PARAM_NULL.*/
                                 case 'query':
                                     if(!$limitMatch and $pagStatus){
                                         $mainQuery .= $pagPerPage ? ' LIMIT '.(($pagPage-1)*$pagPerPage).", $pagPerPage" : '';
@@ -252,11 +252,11 @@ class Database
                                     $bindArray = array_merge($bind, $bindArray);
 
                                     foreach($bindArray as $key => &$value){
-                                        if($value === null){
-                                            $sql->bindParam($key, $value, \PDO::PARAM_null);
+                                        if($value === null or (empty($value) and $value !== 0 and $value !== 0.0 and $value !== "0")){
+                                            $sql->bindParam($key, $value, \PDO::PARAM_NULL);
                                             $value = null;
                                         }
-                                    }
+                                    } unset($value);
 
                                     /** A consulta é realizada. É verificado se a consulta é do
                                      * tipo SELECT. Caso seja e caso a quantidade de resultados
@@ -325,9 +325,9 @@ class Database
                                         $this->setPagination($pagLog);
                                         $this->setResult($resultLog);
                                     } else {
-//                                        if($this->debugStatus){
-//                                            Debug::error('DATABASE002', $mainQuery)::print();
-//                                        }
+                                        //                                        if($this->debugStatus){
+                                        //                                            Debug::error('DATABASE002', $mainQuery)::print();
+                                        //                                        }
                                         $this->setPagination($pagLog);
                                         $this->setResult([]);
                                     }
@@ -343,7 +343,7 @@ class Database
                                      * 
                                      * O método pagination() cria um elo na corrente que cujos dados
                                      * são armazenados e usados no método principal query() a respeito
-                                     * de paginação.*/
+                                     * de paginação. */
                                 case 'bind':
                                     $field        = $parameter['field'];
                                     $value        = $parameter['value'];
@@ -620,7 +620,7 @@ class Database
             unset($this->pagination[$label]);
         }
     }
-    
+
     /**
      * Método que retorna o AUTO_INCREMENT de uma tabela do banco de dados informado.
      * 

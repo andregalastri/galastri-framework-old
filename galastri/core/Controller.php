@@ -86,7 +86,7 @@ class Controller
         $routes        = Route::routes();
         $routePath     = Route::path();
         $preParameters = Route::parameters();
-        $method        = Route::method();
+        $method        = Route::method('noCaseConvert');
         $parameters    = [];
 
         /** DOCUMENTAR AQUI */

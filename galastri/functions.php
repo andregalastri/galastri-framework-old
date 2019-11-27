@@ -12,7 +12,8 @@
  * 
  * @param mixed $variable          Valor que será impresso pelo var_dump().
  */
-function vdump(...$variable){
+function vdump(...$variable)
+{
     $debug = debug_backtrace()[0];
     $format = dump($variable);
 
@@ -27,7 +28,8 @@ function vdump(...$variable){
  * 
  * @param mixed $variable          Valor que será impresso pelo var_dump().
  */
-function ddump(...$variable){
+function ddump(...$variable)
+{
     $debug = debug_backtrace()[0];
     $format = dump($variable);
 
@@ -39,7 +41,8 @@ function ddump(...$variable){
  * Formava o resultado do var_dump. Esta função não é para ser chamada. Ela só é utilizada pelas
  * funções vdump() e ddump().
  */
-function dump($variable){
+function dump($variable)
+{
     $varDump = (function($variable) {
         ob_start();
         foreach($variable as $key => $value) var_dump($value);
@@ -60,7 +63,8 @@ function dump($variable){
  * Imprime o var_dump() formatado. Esta função não é para ser chamada. Ela só é utilizada pelas
  * funções vdump() e ddump().
  */
-function printDump($name, $format, $debug){
+function printDump($name, $format, $debug)
+{
     echo
         <<<DDUMP
 <pre style='white-space:pre-wrap;'>
@@ -88,7 +92,8 @@ DDUMP;
  * 
  * @param bool $reverse            Quando TRUE indica se a busca deve acontecer do final do texto
  */
-function replaceOnce($search, $replace, $string, $reverse = FALSE){
+function replaceOnce($search, $replace, $string, $reverse = FALSE)
+{
     if(empty($string) or empty($search)){
         return $string;
     } else {
@@ -100,65 +105,14 @@ function replaceOnce($search, $replace, $string, $reverse = FALSE){
 }
 
 /**
- * Função que faz atribuição de valores baseado em uma array e sua chave. Se a chave informada
- * existe, então o valor atribuído será o valor da chave. Caso a chave não exista, então o valor
- * atribuído será o valor padrão.
- * 
- * @param array $keys              Nomes das chaves que serão procuradas.
- * 
- * @param array $array             Array onde as chaves serão procuradas.
- * 
- * @param mixed $defaultValue      Valor padrão caso a chave não seja encontrada.
- */
-//function keyExists($keys, $array, $defaultValue = ''){
-//    if(!is_array($keys)){
-//        $keys = [$keys];
-//    }
-//    foreach($keys as $key){
-//        if(array_key_exists($key, $array)){
-//            $result = $array[$key];
-//            break;
-//        } else {
-//            $result = $defaultValue;
-//        }
-//    }
-//    return $result;
-//}
-
-/**
- * Função que faz atribuição de valores baseado em uma array e sua chave. Se a chave informada
- * não for vazia, então o valor atribuído será o valor da chave. Caso a chave tenha um valor vazio,
- * então o valor atribuído será o valor padrão.
- * 
- * @param array $keys              Nomes das chaves que serão procuradas.
- * 
- * @param array $array             Array onde as chaves serão procuradas.
- * 
- * @param mixed $defaultValue      Valor padrão caso a chave seja vazia.
- */
-//function keyEmpty($keys, $array, $defaultValue = ''){
-//    if(!is_array($keys)){
-//        $keys = [$keys];
-//    }
-//    foreach($keys as $key){
-//        if(!empty($array[$key])){
-//            $result = $array[$key];
-//            break;
-//        } else {
-//            $result = $defaultValue;
-//        }
-//    }
-//    return $result;
-//}
-
-/**
  * Função que faz o implode() de múltiplas arrays.
  * 
  * @param string $glue             Termo que irá dividir cada um valores de cada chave.
  * 
  * @param array $arrays            Arrays que sofrerão o implode();
  */
-function implodeMultiple($glue, $arrays){
+function implodeMultiple($glue, $arrays)
+{
     $string = '';
 
     foreach($arrays as $array){
@@ -171,7 +125,8 @@ function implodeMultiple($glue, $arrays){
  * Função que retorna apenas a primeira letra maiúscula de uma string. Esta função não é para ser
  * chamada. Ela só é utilizada pela função capitalize().
  */
-if (!function_exists('mb_ucfirst')) {
+if (!function_exists('mb_ucfirst'))
+{
     function mb_ucfirst($string, $encoding = 'UTF-8', $lowerStringEnd = false) {
         $firstLetter = mb_strtoupper(mb_substr($string, 0, 1, $encoding), $encoding);
         $stringingEnd = '';
@@ -199,7 +154,8 @@ if (!function_exists('mb_ucfirst')) {
  * @param bool $keepChars          Quando TRUE impede que letras que já estejam em maísculo sejam
  *                                 convertidas pra minúsculo
  */
-function capitalize($string, $asArticle = FALSE, $keepChars = FALSE){
+function capitalize($string, $asArticle = FALSE, $keepChars = FALSE)
+{
     if($asArticle){
         $string = preg_split('/(\.|\!|\?)/', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
         $string = array_map('trim', $string);
@@ -226,7 +182,8 @@ function capitalize($string, $asArticle = FALSE, $keepChars = FALSE){
  * 
  * @param string $string           Texto que será formatado.
  */
-function upper($string){
+function upper($string)
+{
     return mb_convert_case($string, MB_CASE_UPPER, 'UTF-8');
 }
 
@@ -235,7 +192,8 @@ function upper($string){
  * 
  * @param string $string           Texto que será formatado.
  */
-function lower($string){
+function lower($string)
+{
     return mb_convert_case($string, MB_CASE_LOWER, 'UTF-8');
 }
 
@@ -250,10 +208,11 @@ function lower($string){
  *                                 por traços - ou underlines _. Caso se queira usar outro tipo
  *                                 de delimitador, é necessário informá-lo aqui em formato regex.
  */
-function convertCase($string, $type, $regex = '/(-|_)/'){
+function convertCase($string, $type, $regex = '/(-|_)/')
+{
     $string = preg_split($regex, $string);
     $string = array_map('trim', $string);
-    
+
     foreach($string as $key => &$value){
         if(empty($value))
             continue;
@@ -270,4 +229,21 @@ function convertCase($string, $type, $regex = '/(-|_)/'){
         $value = capitalize($value);
     } unset($value);
     return implode($string);
+}
+
+/**
+ * Converte uma data de um formato para outro.
+ * 
+ * @param string $datetime         Data que será formatada.
+ * 
+ * @param string $inputFormat      Formato atual da data.
+ * 
+ * @param string $outputFormat     Formato que se deseja obter.
+ */
+function convertDatetime($datetime, $inputFormat, $outputFormat)
+{
+    if(empty($datetime))
+        return null;
+
+    return \DateTime::createFromFormat($inputFormat, $datetime)->format($outputFormat);
 }

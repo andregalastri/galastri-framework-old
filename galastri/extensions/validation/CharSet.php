@@ -161,6 +161,8 @@ trait CharSet
                                         $errorLog['invalidData'] = $finalOutside;
                                         $errorLog['reason']      = 'invalid_char';
                                         $errorLog['message']     = $parameter['message'];
+                                        $errorLog['format']      = $parameter['format'];
+                                        $errorLog['spacer']      = $parameter['spacer'];
                                         break 2;
                                     }
                                     break;
@@ -210,6 +212,8 @@ trait CharSet
                                                     $errorLog['invalidData'] = $matchSum;
                                                     $errorLog['reason']      = 'requiared_char_qty_'.$operator['delimiter'];
                                                     $errorLog['message']     = $operator['message'];
+                                                    $errorLog['format']      = $operator['format'];
+                                                    $errorLog['spacer']      = $operator['spacer'];
                                                     break 4;
                                                 }
                                             }
@@ -220,7 +224,9 @@ trait CharSet
                                         $error = true;
                                         $errorLog['invalidData'] = $parameter['charSet'];
                                         $errorLog['reason']      = 'required_char';
-                                        $errorLog['message']      = $parameter['message'];
+                                        $errorLog['message']     = $parameter['message'];
+                                        $errorLog['format']      = $parameter['format'];
+                                        $errorLog['spacer']      = $parameter['spacer'];
                                         break 2;
                                     }
 
@@ -247,6 +253,7 @@ trait CharSet
                                         $errorLog['invalidData'] = $finalOutside;
                                         $errorLog['reason']      = 'invalid_char';
                                         $errorLog['message']     = $parameter['message'];
+                                        $errorLog['spacer']      = $parameter['spacer'];
                                         break 2;
                                     }
                                     break;
@@ -263,6 +270,8 @@ trait CharSet
                                         'operator'  => $parameter['operator'],
                                         'delimiter' => $parameter['delimiter'],
                                         'message'   => $parameter['message'],
+                                        'format'    => $parameter['format'],
+                                        'spacer'    => $parameter['spacer'],
                                     ];
                                     break;
 

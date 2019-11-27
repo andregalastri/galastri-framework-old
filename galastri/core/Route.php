@@ -148,7 +148,7 @@ class Route
         $routePath     = '/'.ltrim($routePath, '/');
         $parameters    = explode('/', ltrim(replaceOnce($routePath, '', $urlString), '/'));
         $method        = '@'.($parameters[0] ?? '');
-        
+
         /** Verifica se o método existe na rota. Caso não, então o método padrão será o @main. */
         $method = array_key_exists($method, $routes) ? $method : '@main';
         $method = $method === '@' ? '' : $method;
@@ -213,7 +213,7 @@ class Route
             self::$cache['expire'] = $cache['expire'] ?? GALASTRI['cache']['expire'];
         }
         self::$controller   = $controller;
-        self::$method       = convertCase(ltrim($method,'@'), 'camel');
+        self::$method       = ltrim($method,'@');
         self::$routes       = $routes;
         self::$view         = $view;
         self::$parameters   = $parameters;
@@ -233,9 +233,12 @@ class Route
     /**
      * Métodos getters para recuperar o conteúdo dos atributos.
      */
+    public static function method($conversion = 'camelCase')
+    {
+        return $conversion == 'camelCase' ? convertCase(self::$method, 'camel') : self::$method;
+    }
     public static function cache()       { return self::$cache; }
     public static function controller()  { return self::$controller; }
-    public static function method()      { return self::$method; }
     public static function routes()      { return self::$routes; }
     public static function view()        { return self::$view; }
     public static function parameters()  { return self::$parameters; }

@@ -85,6 +85,9 @@ trait Datetime
                         $testValue  = $this->validation->value;
                         $dateFormat = $data['dateformat'];
 
+                        if(empty($testValue))
+                            return Chain::resolve($chainData, $data);
+
                         /** Verifica se o dado informado é um objeto do tipo DateTime. Caso seja,
                          * então ele será utilizado. Caso seja apenas uma string, então ele deverá
                          * ser convertido em um objeto do tipo DateTime.
@@ -98,12 +101,13 @@ trait Datetime
                                 $testDatetime->format($dateFormat);
                             }
                         } else {
-                            $testDatetime = \DateTime::createFromFormat($dateFormat, $testValue);
+                            $testDatetime = \DateTime::createFromFormat("!$dateFormat", $testValue);
 
                             if(!empty(array_filter(\DateTime::getLastErrors()))){
                                 $error = true;
-                                $errorLog['reason'] = 'invalid_datetime';
+                                $errorLog['reason']  = 'invalid_datetime';
                                 $errorLog['message'] = $data['message'];
+                                $errorLog['format']  = $data['format'];
                             }
                         }
 
@@ -166,12 +170,13 @@ trait Datetime
                                                         $delimiterDatetime = new \DateTime($delimiterValue);
                                                         $delimiterDatetime->format($delimiterFormat);
                                                     } else {
-                                                        $delimiterDatetime = \DateTime::createFromFormat($delimiterFormat, $matchDatetime);
+                                                        $delimiterDatetime = \DateTime::createFromFormat("!$delimiterFormat", $matchDatetime);
 
                                                         if(!empty(array_filter(\DateTime::getLastErrors()))){
                                                             $error = true;
                                                             $errorLog['reason'] = 'invalid_delimiter_datetime';
                                                             $errorLog['message'] = $parameter['message'];
+                                                            $errorLog['format'] = $parameter['format'];
                                                             break 3;
                                                         } else {
                                                             if($matchIncrement){
@@ -187,8 +192,10 @@ trait Datetime
                                                 if(!$error){
                                                     if(!$this->compare($testDatetime, $operator['operator'], $delimiterDatetime)){
                                                         $error = true;
-                                                        $errorLog['reason']  = 'datetime_doesnt_passed_the_test';
-                                                        $errorLog['message'] = $operator['message'];
+                                                        $errorLog['reason']    = 'datetime_doesnt_passed_the_test';
+                                                        $errorLog['message']   = $operator['message'];
+                                                        $errorLog['format']    = $operator['format'];
+                                                        $errorLog['delimiter'] = $delimiterDatetime->format($delimiterFormat);
                                                         break 3;
                                                     }
                                                 }
@@ -207,6 +214,7 @@ trait Datetime
                                             'delimiterValue'  => $parameter['delimiter'],
                                             'delimiterFormat' => $parameter['optional'],
                                             'message'         => $parameter['message'],
+                                            'format'          => $parameter['format'],
                                         ];
                                         break;
                                 }

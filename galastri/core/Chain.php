@@ -13,6 +13,8 @@ class Chain
 {
     public static $links = [];
     private static $message;
+    private static $format;
+    private static $spacer;
 
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
@@ -51,10 +53,15 @@ class Chain
         $chain = self::pop();
 
         if($chain !== null){
-            if($chain['name'] == 'onError')
+            if($chain['name'] == 'onError'){
                 self::$message = $chain['data']['message'];
+                self::$format  = $chain['data']['format'];
+                self::$spacer  = $chain['data']['spacer'];
+            }
 
             $chain['data']['message'] = self::$message;
+            $chain['data']['format']  = self::$format;
+            $chain['data']['spacer']  = self::$spacer;
 
             if($chain['data']['attach']){
                 $chainData[] = $chain['data'];

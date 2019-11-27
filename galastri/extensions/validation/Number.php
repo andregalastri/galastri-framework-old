@@ -49,41 +49,42 @@ trait Number
                     $error = $this->error->status;
 
                     if(!$error){
-                        $testValue = $this->validation->value;
                         $type      = $data['type'];
+                        $testValue = $this->validation->value;
+                        $originalTestValue = $this->validation->value;
+
+                        if(empty($testValue) and $testValue !== 0 and $testValue !== 0.0 and $testValue !== "0")
+                            return Chain::resolve($chainData, $data);
 
                         foreach($chainData as $parameter){
                             switch($parameter['name']){
                                 case 'number':
                                     $dataTypes = [
                                         'int'     => 'integer',
-                                        'integer' => 'integer',
                                         'float'   => 'double',
-                                        'double'  => 'double',
-                                        'decimal' => 'double',
                                     ];
 
-                                    if(!isset($dataTypes[$type])){
+                                    if(!isset($dataTypes[$type]))
                                         Debug::error('NUMBER001', $type, implode(',', array_keys($dataTypes))); 
-                                    }
 
-                                    if($dataTypes[$type] !== gettype($testValue)){
-                                        if(!($dataTypes[$type] === 'double' and gettype($testValue) === 'integer')){
-                                            $error = true;
-                                            $errorLog['invalidData'] = $testValue;
-                                            $errorLog['reason']      = 'number_type';
-                                            $errorLog['message']     = $parameter['message'];
-                                            break 2;
-                                        }
+                                    if(is_numeric($testValue)){
+                                        settype($testValue, $type);
+                                    } else {
+                                        $error = true;
+                                        $errorLog['reason']      = 'not_numeric';
+                                        $errorLog['message']     = $parameter['message'];
+                                        $errorLog['format']      = $parameter['format'];
+                                        break 2;
                                     }
-
                                     if(isset($operation)){
                                         foreach($operation as $operator){
+
                                             if(!$this->compare($testValue, $operator['operator'], $operator['delimiter'])){
                                                 $error = true;
-                                                $errorLog['invalidData'] = $testValue;
                                                 $errorLog['reason']      = 'number_size';
                                                 $errorLog['message']     = $operator['message'];
+                                                $errorLog['format']      = $operator['format'];
+                                                $errorLog['delimiter']   = $operator['delimiter'];
                                                 break 3;
                                             }
                                         }
@@ -100,15 +101,16 @@ trait Number
                                         'operator'  => $parameter['operator'],
                                         'delimiter' => $parameter['delimiter'],
                                         'message'   => $parameter['message'],
+                                        'format'    => $parameter['format'],
                                     ];
                                     break;
                             }
                         }
 
                         if($error){
+                            $errorLog['invalidData'] = $testValue;
                             $errorLog['error']    = $error;
                             $errorLog['testName'] = 'number';
-
                             $this->setValidationError($errorLog);
                         }
 

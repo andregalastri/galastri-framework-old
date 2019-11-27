@@ -145,6 +145,9 @@ class Validation
         $this->error->status       = false;
         $this->error->data         = null;
         $this->error->reason       = null;
+        $this->error->delimiter    = null;
+        $this->error->format       = null;
+        $this->error->spacer       = null;
 
         $this->result              = new \StdClass();
         $this->result->error       = false;
@@ -169,7 +172,7 @@ class Validation
      * 
      * @param int|string $label        Armazena o rótulo identificador do teste.
      */
-    public function validate($testValue, $label = 0)
+    public function validate($testValue, $label = false)
     {
         if(Chain::hasLinks()){
             $this->execute();
@@ -181,7 +184,7 @@ class Validation
 
             $this->validation->counter++;
             $this->validation->value = $testValue;
-            $this->validation->label = $label === 0 ? $this->validation->counter : $label;
+            $this->validation->label = $label === false ? 'default'.$this->validation->counter : $label;
         }
 
         return $this;
@@ -206,13 +209,15 @@ class Validation
      * @param string $message          Mensagem de texto que será armazenada caso haja falha em
      *                                 algum dos testes.
      */
-    public function onError($message)
+    public function onError($message, $format = 'invalidData', $spacer = ', ')
     {
         Chain::create(
             'onError',
             [
                 'name'    => 'onError',
                 'message' => $message,
+                'format'  => $format,
+                'spacer'  => $spacer,
                 'attach'  => false,
             ],
             (function($chainData, $data){ return Chain::resolve($chainData, $data); })
@@ -233,15 +238,24 @@ class Validation
         $result->message     = null;
         $result->label       = null;
         $result->value       = null;
+        $result->delimiter   = null;
         $result->validator   = null;
 
         if($this->error->status){
             $result->invalidData = $this->error->data;
             $result->reason      = $this->error->reason;
-            $result->message     = $this->onError->message;
+            $result->delimiter   = $this->error->delimiter;
             $result->label       = $this->validation->label;
             $result->value       = $this->validation->value;
             $result->validator   = $this->validator;
+
+            $result->message     = $this->onError->message;
+
+            if($this->error->format){
+                $printf = (string)$result->{$this->error->format} ?? false;
+                if($printf !== false)
+                    $result->message = sprintf($result->message, is_array($printf) ? implode($this->error->spacer, array_unique($printf)) : $printf);
+            }
         }
 
         return $result;
@@ -258,9 +272,14 @@ class Validation
         $this->validator        = $testResult['testName'] ?? null;
         $this->error->data      = $testResult['invalidData'] ?? null;
         $this->error->reason    = $testResult['reason'] ?? null;
+        $this->error->delimiter = $testResult['delimiter'] ?? null;
+        $this->error->format    = $testResult['format'] ?? false;
+        $this->error->spacer    = $testResult['spacer'] ?? null;
         $this->onError->message = $testResult['message'] ?? null;
 
-        throw new Exception($this->onError->message, $this->error->reason);
+        $result = $this->getResult();
+
+        throw new Exception($result->message, $result->reason);
     }
 
     /**

@@ -53,7 +53,7 @@ trait DenyEmpty
                             $errorLog['testName']    = 'denyEmpty';
                             $errorLog['invalidData'] = null;
                             $errorLog['reason']      = 'empty_is_denied';
-                            $errorLog['message']      = $data['message'];
+                            $errorLog['message']     = $data['message'];
 
                             $this->setValidationError($errorLog);
                         }
