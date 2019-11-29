@@ -103,7 +103,7 @@ class Permission
     private static $groups   = [];
     private static $resource = null;
     private static $result   = [];
-    
+
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
 
@@ -119,7 +119,7 @@ class Permission
         self::$groups[] = $groupName;
         return __CLASS__;
     }
-    
+
     /**
      * Método que remove um nome de grupo que a página ou recurso permite acesso. Pode-se
      * utilizar este método várias vezes com o objetivo de remover vários grupos da lista.
@@ -132,7 +132,7 @@ class Permission
         unset(self::$groups[$groupName]);
         return __CLASS__;
     }
-    
+
     /**
      * Método que faz a verificação se o ID do grupo do usuário corresponde a um dos IDs que fazem
      * parte da lista de grupos existentes. Aqui é importante levar em conta que a lista de grupos
@@ -164,7 +164,7 @@ class Permission
     public static function checkGroup($userGroup, $groupTags = GALASTRI['permission']['groups'])
     {
         $groups = self::$groups;
-        
+
         foreach($groups as $groupName){
             if($groupTags[$groupName] === $userGroup){
                 return true;
@@ -172,7 +172,7 @@ class Permission
         }
         return false;
     }
-    
+
     /**
      * Método que define um rótulo pra página ou recurso. Com isso é possível fazer um teste se
      * o usuário possui acesso ao recurso com este nome.
@@ -221,9 +221,9 @@ class Permission
     {
         $resource = self::$resource;
         $resourceIds = array_flip($resourceTags);
-        
+
         foreach($userResources as $resourceId){
-                if($resourceIds[$resourceId] === $resource){
+            if($resourceIds[$resourceId] === $resource){
                 return true;
             }
         }

@@ -15,10 +15,10 @@ class Chain
     private static $message;
     private static $format;
     private static $spacer;
-
+    
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-
+    
     /**
      * Método que cria um elo na corrente.
      * 
@@ -58,20 +58,20 @@ class Chain
                 self::$format  = $chain['data']['format'];
                 self::$spacer  = $chain['data']['spacer'];
             }
-
+            
             $chain['data']['message'] = self::$message;
             $chain['data']['format']  = self::$format;
             $chain['data']['spacer']  = self::$spacer;
-
+            
             if($chain['data']['attach']){
                 $chainData[] = $chain['data'];
             }
-
-
+            
+            
             return $chain['function']($chainData, $chain['data']);
         }
     }
-
+    
     /**
      * Método que checa se existem elos na corrente.
      */
@@ -79,7 +79,7 @@ class Chain
     {
         return !empty(self::$links);
     }
-
+    
     /**
      * Método que desempilha um elo da corrente.
      */

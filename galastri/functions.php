@@ -244,6 +244,6 @@ function convertDatetime($datetime, $inputFormat, $outputFormat)
 {
     if(empty($datetime))
         return null;
-
+    
     return \DateTime::createFromFormat($inputFormat, $datetime)->format($outputFormat);
 }

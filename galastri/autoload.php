@@ -43,9 +43,9 @@
  *                                 localizado no sistema de arquivos.
  */
 spl_autoload_register(function($className) {
-
+    
     $className = explode('\\', $className);
-    array_shift($className);
+                 array_shift($className);
     $className = implode('/', $className);
     $path      = GALASTRI['folders']['root']."/$className.php";
 

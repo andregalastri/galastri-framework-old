@@ -20,7 +20,7 @@ class Redirect
         Debug::trace(debug_backtrace()[0]);
 
         if($to === false){
-           Debug::error('REDIRECT000')::print();
+            Debug::error('REDIRECT000')::print();
         } else {
             if(array_key_exists(lower($to), GALASTRI['urlAlias'])){
                 exit(header('Location: '.GALASTRI['urlAlias'][$to]));

@@ -25,7 +25,7 @@ trait DenyFalse
     public function denyFalse()
     {
         $this->beforeTest();
-
+        
         Chain::create(
             'denyFalse',
             [

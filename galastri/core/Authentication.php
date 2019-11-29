@@ -67,10 +67,10 @@ namespace galastri\core;
 class Authentication
 {
     private static $authTag;
-
+    
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-
+    
     /**
      * Método que define a tag de uma área de autenticação quando um login é bem sucedido.
      * 
@@ -81,7 +81,7 @@ class Authentication
         self::$authTag = $authTag;
         return __CLASS__;
     }
-
+    
     /**
      * Método que adiciona campos adicionais para armazenamento referente a autenticação. Pode-se
      * armazenar dados do usuário, como seu ID, por exemplo, de forma que se possa verificar no
@@ -110,7 +110,7 @@ class Authentication
         }
         return __CLASS__;
     }
-
+    
     /**
      * Método que faz o armazenamento dos dados de autenticação. Por padrão, é criado um campo
      * token, que armazena um código randômico de 64 caracteres e que é armazenado tanto na
@@ -128,7 +128,7 @@ class Authentication
         setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['session']['expire']);
         session_regenerate_id();
     }
-
+    
     /**
      * Método que atualiza todos os dados da tag de autenticação (token, id da sessão e IP do
      * usuário).
@@ -142,7 +142,7 @@ class Authentication
         }
         return false;
     }
-
+    
     /**
      * Método que remove uma tag de autenticação da sessão do usuário, fazendo com o que o usuário
      * seja deslogado apenas das áreas que utilizem aquela tag.
@@ -159,7 +159,7 @@ class Authentication
         }
         return false;
     }
-
+    
     /**
      * Método que destrói toda a sessão, fazendo com que o usuário seja deslogado de todas as áreas
      * que requerer autenticação.
@@ -173,7 +173,7 @@ class Authentication
         session_unset();
         session_destroy();
     }
-
+    
     /**
      * Método que resgata os dados da sessão do usuário.
      * 
@@ -190,7 +190,7 @@ class Authentication
         }
         return false;
     }
-
+    
     /**
      * Método que valida se a autenticação existe e se ela é válida.
      * 

@@ -20,10 +20,10 @@ class Debug
     private static $message = null;
     private static $error   = false;
     private static $trace   = false;
-    
+
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
-    
+
     /**
      * Método que armazena os dados da função debug_backtrace(), para traçar a rota dos erros
      * internos do microframwork.
@@ -34,7 +34,7 @@ class Debug
     {
         self::$trace = $trace;
     }
-    
+
     /**
      * Método que define que houve um erro e qual será a mensagem que será exibida.
      * 
@@ -68,7 +68,7 @@ class Debug
         self::$error = true;
         return __CLASS__;
     }
-    
+
     /**
      * Método que retorna o status atual do atributo $error.
      */
@@ -76,7 +76,7 @@ class Debug
     {
         return self::$error;
     }
-    
+
     /**
      * Método que imprime uma mensagem de erro na tela.
      */
@@ -84,7 +84,7 @@ class Debug
     {
         exit(print(self::$message));
     }
-    
+
     /**
      * Método que retorna uma mensagem de erro, podendo ser armazenado em uma variável, por exemplo.
      */
@@ -92,7 +92,7 @@ class Debug
     {
         return strip_tags(self::$message);
     }
-    
+
     /**
      * Método que reune todas as tags de erros do microframework e suas respectivas mensagens de
      * erros.
@@ -107,7 +107,7 @@ class Debug
     {
         switch($tag){
             case 'REDIRECT001':   return "Nenhum parâmetro foi informado. É necessário informar uma string contendo uma URL ou uma palavra chave para redirecionamento.";
-            
+
             case 'OFFLINE001':    return GALASTRI['offline']['message'];
 
             case 'CONFIG001':     return "A rota <b>'$data[0]'</b> não possui um renderizador configurado no arquivo <b>'config/routes.php'</b>.";
@@ -136,14 +136,14 @@ class Debug
             case 'DATETIME002':   return "A data informada não é um objeto do tipo DateTime";
             case 'DATETIME003':   return "A data limite <b>'$data[0]'</b> é inválida ou não está de acordo com o formato <b>'$data[1]'</b>.";
             case 'DATETIME004':   return "A data limite informada não é um objeto do tipo DateTime.";
-            
+
             case 'VALIDATION001': return "O método <b>'validate()'</b> precisa ser iniciado antes dos métodos validadores.";
 
             case 'DATABASE001':   return "O método <b>'connect()'</b> precisa ser iniciado antes dos métodos de consulta.";
             case 'DATABASE002':   return "A querystring <b>'$data[0]'</b> é inválida.";
             case 'DATABASE003':   return "Não existe nenhum resultado armazenado na consulta padrão.";
             case 'DATABASE004':   return "Não existe nenhum rótulo <b>'$data[0]'</b> definido em uma consulta.";
-            
+
             case 'NUMBER001':     return "O tipo <b>'$data[0]'</b> não é um tipo de número válido. Os tipos válidos que podem ser informados são $data[1].";
 
             case 'AUTH001':       return "O nome <b>'$data[0]'</b> é um nome de campo de sessão reservado pelo microframework.";

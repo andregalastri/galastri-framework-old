@@ -52,7 +52,7 @@ trait Number
                         $type      = $data['type'];
                         $testValue = $this->validation->value;
                         $originalTestValue = $this->validation->value;
-
+                        
                         if(empty($testValue) and $testValue !== 0 and $testValue !== 0.0 and $testValue !== "0")
                             return Chain::resolve($chainData, $data);
 
@@ -63,7 +63,7 @@ trait Number
                                         'int'     => 'integer',
                                         'float'   => 'double',
                                     ];
-
+                                    
                                     if(!isset($dataTypes[$type]))
                                         Debug::error('NUMBER001', $type, implode(',', array_keys($dataTypes))); 
 

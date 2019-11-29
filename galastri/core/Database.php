@@ -43,11 +43,19 @@ namespace galastri\core;
 
 class Database
 {
-    private $conn;
+    private $active;
+    private $driver;
+    private $host;
+    private $database;
+    private $user;
+    private $password;
+    private $options;
+    private $customDsn  = false;
+
     private $pdo;
-    private $label;
-    private $result;
-    private $pagination;
+    private $label      = null;
+    private $result     = [];
+    private $pagination = [];
     private $debugStatus;
 
     /**
@@ -56,44 +64,58 @@ class Database
      */
     public function __construct()
     {
-        $this->debugStatus  = GALASTRI['debug'];
-
-        $this->conn         = new \StdClass;
-        $this->conn->status = false;
-
-        $this->label        = null;
-
-        $this->result       = [];
-        $this->pagination   = [];
-
+        $this->debugStatus = GALASTRI['debug'];
         $this->setDefaultConfig();
     }
 
     /**
      * Métodos de configuração. Cada parâmetro define uma configuração.
      */
-    public function setActive($active)     { $this->conn->active   = $active;   return $this; }
-    public function setDriver($driver)     { $this->conn->driver   = $driver;   return $this; }
-    public function setHost($host)         { $this->conn->host     = $host;     return $this; }
-    public function setDatabase($database) { $this->conn->database = $database; return $this; }
-    public function setUser($user)         { $this->conn->user     = $user;     return $this; }
-    public function setPassword($password) { $this->conn->password = $password; return $this; }
-    public function setOptions($options)   { $this->conn->options  = $options;  return $this; }
+    public function setActive($active)      { $this->active    = $active;    return $this; }
+    public function setDriver($driver)      { $this->driver    = $driver;    return $this; }
+    public function setHost($host)          { $this->host      = $host;      return $this; }
+    public function setDatabase($database)  { $this->database  = $database;  return $this; }
+    public function setUser($user)          { $this->user      = $user;      return $this; }
+    public function setPassword($password)  { $this->password  = $password;  return $this; }
+    public function setOptions($options)    { $this->options   = $options;   return $this; }
+    public function setCustomDsn($customDsn){ $this->customDsn = $customDsn; return $this; }
+    public function setStatus($status)      { $this->status    = $status;    return $this; }
+
+    /**
+     * Métodos de configuração. Cada parâmetro define uma configuração.
+     */
+    public function getActive()   { return $this->active; }
+    public function getDriver()   { return $this->driver; }
+    public function getHost()     { return $this->host; }
+    public function getDatabase() { return $this->database; }
+    public function getUser()     { return $this->user; }
+    public function getPassword() { return $this->password; }
+    public function getOptions()  { return $this->options; }
+    public function getCustomDsn(){ return $this->customDsn; }
+    public function getStatus()   { return $this->status; }
 
     /**
      * Método que define as configurações padrão para conexão.
      */
     public function setDefaultConfig()
     {
-        $this->conn->active   = GALASTRI['database']['active'];
-        $this->conn->driver   = GALASTRI['database']['driver'];
-        $this->conn->host     = GALASTRI['database']['host'];
-        $this->conn->database = GALASTRI['database']['database'];
-        $this->conn->user     = GALASTRI['database']['user'];
-        $this->conn->password = GALASTRI['database']['password'];
-        $this->conn->options  = GALASTRI['database']['options'];
+        $this->setActive  (GALASTRI['database']['active']   ?? false);
+        $this->setDriver  (GALASTRI['database']['driver']   ?? false);
+        $this->setHost    (GALASTRI['database']['host']     ?? null);
+        $this->setDatabase(GALASTRI['database']['database'] ?? null);
+        $this->setUser    (GALASTRI['database']['user']     ?? null);
+        $this->setPassword(GALASTRI['database']['password'] ?? null);
+        $this->setOptions (GALASTRI['database']['options']  ?? []);
 
         return $this;
+    }
+
+    public function setCustomPdo($customDsn, $user = null, $password = null, $options = null)
+    {
+        $this->setCustomDsn($customDsn);
+        $this->setUser($user ?? $this->getUser());
+        $this->setPassword($password ?? $this->getPassword());
+        $this->setOptions($options ?? $this->getOptions());
     }
 
     /**
@@ -103,18 +125,21 @@ class Database
      */
     public function connect()
     {
-        $active   = $this->conn->active;
-        $driver   = $this->conn->driver;
-        $host     = $this->conn->host;
-        $database = $this->conn->database;
-        $user     = $this->conn->user;
-        $password = $this->conn->password;
-        $options  = $this->conn->options;
+        $active    = $this->getActive();
+        $customDns = $this->getCustomDsn();
+        $driver    = $this->getDriver();
+        $host      = $this->getHost();
+        $database  = $this->getDatabase();
+        $user      = $this->getUser();
+        $password  = $this->getPassword();
+        $options   = $this->getOptions();
 
         if($active){
             try {
-                $this->pdo = new \PDO("$driver:host=$host;dbname=$database", $user, $password, $options);
-                $this->conn->status = true;
+                if($customDns)  $this->pdo = new \PDO($customDns, $user, $password, $options);
+                else            $this->pdo = new \PDO("$driver:host=$host;dbname=$database", $user, $password, $options);
+
+                $this->setStatus(true);
             } catch (\PDOException $e) {}
         }
         return $this;
@@ -124,9 +149,9 @@ class Database
      * Métodos de transação. Permite a definição de onde uma transação será iniciada e, caso algum
      * erro ocorra durante as consultas SQL, que todas as transações concluídas sejam desfeitas.
      */
-    public function begin()  { if($this->conn->active) $this->pdo->beginTransaction(); }
-    public function cancel() { if($this->conn->active) $this->pdo->rollBack(); }
-    public function commit() { if($this->conn->active) $this->pdo->commit(); }
+    public function begin()  { if($this->active) $this->pdo->beginTransaction(); }
+    public function cancel() { if($this->active) $this->pdo->rollBack(); }
+    public function commit() { if($this->active) $this->pdo->commit(); }
 
     /**
      * Método que verifica se existe um elo da corrente ativo antes de executar um novo teste.
@@ -134,10 +159,10 @@ class Database
      */
     private function beforeTest()
     {
-        if($this->conn->status === false){
+        if(!$this->getStatus()){
             Debug::error('DATABASE001');
         } else {
-            if($this->conn->active){
+            if($this->active){
                 if(Chain::hasLinks()){
                     $this->submit();
                 }    
@@ -201,7 +226,7 @@ class Database
             ],
             (
                 function($chainData, $data){
-                    if($this->conn->active){
+                    if($this->active){
                         Debug::trace(debug_backtrace()[0]);
 
                         $this->label = $data['label'];
@@ -396,7 +421,7 @@ class Database
      */
     public function bind($field, $value)
     {
-        if($this->conn->active){
+        if($this->active){
             Chain::create(
                 'bind',
                 [
@@ -436,7 +461,7 @@ class Database
      */
     public function bindArray(array $fields)
     {
-        if($this->conn->active){
+        if($this->active){
             Chain::create(
                 'bindArray',
                 [
@@ -474,7 +499,7 @@ class Database
      */
     public function pagination($page, $perPage)
     {
-        if($this->conn->active){
+        if($this->active){
             Chain::create(
                 'pagination',
                 [
@@ -496,7 +521,7 @@ class Database
      */
     public function submit()
     {
-        if($this->conn->active){
+        if($this->active){
             return Chain::resolve();
         }
     }
@@ -641,10 +666,10 @@ class Database
                             TABLE_NAME = :table';
                     break;
             }
-        })($this->conn->driver);
+        })($this->driver);
 
         $this->query($query, 'galastriLastId')
-            ->bind(':database', $this->conn->database)
+            ->bind(':database', $this->database)
             ->bind(':table', $table)
             ->submit();
 

@@ -65,7 +65,7 @@ trait ShortList
     public function shortList(...$shortList)
     {
         $this->beforeTest();
-
+        
         Chain::create(
             'shortList',
             [
@@ -84,12 +84,12 @@ trait ShortList
                     if(!$error) {
                         $testValue = $this->validation->value;
                         $strict    = 'notStrict';
-
+                        
                         foreach($chainData as $parameter) {
                             switch($parameter['name']) {
                                 case 'shortList':
                                     $found = false;
-
+                                    
                                     foreach($shortList as $delimiter){
                                         switch($strict){
                                             case 'notStrict':
@@ -98,7 +98,7 @@ trait ShortList
                                                     break 2;
                                                 }
                                                 break;
-
+                                                
                                             case 'strict':
                                                 if($testValue ===  $delimiter){
                                                     $found = true;
@@ -107,18 +107,18 @@ trait ShortList
                                                 break;
                                         }
                                     }
-
+                                    
                                     if(!$found){
                                         $error = true;
                                         $errorLog['message'] = $parameter['message'];
                                     }
-
+                                    
                                     break;
 
                                 case 'strict':
                                     $strict = 'strict';
                                     break;
-
+                                    
                                 case 'notStrict':
                                     $strict = 'notStrict';
                                     break;

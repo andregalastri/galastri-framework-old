@@ -78,7 +78,7 @@ trait Datetime
                 function($chainData, $data)
                 {
                     Debug::trace(debug_backtrace()[0]);
-
+                    
                     $error = $this->error->status;
 
                     if(!$error){
@@ -102,7 +102,7 @@ trait Datetime
                             }
                         } else {
                             $testDatetime = \DateTime::createFromFormat("!$dateFormat", $testValue);
-
+                            
                             if(!empty(array_filter(\DateTime::getLastErrors()))){
                                 $error = true;
                                 $errorLog['reason']  = 'invalid_datetime';
@@ -114,7 +114,7 @@ trait Datetime
                         if(!$error){
                             foreach($chainData as $parameter){
                                 switch($parameter['name']){
-                                        /** Caso a data tenha formato válido, então é verificado se
+                                    /** Caso a data tenha formato válido, então é verificado se
                                      * existem operações configuradas nos métodos de comparação.
                                      * Caso existam, então o delimitador sofre a mesma verificação
                                      * que o dado testado, para se garantir que o delimitador
@@ -144,7 +144,7 @@ trait Datetime
                                             foreach($operation as $operator){
                                                 $delimiterValue  = $operator['delimiterValue'];
                                                 $delimiterFormat = $operator['delimiterFormat'] === false ? $dateFormat : $operator['delimiterFormat'];
-
+                                                
                                                 if(is_object($delimiterValue)){
                                                     if(get_class($delimiterValue) !== 'DateTime'){
                                                         Debug::error('DATETIME004');

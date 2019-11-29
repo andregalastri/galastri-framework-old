@@ -28,7 +28,7 @@ trait Length
     public function length()
     {
         $this->beforeTest();
-
+        
         Chain::create(
             'length',
             [
@@ -39,7 +39,7 @@ trait Length
                 function($chainData, $data)
                 {
                     Debug::trace(debug_backtrace()[0]);
-
+                    
                     $error = $this->error->status;
 
                     if(!$error){
@@ -47,8 +47,8 @@ trait Length
 
                         foreach($chainData as $parameter){
                             switch($parameter['name']){
-
-                                    /** Compara a quantidade de caracteres do dado com a quantidade
+                                
+                                /** Compara a quantidade de caracteres do dado com a quantidade
                                  * especificada nos métodos de comparação. */
                                 case 'length':
                                     foreach($operation as $operator){
