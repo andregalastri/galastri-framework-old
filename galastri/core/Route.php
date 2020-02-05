@@ -179,7 +179,7 @@ class Route
             if(array_key_exists('view', $routes[$method])){
                 $view = $routes[$method]['view'];
             } else {
-                $view = $method === '@main' ? "$controller.php" : "$controller/".ltrim(convertCase($method, 'pascal').'.php', '@');
+                $view = $method === '@main' ? "$controller.php" : "$controller/".convertCase(ltrim($method, '@'), 'pascal').'.php';
             }
 
             $controller = str_replace(['/','.'], ['\\',''], GALASTRI['folders']['controller']).str_replace('/', '\\', $controller);
