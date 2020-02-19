@@ -42,7 +42,7 @@
  *                                 invertida por uma barra normal, para que o endereço seja
  *                                 localizado no sistema de arquivos.
  */
-spl_autoload_register(function($className) {
+spl_autoload_register(function($className){
     
     $className = explode('\\', $className);
                  array_shift($className);

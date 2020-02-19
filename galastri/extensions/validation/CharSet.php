@@ -200,7 +200,9 @@ trait CharSet
                                             $operation[] = [
                                                 'operator'  => '>=',
                                                 'delimiter' => 1,
-                                                'message' => $parameter['message'],
+                                                'message'   => $parameter['message'],
+                                                'format'    => $parameter['format'],
+                                                'spacer'    => $parameter['spacer'],
                                             ];
                                         }
 

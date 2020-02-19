@@ -252,7 +252,7 @@ class Validation
             $result->message     = $this->onError->message;
 
             if($this->error->format){
-                $printf = (string)$result->{$this->error->format} ?? false;
+                $printf = $result->{$this->error->format} ?? false;
                 if($printf !== false)
                     $result->message = sprintf($result->message, is_array($printf) ? implode($this->error->spacer, array_unique($printf)) : $printf);
             }
