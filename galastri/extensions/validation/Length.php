@@ -44,7 +44,6 @@ trait Length
 
                     if(!$error){
                         $testValue = $this->validation->value;
-                        $allowEmpty = false;
 
                         foreach($chainData as $parameter){
                             switch($parameter['name']){
@@ -52,7 +51,7 @@ trait Length
                                 /** Compara a quantidade de caracteres do dado com a quantidade
                                  * especificada nos métodos de comparação. */
                                 case 'length':
-                                    if($allowEmpty and ($testValue === '' or $testValue === null))
+                                    if($testValue === '' or $testValue === null)
                                         break;
                                     
                                     foreach($operation as $operator){
@@ -77,10 +76,6 @@ trait Length
                                         'delimiter' => $parameter['delimiter'],
                                         'message'   => $parameter['message'],
                                     ];
-                                    break;
-
-                                case 'allowEmpty':
-                                    $allowEmpty = true;
                                     break;
                             }
                         }

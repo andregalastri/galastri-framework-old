@@ -128,9 +128,9 @@ trait CharSet
                     $charSet = $data['charSet'];
 
                     if(!$error){
-                        $testValue = $this->validation->value;
-                        $require   = 'any';
-                        $exception = [];
+                        $testValue  = $this->validation->value;
+                        $require    = 'any';
+                        $exception  = [];
 
                         /** O dado é testado logo de início, verificando os caracteres que
                          * correspondem e os que não correspondem com a definição.
@@ -153,7 +153,7 @@ trait CharSet
                         foreach($chainData as $parameter){
                             switch($parameter['name']){
 
-                                    /** Verifica o resultado final. Caso existam dados fora do grupo
+                                /** Verifica o resultado final. Caso existam dados fora do grupo
                                  * de permissão, significa que o dado informado é inválido. */
                                 case 'charSet':
                                     if(!empty($finalOutside)){
@@ -167,7 +167,7 @@ trait CharSet
                                     }
                                     break;
 
-                                    /** Verifica o modificador charRequired que, se estiver definido,
+                                /** Verifica o modificador charRequired que, se estiver definido,
                                  * então fará um novo teste de correspondência dos caracteres.
                                  * Neste novo teste, é levado em conta se existem caracteres fora
                                  * do grupo de permitidos.
@@ -185,6 +185,9 @@ trait CharSet
                                  * de comparação, então as quantidades são definidas pela operação.
                                  * */
                                 case 'charRequired':
+                                    if($testValue === '' or $testValue === null)
+                                        break;
+                                    
                                     $requiredMatch = $this->charMatch($parameter['charSet'])[0];
 
                                     if(!empty($requiredMatch)){
@@ -235,7 +238,7 @@ trait CharSet
                                     $operation = null;
                                     break;
 
-                                    /** Verifica o modificador charException que, se estiver definido,
+                                /** Verifica o modificador charException que, se estiver definido,
                                  * então fará um novo teste de correspondência dos caracteres.
                                  * Neste novo teste verifica-se se o dado testado possui caracteres
                                  * que fazem parte da exceção.
@@ -260,7 +263,7 @@ trait CharSet
                                     }
                                     break;
 
-                                    /** Definição de operações quando se usa as configurações de
+                                /** Definição de operações quando se usa as configurações de
                                  * comparação. */
                                 case 'min':
                                 case 'max':
@@ -277,10 +280,10 @@ trait CharSet
                                     ];
                                     break;
 
-                                    /** Definição de restrição quando se usa as configurações de
+                                /** Definição de restrição quando se usa as configurações de
                                  * restrição. */
-                                case 'all': $require = 'all'; break;
-                                case 'any': $require = 'any'; break;
+                                case 'all':        $require    = 'all'; break;
+                                case 'any':        $require    = 'any'; break;
                             }
                         }
 

@@ -18,7 +18,6 @@ trait Restriction {
     public function all()        { $this->restrictionChain("all");        return $this; }
     public function strict()     { $this->restrictionChain("strict");     return $this; }
     public function notStrict()  { $this->restrictionChain("notStrict");  return $this; }
-    public function allowEmpty() { $this->restrictionChain("allowEmpty"); return $this; }
     
     /**
      * Método que cria o elo na corrente com a restrição. Todo as restrições utilizam os mesmos

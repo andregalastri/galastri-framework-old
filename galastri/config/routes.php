@@ -114,7 +114,7 @@ return [
             'renderer' => 'view',
         ],
         
-		'@pagina-nao-encontrada' => [
+        '@pagina-nao-encontrada' => [
             'renderer' => 'view',
             'view' => 'Erro404.php',
         ],

@@ -350,11 +350,10 @@ class Database
                                         $this->setPagination($pagLog);
                                         $this->setResult($resultLog);
                                     } else {
-                                        //                                        if($this->debugStatus){
-                                        //                                            Debug::error('DATABASE002', $mainQuery)::print();
-                                        //                                        }
                                         $this->setPagination($pagLog);
-                                        $this->setResult([]);
+                                        $this->setResult([
+                                            'pdoError' => implode(', ', $sql->errorInfo()),
+                                        ]);
                                     }
                                     break;
 
@@ -547,6 +546,7 @@ class Database
         $this->result[$label]->found        = $result['found'] ?? false;
         $this->result[$label]->data         = $result['data'] ?? null;
         $this->result[$label]->lastId       = $result['lastId'] ?? null;
+        $this->result[$label]->pdoError     = $result['pdoError'] ?? false;
     }
 
     /**
