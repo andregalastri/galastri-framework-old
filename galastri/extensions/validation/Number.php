@@ -59,6 +59,9 @@ trait Number
                         foreach($chainData as $parameter){
                             switch($parameter['name']){
                                 case 'number':
+                                    if(!($testValue === '0' or $testValue === 0) and ($testValue === '' or $testValue === null or empty($testValue)))
+                                        break;
+                                    
                                     $dataTypes = [
                                         'int'     => 'integer',
                                         'float'   => 'double',

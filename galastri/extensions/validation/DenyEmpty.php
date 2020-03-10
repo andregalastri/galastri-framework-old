@@ -42,11 +42,8 @@ trait DenyEmpty
                     if(!$error){
                         $testValue = $this->validation->value;
 
-                        if(!is_bool($testValue) and ($testValue === '' or $testValue === null)){
+                        if(!(is_bool($testValue) or $testValue === '0' or $testValue === 0) and ($testValue === '' or $testValue === null or empty($testValue)))
                             $error = true;
-                        } elseif(is_array($testValue) === 0){
-                            if(count([$testValue])) $error = true;
-                        }
 
                         if($error){
                             $errorLog['error']       = $error;
