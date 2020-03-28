@@ -45,23 +45,6 @@
  *                             
  * onAuthFail        (string) Opcional. Indica uma URL para caso o usuário não esteja autenticado.
  * 
- * - PARÂMETROS PARA MÉTODOS -
- * title             (string) Opcional. Indica um título para a página.
- * 
- * view              (string) Opcional. Indica uma view diferente do padrão. Quando não configurado
- *                   irá se basear no caminho padrão /<view>/<classe>/<metodo>.php.
- * 
- * controller        (string) Opcional. Indica uma controller diferente do padrão. Quando não
- *                   configurado irá se basear no caminho padrão /<controller>/<classe>/<metodo>.php.
- * 
- * cache             (array) Opcional. Configurações de cache para imagens e arquivos.
- * 
- *   status          (bool) Opcional. Ativa ou desativa o cache. Quando não configurado irá levar
- *                   em conta a configuração global.
- * 
- *   expire          (int) Opcional. Indica o valor em segundos para expiração do cache. Quando
- *                   não configurado irá levar em conta a configuração global.
- * 
  * template          (array) Opcional. Permite ativar ou desativar partes do template.
  * 
  *   root            (string) Opcional. Indica um caminho para o arquivo raiz do template. Quando
@@ -78,6 +61,24 @@
  *   footer          (bool|string) Opcional. Desativa a tag <footer> do template quando FALSE ou
  *                   define um caminho para a parte. Quando não configurado, o caminho usado será
  *                   o padrão.
+ * 
+ * 
+ * - PARÂMETROS PARA MÉTODOS -
+ * title             (string) Opcional. Indica um título para a página.
+ * 
+ * view              (string) Opcional. Indica uma view diferente do padrão. Quando não configurado
+ *                   irá se basear no caminho padrão /<view>/<classe>/<metodo>.php.
+ * 
+ * controller        (string) Opcional. Indica uma controller diferente do padrão. Quando não
+ *                   configurado irá se basear no caminho padrão /<controller>/<classe>/<metodo>.php.
+ * 
+ * cache             (array) Opcional. Configurações de cache para imagens e arquivos.
+ * 
+ *   status          (bool) Opcional. Ativa ou desativa o cache. Quando não configurado irá levar
+ *                   em conta a configuração global.
+ * 
+ *   expire          (int) Opcional. Indica o valor em segundos para expiração do cache. Quando
+ *                   não configurado irá levar em conta a configuração global.
  * 
  * import            (array) Opcional. Cada valor da array indica um caminho para o arquivo externo
  *                   que poderá ser importado para a tag <head>. Por padrão pode-se informar arquivos

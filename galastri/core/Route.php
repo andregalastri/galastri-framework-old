@@ -113,6 +113,7 @@ class Route
             'cache'        => false,
             'authTag'      => false,
             'onAuthFail'   => false,
+            'template'     => false,
         ];
 
         foreach($url as $routeName){
@@ -223,7 +224,7 @@ class Route
         self::$onAuthFail   = $route['onAuthFail'] ?? self::$inheritanceConfig['onAuthFail'];
         self::$urlString    = $urlString;
         self::$title        = $route['title'] ?? '';
-        self::$template     = $route['template'] ?? [];
+        self::$template     = self::$inheritanceConfig['template'] ?? [];
         self::$import       = $route['import'] ?? [];
         self::$renderer     = $route['renderer'] ?? false;
         self::$baseFolder   = $route['baseFolder'] ?? null;
