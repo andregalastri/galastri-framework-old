@@ -247,3 +247,24 @@ function convertDatetime($datetime, $inputFormat, $outputFormat)
     
     return \DateTime::createFromFormat($inputFormat, $datetime)->format($outputFormat);
 }
+
+/**
+ * Cria uma string que repete um texto uma determinada quantidade de vezes. É possível inserir
+ * um espaçador entre as repetições e também um contador para cada repetição.
+ * 
+ * @param string $string           Texto que será repetido.
+ * 
+ * @param int $times               Quantidade de vezes que o texto será repetido.
+ * 
+ * @param string $spacer           Espaçador que será inserido entre cada repetição.
+ * 
+ * @param bool $addCountToString   Insere o contador de zero até a quantidade de vezes na string
+ *                                 repetida.
+ */
+function stringRepeat($string, $times, $spacer = '', $addCountToString = false)
+{
+    for($i = 0; $i < $times; $i++)
+        $result[] = $string.($addCountToString ? $i : '');
+
+    return implode($spacer, $result);
+}
