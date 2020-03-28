@@ -125,7 +125,7 @@ class Authentication
 
         $_SESSION[$authTag]['token'] = base64_encode(random_bytes(48));
         $_SESSION[$authTag]['ip'] = $_SERVER['REMOTE_ADDR'];
-        setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['session']['expire']);
+        setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['session']['expire'], '/');
         session_regenerate_id();
     }
     
@@ -153,7 +153,7 @@ class Authentication
     {
         if(self::check($authTag)){
             unset($_SESSION[$authTag]);
-            setcookie($authTag, null, time() - 3600);
+            setcookie($authTag, null, time() - 3600, '/');
             unset($_COOKIE[$authTag]);
             return true;
         }
@@ -167,7 +167,7 @@ class Authentication
     public static function destroy()
     {
         foreach($_SESSION as $key => $value){
-            setcookie($key, null, time() - 3600);
+            setcookie($key, null, time() - 3600, '/');
             unset($_COOKIE[$key]);
         }
         session_unset();
