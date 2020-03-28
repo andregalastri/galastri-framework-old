@@ -251,7 +251,7 @@ class Galastri
                 if($onAuthFail){
                     Redirect::location($onAuthFail);
                 } else {
-                    $data->data = ['error' => true, 'message' => 'deniedAuth', 'status' => 'deniedAuth'];
+                    $data->data = ['error' => true, 'message' => 'deniedAuth', 'requestStatus' => 'deniedAuth'];
                 }
             }
         }
