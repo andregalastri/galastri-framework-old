@@ -232,23 +232,6 @@ function convertCase($string, $type, $regex = '/(-|_)/')
 }
 
 /**
- * Converte uma data de um formato para outro.
- * 
- * @param string $datetime         Data que será formatada.
- * 
- * @param string $inputFormat      Formato atual da data.
- * 
- * @param string $outputFormat     Formato que se deseja obter.
- */
-function convertDatetime($datetime, $inputFormat, $outputFormat)
-{
-    if(empty($datetime))
-        return null;
-    
-    return \DateTime::createFromFormat($inputFormat, $datetime)->format($outputFormat);
-}
-
-/**
  * Cria uma string que repete um texto uma determinada quantidade de vezes. É possível inserir
  * um espaçador entre as repetições e também um contador para cada repetição.
  * 
@@ -265,6 +248,6 @@ function stringRepeat($string, $times, $spacer = '', $addCountToString = false)
 {
     for($i = 0; $i < $times; $i++)
         $result[] = $string.($addCountToString ? $i : '');
-
+    
     return implode($spacer, $result);
 }

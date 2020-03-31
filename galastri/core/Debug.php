@@ -136,6 +136,7 @@ class Debug
             case 'DATETIME002':   return "A data informada não é um objeto do tipo DateTime";
             case 'DATETIME003':   return "A data limite <b>'$data[0]'</b> é inválida ou não está de acordo com o formato <b>'$data[1]'</b>.";
             case 'DATETIME004':   return "A data limite informada não é um objeto do tipo DateTime.";
+            case 'DATETIME005':   return "O método <b>Datetime::create()</b> retornou os seguintes erros:<br>$data[0]";
 
             case 'VALIDATION001': return "O método <b>'validate()'</b> precisa ser iniciado antes dos métodos validadores.";
 
