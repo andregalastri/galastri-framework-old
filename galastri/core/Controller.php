@@ -22,12 +22,35 @@ class Controller
     /**
      * Método que executa algumas configurações básicas do controller. Uma das execuções é a de
      * verificar se a página tem acesso restrito a usuários logados. Neste caso, quando a
-     * autenticaçãp é obrigatória mas estiver inativa, o controller da área sequer é chamado.
+     * autenticação é obrigatória mas estiver inativa, o controller da área sequer é chamado.
      * 
      * Já quando a autenticação estiver ativa ou ainda quando a autenticação não for obrigatória,
-     * a controller é chamada e deverá retornar os dados que forem usados pelo renderizador.
+     * este método verifica se existe um método chamado construct(). Mas qual o motivo de haver
+     * um método chamado construct() sendo que no PHP existe o __construct()? Simples, as chamadas
+     * de métodos devem ocorrer dentro de uma ordem, conforme abaixo:
      * 
-     * @param object $route            Recebe uma instância da classe Route.
+     *  | 1. A classe é criada;
+     *  | 2. O método startController() é chamado e faz as configurações iniciais;
+     *  | 3. Caso exista um método construct() na controller, ela é chamada;
+     *  | 4. O método que representa a requisição é chamada.
+     * 
+     * O método construct() deve ser chamado depois do startController() ter feito algumas
+     * configurações iniciais, do contrário, as configurações não estarão preparadas para serem
+     * utilizadas. Além disso foram reportados alguns erros que podem acontecer, principalmente
+     * relacionados ao método Authentication() que utiliza sessões. E este é o problema de se
+     * utilizar o método __construct() do PHP nas controllers, pois esse método é chamado antes
+     * de todos.
+     * 
+     * De qualquer forma, é perfeitamente possível utilizar o método __construct() caso se deseje
+     * executar comandos antes das configurações iniciais, mas o indicado é utilizar sempre o
+     * método interno construct().
+     * 
+     *  | IMPORTANTE:
+     *  | As orientações para o uso do construct() no lugar do __construct() servem APENAS para
+     *  | as controllers, não servem para outras classes, tais como models, extensões, etc.
+     * 
+     * Após isso, a controller é chamada e deverá retornar os dados que serão utilizados pelo
+     * renderizador.
      */
     public function startController()
     {
@@ -37,7 +60,7 @@ class Controller
         $this->template     = Route::template();
         $this->import       = Route::import();
         $this->downloadable = Route::downloadable();
-        $this->authStatus   = TRUE;
+        $this->authStatus   = true;
         
         $this->parameters   = $this->resolveParameters();
 
@@ -46,6 +69,10 @@ class Controller
         }
         
         if($this->authStatus){
+            if(method_exists($this, 'construct')){
+                $this->construct();
+            }
+            
             $method     = Route::method();
             $this->data = $this->$method();
         }
