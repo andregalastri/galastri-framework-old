@@ -49,13 +49,13 @@ define ('GALASTRI', (
     )
 ));
 
-/** Faz a importação de arquivos adicionais que podem ser configurados pelo usuário. */
-foreach(glob(GALASTRI['folders']['additional-config'].'/*.php') as $additionalConfig)
-    require($additionalConfig);
-
 /** Configura o debug, com base na configuração de config/config.php */
 error_reporting(E_ALL);
 ini_set('display_errors', GALASTRI['debug'] ? 'On' : 'Off');
+
+/** Faz a importação de arquivos adicionais que podem ser configurados pelo usuário. */
+foreach(glob(GALASTRI['folders']['additional-config'].'/*.php') as $additionalConfig)
+    require($additionalConfig);
 
 require_once('autoload.php');
 

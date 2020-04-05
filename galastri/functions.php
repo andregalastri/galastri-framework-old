@@ -251,3 +251,18 @@ function stringRepeat($string, $times, $spacer = '', $addCountToString = false)
     
     return implode($spacer, $result);
 }
+
+/**
+ * Verifica se um dos valores informados é vazio.
+ * 
+ * @param array $values            Valores que serão testados.
+ */
+function isEmpty(...$values)
+{
+    foreach($values as $value){
+        if(empty($value))
+            return true;
+    }
+
+    return false;
+}
