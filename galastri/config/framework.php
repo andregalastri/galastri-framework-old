@@ -1,6 +1,6 @@
 <?php
 /**
- * - default.php -
+ * - framework.php -
  * 
  * Arquivo de configuração principal. Possui as configurações mais básicas do microframework.
  * 
@@ -24,21 +24,10 @@
  * 
  * timezone             (string) Timezone padrão do site.
  * 
- * debug                (bool) Ativa ou desativa as mensagens de debug quando true ou false. Quando
- *                      em produção é importante desativar pois em caso de erros nenhuma mensagem
- *                      de erro interno do servidor é exibida. Isso é importante pois as mensagens
- *                      de erro interno podem exibir informações restritas do servidor.
- * 
- * urls                 (array) Agrupa algumas URLs padrão para ser utilizada com o componente
- *                      Redirect. Serve como um atalho para determinadas URLs. Você pode mudar os
- *                      valores padrão para URLs que preferir, ou ainda adicionar mais atalhos.
- *                      Porém, não remova as chaves padrão "index", "error404", "maintenance" e
- *                      "forbidden".
- * 
- * session              (array) Agrupa definições de sessão, para áreas que exigirem autorização
+ * authentication       (array) Agrupa definições de sessão, para áreas que exigirem autorização
  *                      de acesso. É possível que esta opção seja simplificada.
  * 
- *   expire             (int) Indica o valor em segundos para expiração do cache. Quando não
+ *   cookieExpire       (int) Indica o valor em segundos para expiração do cache. Quando não
  *                      configurado irá levar em conta a configuração global.
  * 
  * template             (array) Armazena os endereços dos arquivos de template.
@@ -97,10 +86,8 @@ return [
 
     'timezone'           => 'America/Sao_Paulo',
 
-    'debug'              => true,
-
-    'session' => [
-        'expire'         => 86400 * 1, /* Sessão expira em 1 dia */
+    'authentication' => [
+        'cookieExpire'   => 86400 * 1, /* Cookie expira em 1 dia */
     ],
 
     'template' => [

@@ -2,13 +2,13 @@
 /**
  * Galastri Framework
  * @author André Luis Galastri <contato@andregalastri.com.br>
- * @copyright Copyright (c) 2019, André Luis Galastri
+ * @copyright Copyright (c) 2020, André Luis Galastri
  * @version 0.4 alpha
  * @license https://github.com/andregalastri/galastri-framework/blob/master/LICENSE
  * 
  * MIT License
  * 
- * Copyright (c) 2019 André Galastri
+ * Copyright (c) 2020 André Galastri
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -28,30 +28,27 @@
 /**
  * - galastri.php -
  * 
- * Arquivo de inicialização do microframework. Aqui as funções e constantes são carregadas, as
- * definições de apresentação de erros (debug) são configuradas, o autoloades é carregado e, por
- * fim, o microframework é inicializado através do instanciamento da classe core\Galastri seguido
- * da execução do método inicial execute().
+ * Arquivo de inicialização do microframework. Aqui as funções e constantes são carregadas o
+ * autoloader é carregado e, por fim, o microframework é inicializado através da chamada do método
+ * execute() da classe core\Galastri.
  */
 namespace galastri;
 
-require_once('functions.php');
-
 /** Faz a importação das constantes dos arquivos de configuração e armazena tudo em uma constante.
  * Desta forma, todas as configurações são acessadas através da constante GALASTRI. */
-define ('GALASTRI', (
-    array_merge(
-        require('config/config.php'),
-        ['database'   => require('config/database.php')],
-        ['routes'     => require('config/routes.php')],
-        ['permission' => require('config/permission.php')],
-        ['urlAlias'   => require('config/url-alias.php')]
-    )
-));
+define ('GALASTRI',
+        array_merge(
+            $debug,
+            require('config/framework.php'),
+            ['database'   => require('config/database.php')],
+            ['routes'     => require('config/routes.php')],
+            ['permission' => require('config/permission.php')],
+            ['urlAlias'   => require('config/url-alias.php')]
+        )
+);
 
-/** Configura o debug, com base na configuração de config/config.php */
-error_reporting(E_ALL);
-ini_set('display_errors', GALASTRI['debug'] ? 'On' : 'Off');
+/** Faz a importação das funções globais. */
+require_once('functions.php');
 
 /** Faz a importação de arquivos adicionais que podem ser configurados pelo usuário. */
 foreach(glob(GALASTRI['folders']['additional-config'].'/*.php') as $additionalConfig)

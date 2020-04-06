@@ -125,7 +125,7 @@ class Authentication
 
         $_SESSION[$authTag]['token'] = base64_encode(random_bytes(48));
         $_SESSION[$authTag]['ip'] = $_SERVER['REMOTE_ADDR'];
-        setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['session']['expire'], '/');
+        setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['authentication']['cookieExpire'], '/');
         session_regenerate_id();
     }
     
