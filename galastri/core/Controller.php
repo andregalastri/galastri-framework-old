@@ -117,29 +117,35 @@ class Controller
         $parameters    = [];
 
         /** DOCUMENTAR AQUI */
-        if($routePath === '/' or $method === $preParameters[0] or empty($preParameters[0]))
+        if($method === $preParameters[0] or empty($preParameters[0]))
             array_shift($preParameters);
         
         $methodParameter = $routes["@$method"]['parameters'] ?? [];
 
-        if(!empty($preParameters) and empty($methodParameter) and GALASTRI['forceParameters']['status']){
+        if($routePath === '/' and !empty($preParameters) and empty($methodParameter) and GALASTRI['forceParameters']['status']){
             Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
         } else {
+            $requiredLabel = [];
+            
+            foreach($methodParameter as $label){
+                if($label[0] !== '?')
+                    $requiredLabel[] = $label;
+            }
+            
+            /* verifica se a quantidade de parametros. Não pode ser menor que a requerida e nem maior do que as definidas */
+            if((count($preParameters) < count($requiredLabel) or count($preParameters) > count($methodParameter)) and GALASTRI['forceParameters']['status'])
+                Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
+            
             foreach($methodParameter as $key => $label){
                 if($label[0] === '?'){
                     $label = substr($label, 1, strlen($label));
-
-                    if(empty($preParameters[$key])){
-                        $parameters[$label] = null;
-                    } else {
-                        $parameters[$label] = $preParameters[$key];
-                    }
+                    $parameters[$label] = $preParameters[$key] ?? null;
                 } else {
                     if(empty($preParameters[$key])){
                         if(GALASTRI['forceParameters']['status'])
                             Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
-                        else
-                            $parameters[$label] = false;
+                        
+                        $parameters[$label] = false;
                     } else {
                         $parameters[$label] = $preParameters[$key];
                     }
