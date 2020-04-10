@@ -1,2 +1,4 @@
-<h1>Galastri Framework</h1>
-<p>Um microframework PHP que busca te dar liberdade de programar!</p>
+<header>
+    <h1></h1>
+    <span>UM MICROFRAMEWORK PHP7</span>
+</header>
