@@ -13,5 +13,5 @@
  */
 return [
     'index'     => '/',
-    'error404'  => '/pagina_nao_encontrada',
+    'error404'  => '/pagina-nao-encontrada',
 ];

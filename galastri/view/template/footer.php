@@ -1,1 +1,0 @@
-<div class='version'>0.5.0 alpha</div>
