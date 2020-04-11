@@ -43,7 +43,7 @@
  *                   ser acessada. É necessário especificar um nome que servirá como tag de acesso
  *                   para os parâmetros da sessão.
  *                             
- * onAuthFail        (string) Opcional. Indica uma URL para caso o usuário não esteja autenticado.
+ * authFailUrl       (string) Opcional. Indica uma URL para caso o usuário não esteja autenticado.
  * 
  * template          (array) Opcional. Permite ativar ou desativar partes do template.
  * 

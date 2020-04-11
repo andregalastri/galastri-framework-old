@@ -3,7 +3,7 @@
  * Galastri Framework
  * @author André Luis Galastri <contato@andregalastri.com.br>
  * @copyright Copyright (c) 2020, André Luis Galastri
- * @version 0.4 alpha
+ * @version 0.5.2 alpha
  * @license https://github.com/andregalastri/galastri-framework/blob/master/LICENSE
  * 
  * MIT License
@@ -43,7 +43,8 @@ define ('GALASTRI',
             ['database'   => require('config/database.php')],
             ['routes'     => require('config/routes.php')],
             ['permission' => require('config/permission.php')],
-            ['urlAlias'   => require('config/url-alias.php')]
+            ['urlAlias'   => require('config/url-alias.php')],
+            ['version'   => '0.5.2 alpha']
         )
 );
 

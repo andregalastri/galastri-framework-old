@@ -136,9 +136,6 @@ return [
         'status'         => true,
         'expire'         => 86400 * 2, /* Cache expira em 2 dias */
     ],
-
-    'forceParameters' => [
-        'status'         => true,
-        'redirectOnFail' => 'error404',
-    ],
+    
+    'error404Url'        => 'error404',
 ];

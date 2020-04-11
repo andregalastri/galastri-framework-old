@@ -121,9 +121,8 @@ class Controller
             array_shift($preParameters);
         
         $methodParameter = $routes["@$method"]['parameters'] ?? [];
-
-        if($routePath === '/' and !empty($preParameters) and empty($methodParameter) and GALASTRI['forceParameters']['status']){
-            Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
+        if($routePath === '/' and !empty($preParameters) and empty($methodParameter)){
+            Redirect::location(Route::error404Url());
         } else {
             $requiredLabel = [];
             
@@ -133,8 +132,8 @@ class Controller
             }
             
             /* verifica se a quantidade de parametros. Não pode ser menor que a requerida e nem maior do que as definidas */
-            if((count($preParameters) < count($requiredLabel) or count($preParameters) > count($methodParameter)) and GALASTRI['forceParameters']['status'])
-                Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
+            if(count($preParameters) < count($requiredLabel) or count($preParameters) > count($methodParameter))
+                Redirect::location(Route::error404Url());
             
             foreach($methodParameter as $key => $label){
                 if($label[0] === '?'){
@@ -143,7 +142,7 @@ class Controller
                 } else {
                     if(empty($preParameters[$key])){
                         if(GALASTRI['forceParameters']['status'])
-                            Redirect::location(GALASTRI['forceParameters']['redirectOnFail']);
+                            Redirect::location(Route::error404Url());
                         
                         $parameters[$label] = false;
                     } else {
@@ -191,28 +190,6 @@ class Controller
         return $this->parameters[$parameter];
     }
     
-    /**
-     * Método que verifica se parâmetros obrigatórios, definidos em config/routes.php, não foram
-     * preenchidos. Caso existam parâmetros não preenchidos, o método retorna false ou, opcionalmente
-     * redireciona para outra URL.
-     * 
-     * @param string $redirect         URL ou alias para onde o usuário será redirecionado.
-     */
-    protected function checkRequiredParameters($redirect = false)
-    {
-        $parameters = $this->parameters;
-        
-        if(array_search(false, $parameters, true)){
-            if($redirect){
-                Redirect::location($redirect);
-            } else {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-
     /**
      * Método exclusivo para o renderizador file, usado para quando se quer alterar o caminho do
      * arquivo para um caminho específico. Ideal para arquivos restritos ou que não podem ter o
