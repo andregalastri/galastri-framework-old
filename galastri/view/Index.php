@@ -239,6 +239,6 @@
     </nav>
 </div>
 
-<div class='version'>0.5.1 alpha</div>
+<div class='version'><?php echo GALASTRI['version'];?></div>
 
 <script>load();</script>

@@ -266,3 +266,27 @@ function isEmpty(...$values)
 
     return false;
 }
+
+/**
+ * Converte uma array multidimensional em uma array simples, mantendo todos os valores. Os índices
+ * das chaves não são mantidos.
+ * 
+ * @param array $array             Array multidimensional que será convertida.
+ * 
+ */
+function flattenArray($array)
+{
+    $recursive = (function($array, $result, $recursive){
+        foreach($array as $value){
+            if(gettype($value) === 'array'){
+                $result = $recursive($value, $result, $recursive);
+            } else {
+                $result[] = $value;
+            }
+        }
+
+        return $result;
+    });
+
+    return $recursive($array, [], $recursive);
+}

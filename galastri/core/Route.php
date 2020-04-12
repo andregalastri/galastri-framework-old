@@ -19,7 +19,8 @@ class Route
     private static $path;
     private static $offline;
     private static $authTag;
-    private static $onAuthFail;
+    private static $authFailUrl;
+    private static $error404Url;
     private static $urlString;
     private static $title;
     private static $template;
@@ -112,8 +113,9 @@ class Route
             'downloadable' => false,
             'cache'        => false,
             'authTag'      => false,
-            'onAuthFail'   => false,
+            'authFailUrl'   => false,
             'template'     => false,
+            'error404Url'  => null,
         ];
 
         foreach($url as $routeName){
@@ -221,7 +223,8 @@ class Route
         self::$path         = $routePath;
         self::$offline      = self::$inheritanceConfig['offline'];
         self::$authTag      = self::$inheritanceConfig['authTag'];
-        self::$onAuthFail   = $route['onAuthFail'] ?? self::$inheritanceConfig['onAuthFail'];
+        self::$authFailUrl  = $route['authFailUrl'] ?? self::$inheritanceConfig['authFailUrl'];
+        self::$error404Url  = self::$inheritanceConfig['error404Url'] ?? GALASTRI['error404Url'];
         self::$urlString    = $urlString;
         self::$title        = $route['title'] ?? '';
         self::$template     = self::$inheritanceConfig['template'] ?? [];
@@ -246,7 +249,8 @@ class Route
     public static function path()        { return self::$path; }
     public static function offline()     { return self::$offline; }
     public static function authTag()     { return self::$authTag; }
-    public static function onAuthFail()  { return self::$onAuthFail; }
+    public static function error404Url() { return self::$error404Url; }
+    public static function authFailUrl() { return self::$authFailUrl; }
     public static function urlString()   { return self::$urlString; }
     public static function title()       { return self::$title; }
     public static function template()    { return self::$template; }

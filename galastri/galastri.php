@@ -3,7 +3,7 @@
  * Galastri Framework
  * @author André Luis Galastri <contato@andregalastri.com.br>
  * @copyright Copyright (c) 2020, André Luis Galastri
- * @version 0.4 alpha
+ * @version See VERSION.txt
  * @license https://github.com/andregalastri/galastri-framework/blob/master/LICENSE
  * 
  * MIT License
@@ -34,18 +34,24 @@
  */
 namespace galastri;
 
+$version = file_exists('../VERSION') ? file_get_contents('../VERSION') : '';
+
 /** Faz a importação das constantes dos arquivos de configuração e armazena tudo em uma constante.
- * Desta forma, todas as configurações são acessadas através da constante GALASTRI. */
+ * Desta forma, todas as configurações são acessadas através da constante GALASTRI.
+ */
 define ('GALASTRI',
         array_merge(
             $debug,
             require('config/framework.php'),
-            ['database'   => require('config/database.php')],
-            ['routes'     => require('config/routes.php')],
-            ['permission' => require('config/permission.php')],
-            ['urlAlias'   => require('config/url-alias.php')]
+            ['database' => require('config/database.php')],
+            ['routes'   => require('config/routes.php')],
+            ['urlAlias' => require('config/url-alias.php')],
+            ['version'  => $version]
         )
 );
+
+unset($debug);
+unset($version);
 
 /** Faz a importação das funções globais. */
 require_once('functions.php');

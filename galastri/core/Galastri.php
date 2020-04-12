@@ -231,9 +231,9 @@ class Galastri
      * caso, é verificado se a sessão está ativa. Caso não esteja, será necessário ou redirecionar
      * o usuário para uma outra página ou retornar dados de erros.
      * 
-     * O redirecionamento só ocorrerá quando o parâmetro onAuthFail estiver ativo na configuração
-     * das rotas (routes.php). Do contrário, uma array contendo erro código 'deniedAuth' e uma
-     * mensagem 'deniedAuth' é retornada para a view.
+     * O redirecionamento só ocorrerá quando o parâmetro authFailUrl estiver ativo na configuração
+     * das rotas (routes.php). Do contrário, uma array contendo erro código e uma mensagem (ambos
+     * definidos nos parâmetros de configuração 'authentication' é retornada para a view.
      * 
      * É importante alertar que este teste depende de outro teste realizado na classe Controller.
      * Lá é verificado se a sessão está ativa ou não antes da controller ser processada.
@@ -245,13 +245,13 @@ class Galastri
     {
         if($data !== null){
             $authStatus = property_exists($data, 'authStatus') ? $data->authStatus : true;
-            $onAuthFail = Route::onAuthFail();
+            $authFailUrl = Route::authFailUrl();
 
             if($authStatus === false){
-                if($onAuthFail){
-                    Redirect::location($onAuthFail);
+                if($authFailUrl){
+                    Redirect::location($authFailUrl);
                 } else {
-                    $data->data = ['error' => true, 'message' => 'deniedAuth', 'requestStatus' => 'deniedAuth'];
+                    $data->data = ['error' => true, 'message' => GALASTRI['authentication']['failMessage'], 'requestStatus' => GALASTRI['authentication']['exceptionTag']];
                 }
             }
         }

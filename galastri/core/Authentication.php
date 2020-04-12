@@ -43,8 +43,8 @@
  * ou página. Se esta tag não estiver ativa na sessão, então há duas possibilidades:
  * 
  * 1. O usuário é redirecionado para outra página. Esta configuração é feita através do parâmetro
- * onAuthFail, cujo valor é o local para onde o usuário deverá ser redirecionado. Pode-se utilizar
- * um atalho de redirecionamento ou uma URL (absoluta ou relativa). O parâmetro onAuthFail deve
+ * authFailUrl, cujo valor é o local para onde o usuário deverá ser redirecionado. Pode-se utilizar
+ * um atalho de redirecionamento ou uma URL (absoluta ou relativa). O parâmetro authFailUrl deve
  * ser configurado no mesmo local em que a authTag foi definida.
  * 
  * 2. O usuário não é redirecionado, mas o renderizador não recebe nenhum dado da controller. Os
@@ -225,6 +225,21 @@ class Authentication
                 } else {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Método que faz uma checagem comparação entre o token da sessão e o token do cookie.
+     * 
+     * @param string $authTag          Nome da tag que será verificada.
+     */
+    public static function tokenCompare($authTag)
+    {
+        if(self::check($authTag)){
+            if($_SESSION[$authTag]['token'] === $_COOKIE[$authTag]){
+                return true;
             }
         }
         return false;
