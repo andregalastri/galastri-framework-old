@@ -3,7 +3,7 @@
  * Galastri Framework
  * @author André Luis Galastri <contato@andregalastri.com.br>
  * @copyright Copyright (c) 2020, André Luis Galastri
- * @version See VERSION.txt
+ * @version See VERSION
  * @license https://github.com/andregalastri/galastri-framework/blob/master/LICENSE
  * 
  * MIT License
