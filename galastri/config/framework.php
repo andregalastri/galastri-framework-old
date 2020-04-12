@@ -86,10 +86,6 @@ return [
 
     'timezone'           => 'America/Sao_Paulo',
 
-    'authentication' => [
-        'cookieExpire'   => 86400 * 1, /* Cookie expira em 1 dia */
-    ],
-
     'template' => [
         'root'           => '../galastri/view/template/template.php',
         'head'           => '../galastri/view/template/head.php',
@@ -105,6 +101,8 @@ return [
     ],
 
     'contentType' => [
+        'webmanifest'    => 'application/manifest+json',
+        'xml'            => 'application/xml',
         'jpg'            => 'image/jpg',
         'png'            => 'image/png',
         'gif'            => 'image/gif',
@@ -127,7 +125,7 @@ return [
 
     'offline' => [
         'status'         => false,
-        'message'        => 'O sistema está em manutenção.',
+        'message'        => 'Em manutenção.',
         'redirectTo'     => 'index',
         'forceMessage'   => false,
     ],
@@ -137,5 +135,16 @@ return [
         'expire'         => 86400 * 2, /* Cache expira em 2 dias */
     ],
     
+    'permission' => [
+        'failMessage'    => 'Seu usuário não tem acesso a este recurso.',
+        'exceptionTag'   => 'permissionFail',
+    ],
+    
+    'authentication' => [
+        'failMessage'    => 'Autorização não concedida.',
+        'exceptionTag'   => 'deniedAuth',
+        'cookieExpire'   => 86400 * 1, /* Cookie expira em 1 dia */
+    ],
+
     'error404Url'        => 'error404',
 ];

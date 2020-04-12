@@ -229,6 +229,21 @@ class Authentication
         }
         return false;
     }
+    
+    /**
+     * Método que faz uma checagem comparação entre o token da sessão e o token do cookie.
+     * 
+     * @param string $authTag          Nome da tag que será verificada.
+     */
+    public static function tokenCompare($authTag)
+    {
+        if(self::check($authTag)){
+            if($_SESSION[$authTag]['token'] === $_COOKIE[$authTag]){
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Método que faz uma checagem simples, verificando se o token existe. Esta não é uma checagem
