@@ -136,7 +136,7 @@ return [
     ],
     
     'permission' => [
-        'failMessage'    => 'Seu usuário não tem acesso a este recurso.',
+        'failMessage'    => 'Sem permissão para a ação.',
         'exceptionTag'   => 'permissionFail',
     ],
     

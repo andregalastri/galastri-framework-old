@@ -273,8 +273,10 @@ function isEmpty(...$values)
  * 
  * @param array $array             Array multidimensional que será convertida.
  * 
+ * @param array $unique            Opcional. Remove valores duplicados.
+ * 
  */
-function flattenArray($array)
+function flattenArray($array, $unique = false)
 {
     $recursive = (function($array, $result, $recursive){
         foreach($array as $value){
@@ -288,5 +290,25 @@ function flattenArray($array)
         return $result;
     });
 
-    return $recursive($array, [], $recursive);
+    $result = $recursive($array, [], $recursive);
+    return $unique ? array_unique($result) : $result;
+}
+
+/**
+ * Converte uma array multidimensional em uma array simples, mantendo todos os valores. Os índices
+ * das chaves não são mantidos.
+ * 
+ * @param array $array             Array multidimensional que será convertida.
+ * 
+ * @param array $unique            Opcional. Remove valores duplicados.
+ * 
+ */
+function arraySearch($values, $array, $strict = false)
+{
+    foreach($values as $value){
+        $search = array_search($value, $array, $strict);
+        if($search !== false)
+            return $search;
+    }
+    return false;
 }

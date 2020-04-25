@@ -121,6 +121,16 @@ class Permission
 
         return __CLASS__;
     }
+    
+    /**
+     * Método que reseta as permissões para que novos testes possam ser aplicados.
+     */
+    public static function reset()
+    {
+        self::$allowed = [];
+
+        return __CLASS__;
+    }
 
     /**
      * Método que define uma mensagem de erro personalizada que será armazenada na Exception.
@@ -151,7 +161,7 @@ class Permission
 
         foreach($allowed as $tagName){
             if(array_search($tagName, $permissions) !== false){
-                return true;
+                return __CLASS__;
             }
         }
 
