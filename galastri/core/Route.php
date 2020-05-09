@@ -66,7 +66,7 @@ class Route
          * serão armazenados em uma array, que é a própria variável $url.
          * 
          * Também serão utilizadas aqui as rotas configuradas no arquivo config/routes.php. */
-        $url       = explode('?', lower($_SERVER['REQUEST_URI']));
+        $url       = explode('?', $_SERVER['REQUEST_URI']);
         $url       = explode('/', $url[0]);
         $routes    = GALASTRI['routes'];
         $routePath = '';
