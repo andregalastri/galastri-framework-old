@@ -41,6 +41,8 @@
  */
 namespace galastri\core;
 
+use galastri\extensions\Exception;
+
 class Database
 {
     private $active;
@@ -50,13 +52,13 @@ class Database
     private $user;
     private $password;
     private $options;
-    private $customDsn  = false;
+    private $status     = true;
+    private $customDns  = false;
 
     private $pdo;
     private $label      = null;
     private $result     = [];
     private $pagination = [];
-    private $debugStatus;
 
     /**
      * Quando a instância da classe é criada, alguns atributos são configurados para terem valores
@@ -64,7 +66,6 @@ class Database
      */
     public function __construct()
     {
-        $this->debugStatus = GALASTRI['debug'];
         $this->setDefaultConfig();
     }
 
@@ -78,7 +79,7 @@ class Database
     public function setUser($user)          { $this->user      = $user;      return $this; }
     public function setPassword($password)  { $this->password  = $password;  return $this; }
     public function setOptions($options)    { $this->options   = $options;   return $this; }
-    public function setCustomDsn($customDsn){ $this->customDsn = $customDsn; return $this; }
+    public function setCustomDns($customDns){ $this->customDns = $customDns; return $this; }
     public function setStatus($status)      { $this->status    = $status;    return $this; }
 
     /**
@@ -91,7 +92,7 @@ class Database
     public function getUser()     { return $this->user; }
     public function getPassword() { return $this->password; }
     public function getOptions()  { return $this->options; }
-    public function getCustomDsn(){ return $this->customDsn; }
+    public function getCustomDns(){ return $this->customDns; }
     public function getStatus()   { return $this->status; }
 
     /**
@@ -110,9 +111,9 @@ class Database
         return $this;
     }
 
-    public function setCustomPdo($customDsn, $user = null, $password = null, $options = null)
+    public function setCustomPdo($customDns, $user = null, $password = null, $options = null)
     {
-        $this->setCustomDsn($customDsn);
+        $this->setCustomDns($customDns);
         $this->setUser($user ?? $this->getUser());
         $this->setPassword($password ?? $this->getPassword());
         $this->setOptions($options ?? $this->getOptions());
@@ -126,7 +127,7 @@ class Database
     public function connect()
     {
         $active    = $this->getActive();
-        $customDns = $this->getCustomDsn();
+        $customDns = $this->getCustomDns();
         $driver    = $this->getDriver();
         $host      = $this->getHost();
         $database  = $this->getDatabase();
@@ -346,15 +347,12 @@ class Database
                                         }
                                         $resultLog['affectedRows'] = $sql->rowCount();
                                         $resultLog['queryType']    = $queryType;
-
                                         $this->setPagination($pagLog);
                                         $this->setResult($resultLog);
                                     } else {
-                                        $this->setPagination($pagLog);
-                                        $this->setResult([
-                                            'pdoError' => implode(', ', $sql->errorInfo()),
-                                        ]);
+                                        throw new Exception(GALASTRI['debug'] ? implode(' - ',$sql->errorInfo()) : 'Houve um erro durante a consulta ao banco de dados.', 'pdoError');
                                     }
+
                                     break;
 
                                     /** Os casos abaixo fazem o armazenamento dos parâmetros informados
@@ -546,7 +544,6 @@ class Database
         $this->result[$label]->found        = $result['found'] ?? false;
         $this->result[$label]->data         = $result['data'] ?? null;
         $this->result[$label]->lastId       = $result['lastId'] ?? null;
-        $this->result[$label]->pdoError     = $result['pdoError'] ?? false;
     }
 
     /**
@@ -651,7 +648,7 @@ class Database
      * 
      * @param string $table            Tabela de onde se quer verificar o próximo AUTO_INCREMENT.
      */
-    public function getTableNexId($table)
+    public function getTableNextId($table)
     {
         $query = (function($driver){
             switch($driver){
