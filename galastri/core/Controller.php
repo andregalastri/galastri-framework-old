@@ -11,6 +11,7 @@ class Controller
 {
     private $authStatus;
     private $data;
+    private $siteName;
     private $title;
     private $view;
     private $cache;
@@ -54,6 +55,7 @@ class Controller
      */
     public function startController()
     {
+        $this->siteName     = Route::siteName();
         $this->title        = Route::title();
         $this->view         = Route::view();
         $this->cache        = Route::cache();
@@ -86,6 +88,7 @@ class Controller
     {
         $data               = new \StdClass;
         
+        $data->siteName     = $this->siteName;
         $data->title        = $this->title;
         $data->view         = $this->view;
         $data->cache        = $this->cache;
@@ -159,6 +162,7 @@ class Controller
      * Métodos setters para armazenar dados da rota. Foi escolhido assim para que os atributos
      * da rota estejam protegidos e para melhor legibilidade dos códigos da controller.
      */
+    protected function setSiteName($siteName)         { $this->siteName     = $siteName; }
     protected function setTitle($title)               { $this->title        = $title; }
     protected function setView($view)                 { $this->view         = $view; }
     protected function setCache($cache)               { $this->cache        = $cache; }
@@ -171,6 +175,7 @@ class Controller
      * Métodos getters para recuperar dados da rota. Foi escolhido assim para que os atributos
      * da rota estejam protegidos e para melhor legibilidade dos códigos da controller.
      */
+    protected function getSiteName()     { return $this->siteName; }
     protected function getTitle()        { return $this->title; }
     protected function getView()         { return $this->view; }
     protected function getCache()        { return $this->cache; }

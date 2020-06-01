@@ -30,6 +30,8 @@
  * - PARÂMETROS PARA CLASSES OU MÉTODOS -
  * renderer          (string) Indica um renderizador para a área ou método. Os padrões são view
  *                   json e file.
+ * 
+ * siteName          (string) Opcional. Permite definir um nome de site diferente para cada área.
  *                             
  * offline           (array) Opcional. Quando definido, indica que a área ou método está offline.
  *                   Esta configuração afeta todos as áreas e métodos filhos.
@@ -44,6 +46,9 @@
  *                   para os parâmetros da sessão.
  *                             
  * authFailUrl       (string) Opcional. Indica uma URL para caso o usuário não esteja autenticado.
+ * 
+ * error404Url       (string) Opcional. Indica uma URL específica para quando ocorrer erro 404 na
+ *                   área.
  * 
  * template          (array) Opcional. Permite ativar ou desativar partes do template.
  * 

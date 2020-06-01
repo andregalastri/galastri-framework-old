@@ -22,6 +22,7 @@ class Route
     private static $authFailUrl;
     private static $error404Url;
     private static $urlString;
+    private static $siteName;
     private static $title;
     private static $template;
     private static $import;
@@ -113,9 +114,10 @@ class Route
             'downloadable' => false,
             'cache'        => false,
             'authTag'      => false,
-            'authFailUrl'   => false,
+            'authFailUrl'  => false,
             'template'     => false,
             'error404Url'  => null,
+            'siteName'     => null,
         ];
 
         foreach($url as $routeName){
@@ -226,6 +228,7 @@ class Route
         self::$authFailUrl  = $route['authFailUrl'] ?? self::$inheritanceConfig['authFailUrl'];
         self::$error404Url  = self::$inheritanceConfig['error404Url'] ?? GALASTRI['error404Url'];
         self::$urlString    = $urlString;
+        self::$siteName     = self::$inheritanceConfig['siteName'] ?? GALASTRI['title']['siteName'];
         self::$title        = $route['title'] ?? '';
         self::$template     = self::$inheritanceConfig['template'] ?? [];
         self::$import       = $route['import'] ?? [];
@@ -252,6 +255,7 @@ class Route
     public static function error404Url() { return self::$error404Url; }
     public static function authFailUrl() { return self::$authFailUrl; }
     public static function urlString()   { return self::$urlString; }
+    public static function siteName()    { return self::$siteName; }
     public static function title()       { return self::$title; }
     public static function template()    { return self::$template; }
     public static function import()      { return self::$import; }

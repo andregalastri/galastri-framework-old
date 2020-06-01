@@ -43,8 +43,8 @@ trait View
 
         self::viewCheckObject()
             ::viewCheckHasView()
-                ::viewSetTemplate()
-                    ::viewCheckExists();
+            ::viewSetTemplate()
+            ::viewCheckExists();
 
         self::$view = self::checkAuth(self::$view);
 
@@ -125,13 +125,13 @@ trait View
 
         /** Configuração do título da página. */
         foreach(GALASTRI['title']['template'] as $part){
-            if(array_key_exists($part, GALASTRI['title'])){
-                $title[] = GALASTRI['title'][$part];
+            if(property_exists($data, $part)){
+                $title[] = $data->$part;
             } else {
-                if(property_exists($data, $part)){
-                    $title[] = $data->$part;
+                if(array_key_exists($part, GALASTRI['title'])){
+                    $title[] = GALASTRI['title'][$part];
                 }
-            }  
+            }
         }
 
         self::$view->template = $template;

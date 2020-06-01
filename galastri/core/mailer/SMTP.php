@@ -18,7 +18,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-namespace galastri\extensions\Mailer;
+namespace galastri\extensions\mailer;
 
 /**
  * PHPMailer RFC821 SMTP email transport class.

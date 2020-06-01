@@ -18,7 +18,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-namespace galastri\extensions\Mailer;
+namespace galastri\extensions\mailer;
 
 /**
  * PHPMailer POP-Before-SMTP Authentication Class.
