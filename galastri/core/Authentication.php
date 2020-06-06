@@ -78,6 +78,7 @@ class Authentication
      */
     public static function setTag($authTag)
     {
+        session_start();
         self::$authTag = $authTag;
         return __CLASS__;
     }
@@ -127,6 +128,7 @@ class Authentication
         $_SESSION[$authTag]['ip'] = $_SERVER['REMOTE_ADDR'];
         setcookie($authTag, $_SESSION[$authTag]['token'], time()+(int)GALASTRI['authentication']['cookieExpire'], '/');
         session_regenerate_id();
+        session_write_close();
     }
     
     /**
@@ -151,6 +153,7 @@ class Authentication
      */
     public static function unset($authTag)
     {
+        session_start();
         if(self::check($authTag)){
             unset($_SESSION[$authTag]);
             setcookie($authTag, null, time() - 3600, '/');
@@ -166,6 +169,7 @@ class Authentication
      */
     public static function destroy()
     {
+        session_start();
         foreach($_SESSION as $key => $value){
             setcookie($key, null, time() - 3600, '/');
             unset($_COOKIE[$key]);
@@ -181,13 +185,16 @@ class Authentication
      */
     public static function getData($authTag)
     {
+        session_start();
         if(self::check($authTag)){
             $session = new \StdClass;
             foreach($_SESSION[$authTag] as $authTag => $value){
                 $session->$authTag = $value;
             }
+            session_write_close();
             return $session;
         }
+        session_write_close();
         return false;
     }
     
@@ -214,19 +221,24 @@ class Authentication
      */
     public static function validate($authTag, $ipCheck = false)
     {
+        session_start();
         if(self::check($authTag)){
             if($_SESSION[$authTag]['token'] === $_COOKIE[$authTag]){
                 if($ipCheck){
                     if($_SESSION[$authTag]['ip'] === $_SERVER['REMOTE_ADDR']){
+                        session_write_close();
                         return true;
                     } else {
+                        session_write_close();
                         return false;
                     }
                 } else {
+                    session_write_close();
                     return true;
                 }
             }
         }
+        session_write_close();
         return false;
     }
     

@@ -55,8 +55,6 @@ class Galastri
      */
     public static function execute()
     {
-        session_start();
-
         date_default_timezone_set(GALASTRI['timezone']);
         Route::resolve();
 
