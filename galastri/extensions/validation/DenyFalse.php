@@ -44,6 +44,9 @@ trait DenyFalse
                         $testValue = $this->validation->value;
                         $error     = $testValue === false ? true : false;
 
+                        if($testValue === '' or $testValue === null)
+                            return Chain::resolve($chainData, $data);
+
                         if($error){
                             $errorLog['error']       = $error;
                             $errorLog['testName']    = 'denyFalse';

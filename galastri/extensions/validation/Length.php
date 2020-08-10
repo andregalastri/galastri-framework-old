@@ -45,15 +45,15 @@ trait Length
                     if(!$error){
                         $testValue = $this->validation->value;
 
+                        if($testValue === '' or $testValue === null)
+                            return Chain::resolve($chainData, $data);
+
                         foreach($chainData as $parameter){
                             switch($parameter['name']){
                                 
                                 /** Compara a quantidade de caracteres do dado com a quantidade
                                  * especificada nos métodos de comparação. */
                                 case 'length':
-                                    if($testValue === '' or $testValue === null)
-                                        break;
-                                    
                                     foreach($operation as $operator){
                                         if(!$this->compare(strlen($testValue), $operator['operator'], $operator['delimiter'])){
                                             $error = true;

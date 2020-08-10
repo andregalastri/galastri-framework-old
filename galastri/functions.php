@@ -273,24 +273,31 @@ function isEmpty(...$values)
  * 
  * @param array $array             Array multidimensional que será convertida.
  * 
- * @param array $unique            Opcional. Remove valores duplicados.
+ * @param bool $unique             Opcional. Remove valores duplicados.
+ * 
+ * @param bool|string|int $index   Opcional. Retorna apenas uma chave específica da array.
  * 
  */
-function flattenArray($array, $unique = false)
+function flattenArray($array, $index = false, $unique = false)
 {
-    $recursive = (function($array, $result, $recursive){
-        foreach($array as $value){
+    $recursive = (function($array, $index, $result, $recursive){
+        foreach($array as $key => $value){
             if(gettype($value) === 'array'){
-                $result = $recursive($value, $result, $recursive);
+                $result = $recursive($value, $index, $result, $recursive);
             } else {
-                $result[] = $value;
+                if($index === false){
+                    $result[] = $value;
+                } else {
+                    if($key == $index)
+                        $result[] = $value;
+                }
             }
         }
-
+        
         return $result;
     });
-
-    $result = $recursive($array, [], $recursive);
+    
+    $result = $recursive($array, $index, [], $recursive);
     return $unique ? array_unique($result) : $result;
 }
 

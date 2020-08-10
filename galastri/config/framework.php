@@ -2,7 +2,7 @@
 /**
  * - framework.php -
  * 
- * Arquivo de configuração principal. Possui as configurações mais básicas do microframework.
+ * Arquivo de configuração principal. Possui as configurações fundamentais do microframework.
  * 
  * IMPORTANTE: Todas as configurações são importantes, por isso, modifique apenas as coisas que
  * realmente deseja mudar e deixe o restante com valores padrão. Os valores padrões são importantes
@@ -49,10 +49,13 @@
  * 
  *   view               (string) Pasta onde são armazenados os arquivos view.
  * 
- * contentType          (array) Agrupa todos os tipos de arquivos possíveis que podem ser
- *                      renderizados pelo renderizador File. Na chave informa-se a extensão do
- *                      arquivo e no valor informa-se o seu tipo MIME. Coloque aqui quantos tipos
- *                      de arquivos desejar.
+ * contentType          (array) Agrupa todos os tipos de arquivos que podem ser renderizados pelo
+ *                      renderizador File e como o navegador irá armazenar o cache. Na chave deve
+ *                      ser informado a extensão do arquivo.
+ *                      
+ *                      O valor de cada chave deve ser um array de dois índices:
+ *                      |  No índice [0]: informar o tipo MIME da extensão do arquivo.
+ *                      |  No índice [1]: informar os parâmetros Cache-Control.
  * 
  * importTags           (array) Agrupa as tags HTML que serão usados quando forem configurados
  *                      arquivos adicionais no arquivo routes.php.
@@ -101,21 +104,21 @@ return [
     ],
 
     'contentType' => [
-        'webmanifest'    => 'application/manifest+json',
-        'xml'            => 'application/xml',
-        'jpg'            => 'image/jpg',
-        'png'            => 'image/png',
-        'gif'            => 'image/gif',
-        'ico'            => 'image/ico',
-        'svg'            => 'image/svg+xml',
-        'svgf'           => 'font/svg+xml',
-        'pdf'            => 'application/pdf',
-        'css'            => 'text/css',
-        'js'             => 'application/javascript',
-        'woff2'          => 'font/woff2',
-        'woff'           => 'font/woff',
-        'eot'            => 'font/eot',
-        'ttf'            => 'font/ttf',
+        'webmanifest'    => ['application/manifest+json', 'must-revalidate'],
+        'xml'            => ['application/xml',           'must-revalidate'],
+        'jpg'            => ['image/jpg',                 'must-revalidate'],
+        'png'            => ['image/png',                 'must-revalidate'],
+        'gif'            => ['image/gif',                 'must-revalidate'],
+        'ico'            => ['image/ico',                 'must-revalidate'],
+        'svg'            => ['image/svg+xml',             'must-revalidate'],
+        'svgf'           => ['font/svg+xml',              'must-revalidate'],
+        'pdf'            => ['application/pdf',           'must-revalidate'],
+        'css'            => ['text/css',                  'must-revalidate'],
+        'js'             => ['application/javascript',    'must-revalidate'],
+        'woff2'          => ['font/woff2',                'max-age=86400, public'],
+        'woff'           => ['font/woff',                 'max-age=86400, public'],
+        'eot'            => ['font/eot',                  'max-age=86400, public'],
+        'ttf'            => ['font/ttf',                  'max-age=86400, public'],
     ],
 
     'importTags' => [

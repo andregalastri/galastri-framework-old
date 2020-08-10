@@ -22,7 +22,7 @@ class Redirect
         if($to === false){
             Debug::error('REDIRECT000')::print();
         } else {
-            if(array_key_exists(lower($to), GALASTRI['urlAlias'])){
+            if(array_key_exists($to, GALASTRI['urlAlias'])){
                 exit(header('Location: '.GALASTRI['urlAlias'][$to]));
             } else {
                 exit(header('Location: '.$to));

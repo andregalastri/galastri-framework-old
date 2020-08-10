@@ -122,8 +122,8 @@ trait File
         $etag = md5(filemtime(self::$file->path).self::$file->path);
 
         header('Last-Modified: '.gmdate('r', time()));
-        header('Cache-Control: must-revalidate');
-        header('Expires: '.gmdate('r', time()+self::$file->cache['expire']));
+        header('Cache-Control: '.GALASTRI['contentType'][self::$file->extension][1]);
+        header('Expires: Tue, 01 Jul 1980 1:00:00 GMT');
         header('Etag: '.$etag); 
         
         /** Cabeçalhos para caso o arquivo esteja configurado para ser baixável. */
@@ -170,7 +170,7 @@ trait File
                 }
             }
             
-            header('Content-type: '.GALASTRI['contentType'][self::$file->extension]);
+            header('Content-type: '.GALASTRI['contentType'][self::$file->extension][0]);
             self::printContent(file_get_contents(self::$file->path));
         }
     }

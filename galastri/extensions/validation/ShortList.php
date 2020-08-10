@@ -84,6 +84,9 @@ trait ShortList
                     if(!$error) {
                         $testValue = $this->validation->value;
                         $strict    = 'notStrict';
+
+                        if($testValue === '' or $testValue === null)
+                            return Chain::resolve($chainData, $data);
                         
                         foreach($chainData as $parameter) {
                             switch($parameter['name']) {
