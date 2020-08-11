@@ -20,6 +20,9 @@
  */
 namespace galastri\extensions\validation;
 
+use galastri\core\Chain;
+use galastri\core\Debug;
+
 trait Length
 {
     /**
@@ -54,6 +57,7 @@ trait Length
                                 /** Compara a quantidade de caracteres do dado com a quantidade
                                  * especificada nos métodos de comparação. */
                                 case 'length':
+                                    
                                     foreach($operation as $operator){
                                         if(!$this->compare(strlen($testValue), $operator['operator'], $operator['delimiter'])){
                                             $error = true;
@@ -62,7 +66,7 @@ trait Length
                                             $errorLog['message']     = $operator['message'];
                                             break 3;
                                         }
-                                    }
+                                    }  
                                     break;
 
                                 case 'min':

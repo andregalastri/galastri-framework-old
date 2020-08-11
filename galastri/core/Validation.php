@@ -305,12 +305,12 @@ class Validation
     private function compare($value, $operator, $delimiter)
     {
         switch($operator){
-            case '=='    :    return    $value == $delimiter;
-            case '>'    :    return    $value >  $delimiter;
-            case '<'    :    return    $value <  $delimiter;
-            case '>='    :    return    $value >= $delimiter;
-            case '<='    :    return    $value <= $delimiter;
-            case '!='    :    return    $value != $delimiter;
+            case '==' : return $value == $delimiter;
+            case '>'  : return $value >  $delimiter;
+            case '<'  : return $value <  $delimiter;
+            case '>=' : return $value >= $delimiter;
+            case '<=' : return $value <= $delimiter;
+            case '!=' : return $value != $delimiter;
         }
     }
 }
