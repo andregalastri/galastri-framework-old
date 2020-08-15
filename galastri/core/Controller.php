@@ -19,6 +19,7 @@ class Controller
     private $import;
     private $downloadable;
     private $parameters;
+    private $classAsParameter;
 
     /**
      * Método que executa algumas configurações básicas do controller. Uma das execuções é a de
@@ -62,6 +63,7 @@ class Controller
         $this->template     = Route::template();
         $this->import       = Route::import();
         $this->downloadable = Route::downloadable();
+        $this->classAsParameter = Route::parameters()['classAsParameter'];
         $this->authStatus   = true;
         
         $this->parameters   = $this->resolveParameters();
@@ -113,18 +115,18 @@ class Controller
      * !!MELHORAR ESTA PARTE!!
      */
     private function resolveParameters(){
-        $routes        = Route::routes();
-        $routePath     = Route::path();
-        $preParameters = Route::parameters();
-        $method        = Route::method('noCaseConvert');
-        $parameters    = [];
+        $routes           = Route::routes();
+        $routePath        = Route::path();
+        $afterMethod      = Route::parameters()['afterMethod'];
+        $method           = Route::method('noCaseConvert');
+        $parameters       = [];
 
         /** DOCUMENTAR AQUI */
-        if($method === $preParameters[0] or empty($preParameters[0]))
-            array_shift($preParameters);
+        // if($method === $preParameters[0] or empty($preParameters[0]))
+            // array_shift($preParameters);
         
         $methodParameter = $routes["@$method"]['parameters'] ?? [];
-        if($routePath === '/' and !empty($preParameters) and empty($methodParameter)){
+        if($routePath === '/' and !empty($afterMethod) and empty($methodParameter)){
             Redirect::location(Route::error404Url());
         } else {
             $requiredLabel = [];
@@ -135,26 +137,26 @@ class Controller
             }
             
             /* verifica se a quantidade de parametros. Não pode ser menor que a requerida e nem maior do que as definidas */
-            if(count($preParameters) < count($requiredLabel) or count($preParameters) > count($methodParameter))
+            if(count($afterMethod) < count($requiredLabel) or count($afterMethod) > count($methodParameter))
                 Redirect::location(Route::error404Url());
             
             foreach($methodParameter as $key => $label){
                 if($label[0] === '?'){
                     $label = substr($label, 1, strlen($label));
-                    $parameters[$label] = $preParameters[$key] ?? null;
+                    $parameters[$label] = $afterMethod[$key] ?? null;
                 } else {
-                    if(empty($preParameters[$key])){
+                    if(empty($afterMethod[$key])){
                         if(GALASTRI['forceParameters']['status'])
                             Redirect::location(Route::error404Url());
                         
                         $parameters[$label] = false;
                     } else {
-                        $parameters[$label] = $preParameters[$key];
+                        $parameters[$label] = $afterMethod[$key];
                     }
                 }
             }
         }
-        
+
         return $parameters;
     }
     
@@ -183,16 +185,27 @@ class Controller
     protected function getImport()       { return $this->import; }
     protected function getDownloadable() { return $this->downloadable; }
     protected function getParameters()   { return $this->parameters; }
+    protected function getClassAsParameters() { return $this->classAsParameter; }
     protected function getAuthStatus()   { return $this->authStatus; }
     
     protected function getParameter($parameter)
     {
         Debug::trace(debug_backtrace()[0]);
 
-        if(!isset($this->parameters[$parameter])){
+        if(!array_key_exists($parameter, $this->parameters)){
             Debug::error('CONTROLLER004', $parameter)::print();
         }
         return $this->parameters[$parameter];
+    }
+
+    protected function getClassAsParameter($parameter)
+    {
+        Debug::trace(debug_backtrace()[0]);
+
+        if(!array_key_exists($parameter, $this->classAsParameter)){
+            Debug::error('CONTROLLER004', $parameter)::print();
+        }
+        return $this->classAsParameter[$parameter];
     }
     
     /**
@@ -206,7 +219,7 @@ class Controller
     {
         if(Route::renderer() === 'file'){
             $this->path       = '';
-            $this->parameters = $path;
+            $this->parameters = ltrim($path, '/');
         } else {
             Debug::error('FILE005')->print();
         }

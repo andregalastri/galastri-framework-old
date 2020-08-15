@@ -52,8 +52,12 @@ class Database
     private $user;
     private $password;
     private $options;
+    private $backupFolder;
     private $status     = true;
     private $customDns  = false;
+
+    private $table      = false;
+    private $filename   = false;
 
     private $pdo;
     private $label      = null;
@@ -72,41 +76,55 @@ class Database
     /**
      * Métodos de configuração. Cada parâmetro define uma configuração.
      */
-    public function setActive($active)      { $this->active    = $active;    return $this; }
-    public function setDriver($driver)      { $this->driver    = $driver;    return $this; }
-    public function setHost($host)          { $this->host      = $host;      return $this; }
-    public function setDatabase($database)  { $this->database  = $database;  return $this; }
-    public function setUser($user)          { $this->user      = $user;      return $this; }
-    public function setPassword($password)  { $this->password  = $password;  return $this; }
-    public function setOptions($options)    { $this->options   = $options;   return $this; }
-    public function setCustomDns($customDns){ $this->customDns = $customDns; return $this; }
-    public function setStatus($status)      { $this->status    = $status;    return $this; }
+    public function setActive($active)            { $this->active       = $active;       return $this; }
+    public function setDriver($driver)            { $this->driver       = $driver;       return $this; }
+    public function setHost($host)                { $this->host         = $host;         return $this; }
+    public function setDatabase($database)        { $this->database     = $database;     return $this; }
+    public function setUser($user)                { $this->user         = $user;         return $this; }
+    public function setPassword($password)        { $this->password     = $password;     return $this; }
+    public function setOptions($options)          { $this->options      = $options;      return $this; }
+    public function setCustomDns($customDns)      { $this->customDns    = $customDns;    return $this; }
+    public function setStatus($status)            { $this->status       = $status;       return $this; }
+    public function setTable($table)              { $this->table        = $table;        return $this; }
+    public function setFilename($filename)        { $this->filename     = $filename;     return $this; }
+    
+    public function setBackupFolder($backupFolder){
+        $backupFolder = ltrim($backupFolder, '/');
+        $backupFolder = rtrim($backupFolder, '/');
+        
+        $this->backupFolder = $backupFolder;
+        return $this;
+    }
 
     /**
      * Métodos de configuração. Cada parâmetro define uma configuração.
      */
-    public function getActive()   { return $this->active; }
-    public function getDriver()   { return $this->driver; }
-    public function getHost()     { return $this->host; }
-    public function getDatabase() { return $this->database; }
-    public function getUser()     { return $this->user; }
-    public function getPassword() { return $this->password; }
-    public function getOptions()  { return $this->options; }
-    public function getCustomDns(){ return $this->customDns; }
-    public function getStatus()   { return $this->status; }
-
+    public function getActive()      { return $this->active; }
+    public function getDriver()      { return $this->driver; }
+    public function getHost()        { return $this->host; }
+    public function getDatabase()    { return $this->database; }
+    public function getUser()        { return $this->user; }
+    public function getPassword()    { return $this->password; }
+    public function getOptions()     { return $this->options; }
+    public function getBackupFolder(){ return $this->backupFolder; }
+    public function getCustomDns()   { return $this->customDns; }
+    public function getStatus()      { return $this->status; }
+    public function getTable()       { return $this->table; }
+    public function getFilename()    { return $this->filename; }
+    
     /**
      * Método que define as configurações padrão para conexão.
      */
     public function setDefaultConfig()
     {
-        $this->setActive  (GALASTRI['database']['active']   ?? false);
-        $this->setDriver  (GALASTRI['database']['driver']   ?? false);
-        $this->setHost    (GALASTRI['database']['host']     ?? null);
-        $this->setDatabase(GALASTRI['database']['database'] ?? null);
-        $this->setUser    (GALASTRI['database']['user']     ?? null);
-        $this->setPassword(GALASTRI['database']['password'] ?? null);
-        $this->setOptions (GALASTRI['database']['options']  ?? []);
+        $this->setActive      (GALASTRI['database']['active']       ?? false);
+        $this->setDriver      (GALASTRI['database']['driver']       ?? false);
+        $this->setHost        (GALASTRI['database']['host']         ?? null);
+        $this->setDatabase    (GALASTRI['database']['database']     ?? null);
+        $this->setUser        (GALASTRI['database']['user']         ?? null);
+        $this->setPassword    (GALASTRI['database']['password']     ?? null);
+        $this->setOptions     (GALASTRI['database']['options']      ?? []);
+        $this->setBackupFolder(GALASTRI['database']['backupFolder'] ?? []);
 
         return $this;
     }
@@ -117,6 +135,8 @@ class Database
         $this->setUser($user ?? $this->getUser());
         $this->setPassword($password ?? $this->getPassword());
         $this->setOptions($options ?? $this->getOptions());
+
+        return $this;
     }
 
     /**
@@ -150,9 +170,9 @@ class Database
      * Métodos de transação. Permite a definição de onde uma transação será iniciada e, caso algum
      * erro ocorra durante as consultas SQL, que todas as transações concluídas sejam desfeitas.
      */
-    public function begin()  { if($this->active) $this->pdo->beginTransaction(); }
-    public function cancel() { if($this->active) $this->pdo->rollBack(); }
-    public function commit() { if($this->active) $this->pdo->commit(); }
+    public function begin()  { if($this->getActive()) $this->pdo->beginTransaction(); }
+    public function cancel() { if($this->getActive()) $this->pdo->rollBack(); }
+    public function commit() { if($this->getActive()) $this->pdo->commit(); }
 
     /**
      * Método que verifica se existe um elo da corrente ativo antes de executar um novo teste.
@@ -163,7 +183,7 @@ class Database
         if(!$this->getStatus()){
             Debug::error('DATABASE001');
         } else {
-            if($this->active){
+            if($this->getActive()){
                 if(Chain::hasLinks()){
                     $this->submit();
                 }    
@@ -227,7 +247,7 @@ class Database
             ],
             (
                 function($chainData, $data){
-                    if($this->active){
+                    if($this->getActive()){
                         Debug::trace(debug_backtrace()[0]);
 
                         $this->label = $data['label'];
@@ -418,7 +438,7 @@ class Database
      */
     public function bind($field, $value)
     {
-        if($this->active){
+        if($this->getActive()){
             Chain::create(
                 'bind',
                 [
@@ -458,7 +478,7 @@ class Database
      */
     public function bindArray(array $fields)
     {
-        if($this->active){
+        if($this->getActive()){
             Chain::create(
                 'bindArray',
                 [
@@ -496,7 +516,7 @@ class Database
      */
     public function pagination($page, $perPage)
     {
-        if($this->active){
+        if($this->getActive()){
             Chain::create(
                 'pagination',
                 [
@@ -518,7 +538,7 @@ class Database
      */
     public function submit()
     {
-        if($this->active){
+        if($this->getActive()){
             return Chain::resolve();
         }
     }
@@ -671,5 +691,67 @@ class Database
             ->submit();
 
         return $this->getResult('galastriLastId')->data[0]['autoIncrement'];
+    }
+
+    /**
+     * Método para simplificar a criação de arquivos de backup. Este método permite 3 modos para
+     * a criação de um arquivo de backup:
+     * 
+     *    1. Backup do banco de dados inteiro;
+     *    2. Backup de uma tabela inteira;
+     *    3. Backup de um trecho de uma tabela.
+     * 
+     * Quando o driver é o mysql, este método se utiliza de comandos mysqldump que exigem que o
+     * servidor permita execuções de comandos através da função exec() do PHP. É importante
+     * ressaltar que nem todo servidor tem isso habilitado por padrão.
+     * 
+     * @param bool|string $condition       Condição se será usada caso se deseje fazer um backup
+     *                                     de um trecho de uma tabela.
+     */
+    public function backup($condition = false)
+    {
+        if(!$this->getStatus())
+            Debug::error('DATABASE001')::print();
+
+        if(!$this->getFilename())
+            Debug::error('DATABASE005')::print();
+
+        if($this->getActive()){
+            $file = path(rtrim($this->getBackupFolder().'/'.$this->getFilename(), '.sql').'.sql');
+
+            $query = (function($driver, $condition, $file){
+                $host      = $this->getHost();
+                $database  = $this->getDatabase();
+                $user      = $this->getUser();
+                $password  = $this->getPassword();
+                $table     = $this->getTable();
+
+                $folder = dirname($file);
+
+                if(!is_dir($folder))
+                    mkdir($folder, 0755, true);
+
+                switch($driver){
+                    case 'mysql':
+                        $baseQuery = "mysqldump --user=$user --password=$password --host=$host $database";
+                        if(!$table and !$condition)
+                            return "$baseQuery --result-file='$file' 2>&1";
+
+                        if($table and !$condition)
+                            return "$baseQuery $table --result-file='$file' 2>&1";
+
+                        if($table and $condition)
+                            return "$baseQuery $table --where='$condition' --result-file='$file' 2>&1";
+                }
+            })($this->getDriver(), $condition, $file);
+
+            exec($query, $output);
+
+            return [
+                'file' => $file,
+                'path' => formatAbsolutePath($file),
+                'output' => $output,
+            ];
+        }
     }
 }

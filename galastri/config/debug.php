@@ -4,7 +4,7 @@
  * 
  * Arquivo de configuração do debug. Esta configuração é colocada sozinha pois permite que o
  * teste que verifica se o debug está ativo ou não ocorra logo no início do carregamento das
- * configurações. Ou seja, caso ocorre qualquer erro nas configurações do framework, o PHP irá
+ * configurações. Ou seja, caso ocorra qualquer erro nas configurações do framework, o PHP irá
  * exibir o erro caso o debug esteja ativo.
  * 
  * IMPORTANTE: Não remova nenhuma chave aqui e apenas modifique os valores.

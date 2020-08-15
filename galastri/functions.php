@@ -28,7 +28,8 @@ function vdump(...$variable)
  * 
  * @param mixed $variable          Valor que será impresso pelo var_dump().
  */
-function ddump(...$variable)
+
+function edump(...$variable)
 {
     $debug = debug_backtrace()[0];
     $format = dump($variable);
@@ -226,7 +227,7 @@ function convertCase($string, $type, $regex = '/(-|_)/')
                 break;
         }
 
-        $value = capitalize($value);
+        $value = capitalize($value, true, true);
     } unset($value);
     return implode($string);
 }
@@ -318,4 +319,43 @@ function arraySearch($values, $array, $strict = false)
             return $search;
     }
     return false;
+}
+
+
+
+/**
+ * Autor: Sven Arduwie
+ * https://www.php.net/manual/pt_BR/function.realpath.php#84012
+ * 
+ * Formata um caminho de de diretórios para retornar o caminho absoluto de um até um
+ * arquivo ou pasta. Não leva em conta se o arquivo existe ou não, apenas formata a
+ * string.
+ * 
+ * @param string $path           Caminho a ser formatado.
+ * 
+ */
+function formatAbsolutePath($path) {
+    $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+    $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+    $absolutes = array();
+    foreach ($parts as $part) {
+        if ('.' == $part) continue;
+        if ('..' == $part) {
+            array_pop($absolutes);
+        } else {
+            $absolutes[] = $part;
+        }
+    }
+    return DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $absolutes);
+}
+
+/**
+ * Retorna o caminho absoluto do arquivo ou pasta baseando-se no diretório raiz do
+ * framework.
+ * 
+ * @param string $path           Caminho do arquivo ou diretório.
+ * 
+ */
+function path($path = ''){
+    return formatAbsolutePath(DIR.'/'.$path);
 }

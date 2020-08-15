@@ -34,7 +34,12 @@
  */
 namespace galastri;
 
-$version = file_exists('../VERSION') ? file_get_contents('../VERSION') : '';
+define('DIR', __DIR__);
+require_once('functions.php');
+
+define('FRAMEWORK_VERSION', file_exists(path('../VERSION')) ? file_get_contents(path('../VERSION')) : '');
+
+/** Faz a importação das funções globais. */
 
 /** Faz a importação das constantes dos arquivos de configuração e armazena tudo em uma constante.
  * Desta forma, todas as configurações são acessadas através da constante GALASTRI.
@@ -42,24 +47,20 @@ $version = file_exists('../VERSION') ? file_get_contents('../VERSION') : '';
 define ('GALASTRI',
         array_merge(
             $debug,
-            require('config/framework.php'),
-            ['database' => require('config/database.php')],
-            ['routes'   => require('config/routes.php')],
-            ['urlAlias' => require('config/url-alias.php')],
-            ['version'  => $version]
+            require(path('config/framework.php')),
+            ['database' => require(path('config/database.php'))],
+            ['routes'   => require(path('config/routes.php'))],
+            ['urlAlias' => require(path('config/url-alias.php'))],
+            ['version'  => FRAMEWORK_VERSION]
         )
 );
 
 unset($debug);
-unset($version);
-
-/** Faz a importação das funções globais. */
-require_once('functions.php');
 
 /** Faz a importação de arquivos adicionais que podem ser configurados pelo usuário. */
-foreach(glob(GALASTRI['folders']['additional-config'].'/*.php') as $additionalConfig)
+foreach(glob(path(GALASTRI['folders']['additional-config'].'/*.php')) as $additionalConfig)
     require($additionalConfig);
 
-require_once('autoload.php');
+require_once(path('autoload.php'));
 
 core\Galastri::execute();

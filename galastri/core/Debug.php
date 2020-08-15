@@ -106,6 +106,9 @@ class Debug
     private static function getMessage($tag, $data)
     {
         switch($tag){
+            case 'ROUTE001':      return "Foram definidas $data[0] rotas dinâmicas (iniciadas com '/?') para esta<br>mesma área, no arquivo 'config/routes.php'.<br><br>É permitido apenas 1 rota deste tipo para cada área.";
+            case 'ROUTE002':      return "A authTag '$data[0]' foi definida sem uma authFailUrl. É obrigatório definir uma authFailUrl para 'false' ou para uma url válida.";
+
             case 'REDIRECT001':   return "Nenhum parâmetro foi informado. É necessário informar uma string contendo uma URL ou uma palavra chave para redirecionamento.";
 
             case 'OFFLINE001':    return GALASTRI['offline']['message'];
@@ -117,6 +120,7 @@ class Debug
             case 'RENDERER001':   return "O renderizador <b>'$data[0]'</b> requer um método configurado para a rota <b>'$data[1]'</b> no arquivo <b>'config/routes.php'</b>.";
             case 'RENDERER002':   return "O renderizador <b>'$data[0]'</b> requer um controller configurado para a rota <b>'$data[1]'</b> no arquivo <b>'config/routes.php'</b>.";
             case 'RENDERER003':   return "O renderizador <b>'$data[0]'</b> não existe.";
+            case 'RENDERER004':   return "O renderizador não foi definido.";
 
             case 'CONTROLLER001': return "O controller <b>'$data[0]'</b> não existe.";
             case 'CONTROLLER002': return "O controller <b>'$data[0]'</b> não possui o método <b>'$data[1]'</b>.";
@@ -144,6 +148,7 @@ class Debug
             case 'DATABASE002':   return "A querystring <b>'$data[0]'</b> é inválida.";
             case 'DATABASE003':   return "Não existe nenhum resultado armazenado na consulta padrão.";
             case 'DATABASE004':   return "Não existe nenhum rótulo <b>'$data[0]'</b> definido em uma consulta.";
+            case 'DATABASE005':   return "É necessário definir o nome do arquivo de backup.";
 
             case 'NUMBER001':     return "O tipo <b>'$data[0]'</b> não é um tipo de número válido. Os tipos válidos que podem ser informados são $data[1].";
 
