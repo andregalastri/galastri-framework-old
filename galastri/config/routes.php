@@ -79,10 +79,10 @@
  * title             (string) Opcional. Indica um título para a página.
  * 
  * view              (string) Opcional. Indica uma view diferente do padrão. Quando não configurado
- *                   irá se basear no caminho padrão /<view>/<classe>/<metodo>.php.
+ *                   irá se basear no caminho padrão /view/<classe>/<metodo>.php.
  * 
  * controller        (string) Opcional. Indica uma controller diferente do padrão. Quando não
- *                   configurado irá se basear no caminho padrão /<controller>/<classe>/<metodo>.php.
+ *                   configurado irá se basear no caminho padrão /controller/<classe>/<metodo>.php.
  * 
  * import            (array) Opcional. Cada valor da array indica um caminho para o arquivo externo
  *                   que poderá ser importado para a tag <head>. Por padrão pode-se informar arquivos

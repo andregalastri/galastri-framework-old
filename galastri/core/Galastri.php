@@ -237,10 +237,15 @@ class Galastri
     private static function checkAuth($data)
     {
         if($data !== null){
-            $authStatus = property_exists($data, 'authStatus') ? $data->authStatus : true;
-            $authFailUrl = Route::authFailUrl();
+            
+            $authBlock = property_exists($data, 'authBlock') ? $data->authBlock : true;
+            $authFailUrl = $data->authFailUrl;
+            
+            if(empty($authFailUrl) and gettype(Route::authTag()) === 'string')
+                Debug::error('ROUTE002', Route::authTag())::print();
 
-            if($authStatus === false){
+            if($authBlock === true and gettype(Route::authTag()) === 'string'){
+
                 if($authFailUrl){
                     Redirect::location($authFailUrl);
                 } else {

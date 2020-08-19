@@ -321,8 +321,6 @@ function arraySearch($values, $array, $strict = false)
     return false;
 }
 
-
-
 /**
  * Autor: Sven Arduwie
  * https://www.php.net/manual/pt_BR/function.realpath.php#84012
@@ -358,4 +356,37 @@ function formatAbsolutePath($path) {
  */
 function path($path = ''){
     return formatAbsolutePath(DIR.'/'.$path);
+}
+
+/**
+ * Realiza uma busca recursiva que passa por todas as chaves de uma array em busca
+ * de um valor, mesmo em arrays multidimensionais. Ao encontrar o valor, ele retorna
+ * exatamente a chave onde o valor está localizado.
+ * 
+ * @param string $search         Valor a ser buscado.
+ *
+ * @param string $array          Array onde a busca será efetuada.
+ * 
+ * @param string $result         Resultado da busca recursiva. É pra ser usado pela própria
+ *                               função a cada recursão.
+ * 
+ */
+function recursiveArraySearch($search, array $array)
+{
+    $recursive = (function($search, array $array, array $result = []){
+        foreach($array as $key => $value){
+            if(is_array($value)){
+                $result[$key] = recursiveArraySearch($search, $value, isset($result[$key]) ? $result[$key] : []);
+            } else {
+                if($value === $search){
+                    $result[$key] = $value;
+                }
+            }
+        }
+        return $result;
+    });
+
+    $result = $recursive($search, $array, []);
+
+    return $result;
 }

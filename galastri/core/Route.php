@@ -1,5 +1,6 @@
 <?php
 /**
+ * !!DOCUMENTAR
  * - Route.php -
  * 
  * Classe que define as propriedades da rota baseado na URL e nas configurações de rotas do
@@ -8,6 +9,7 @@
 namespace galastri\core;
 
 use \galastri\core\Debug;
+use \galastri\core\Authentication;
 
 class Route
 {
@@ -46,6 +48,8 @@ class Route
     private static $path;
     private static $offline;
     private static $authTag;
+    private static $authStatus;
+    private static $authBlock = false;
     private static $authFailUrl;
     private static $error404Url;
     private static $cache;
@@ -61,7 +65,6 @@ class Route
     private static $renderer;
     private static $downloadable;
 
-
     /** Classe que trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
 
@@ -76,10 +79,6 @@ class Route
      * 
      * Como este arquivo possui muitos comandos, a explicação de cada bloco importante de código
      * será feito diretamente junto aos códigos.
-     */
-
-    /**
-     * Método que faz a resolução da URL.
      */
 
     private static function getUrl()
@@ -103,13 +102,12 @@ class Route
     private static function parseNodes($routeConfig)
     {
         foreach(self::$urlArray as $key => $urlRoute){
-            
             if(array_key_exists($urlRoute, $routeConfig)){
                 self::buildPath();
                 self::resolveInheritanceParameters($routeConfig[$urlRoute]);
-                
                 self::$route['currentNode'] = $urlRoute;
                 
+                self::$authStatus = self::resolveAuthStatus(self::$inheritanceConfig['authTag']);
                 $routeConfig = $routeConfig[$urlRoute];
                 
                 array_shift(self::$urlArray);
@@ -128,8 +126,6 @@ class Route
     private static function resolveInheritanceParameters($routeArray)
     {
         foreach(self::$inheritanceConfig as $config => &$value){
-            // vdump($config, array_key_exists($config, $routeArray));
-
             if(array_key_exists($config, $routeArray)){
                 $value = $routeArray[$config];
             }
@@ -193,6 +189,7 @@ class Route
 
                     self::setUrlParameter($dynamicNode['nodeName'], $tmpParameters[0]);
                     
+                    self::$authStatus = self::resolveAuthStatus($tmpParameters[0]);
                     self::$route['currentNode'] = $dynamicNode['nodeName'];
                     
                     self::parseNodes(self::$route['data'][$dynamicNode['nodeName']]);
@@ -220,6 +217,8 @@ class Route
 
         if(count($dynamicController) > 1)
             Debug::error('ROUTE001', count($dynamicController))::print();
+
+        self::resolveInheritanceParameters(self::$route['data'][implode($dynamicController)] ?? []);
 
         return [
             'nodeName' => implode($dynamicController),
@@ -276,6 +275,49 @@ class Route
         }
     }
 
+    private static function resolveAuthFailUrl($authFailUrl)
+    {
+        if($authFailUrl){
+            $urlKeys = explode('/', $authFailUrl);
+
+            $classAsParameter = self::getUrlParameters()['classAsParameter'];
+            foreach($urlKeys as $urlKey){
+                if(self::isDynamic($urlKey)){
+                    $urlKey = ltrim($urlKey, '?');
+                    $filteredUrl[] = $classAsParameter[$urlKey];
+                } else {
+                    $filteredUrl[] = $urlKey;
+                }
+            }
+            $authFailUrl = implode('/', $filteredUrl);
+        }
+
+        return $authFailUrl;
+    }
+
+    private static function resolveAuthStatus($authTag)
+    {
+        if($authTag){
+            if(self::isDynamic($authTag)){
+                $classAsParameter = self::getUrlParameters()['classAsParameter'];
+                $authTag = ltrim($authTag, '?');
+                $authTag = $classAsParameter[$authTag];
+            }
+
+            if(Authentication::validate($authTag) === false and self::$authBlock === false)
+                self::$authBlock = true;
+
+            return Authentication::validate($authTag);
+        } else {
+            return true;
+        }
+    }
+
+    private static function isDynamic($string)
+    {
+        return substr($string, 0, 1) === '?';
+    }
+
     private static function getUrlParameter($key) { return self::$urlParameters[$key]; }
     private static function getUrlParameters() { return self::$urlParameters; }
     private static function getController(){ return self::$controller; }
@@ -300,9 +342,6 @@ class Route
 
         self::resolveInheritanceParameters(self::getMethodParameters());
 
-        if(self::$inheritanceConfig['authFailUrl'] === null and gettype(self::$inheritanceConfig['authTag']) === 'string')
-            Debug::error('ROUTE002', self::$inheritanceConfig['authTag'])::print();
-
         if(self::$inheritanceConfig['cache'] === false){
             self::$cache = GALASTRI['cache'];
         } else {
@@ -310,24 +349,25 @@ class Route
             self::$cache['status'] = $cache['status'] ?? GALASTRI['cache']['status'];
             self::$cache['expire'] = $cache['expire'] ?? GALASTRI['cache']['expire'];
         }
-        self::$controller = self::getMethodParameter('controller', self::getController());
-        self::$method = self::$methodNames['camelCase'];
-        self::$routes = self::$route['data'];
-        self::$view = self::getMethodParameter('view', self::getView());
-        self::$parameters = self::getUrlParameters();
-        self::$classPath = self::$route['classPath'];
-        self::$path = self::$route['urlPath'];
-        self::$offline = self::$inheritanceConfig['offline'];
-        self::$authTag = self::$inheritanceConfig['authTag'];
-        self::$authFailUrl = self::$inheritanceConfig['authFailUrl'];
-        self::$error404Url = self::$inheritanceConfig['error404Url'] ?? GALASTRI['error404Url'];
-        self::$urlString = self::$route['urlPath'].self::$route['url'];
-        self::$siteName = self::$inheritanceConfig['siteName'];
-        self::$title = self::getMethodParameter('title', '');
-        self::$template = self::$inheritanceConfig['template'];
-        self::$import = self::getMethodParameter('import', []);
-        self::$renderer = self::$inheritanceConfig['renderer'];
-        self::$baseFolder = self::getMethodParameter('baseFolder', null);
+        self::$controller   = self::getMethodParameter('controller', self::getController());
+        self::$method       = self::$methodNames['camelCase'];
+        self::$routes       = self::$route['data'];
+        self::$view         = self::getMethodParameter('view', self::getView());
+        self::$parameters   = self::getUrlParameters();
+        self::$classPath    = self::$route['classPath'];
+        self::$path         = self::$route['urlPath'];
+        self::$offline      = self::$inheritanceConfig['offline'];
+        self::$authTag      = self::$inheritanceConfig['authTag'];
+        // self::$authStatus   = self::resolveAuthStatus(self::$inheritanceConfig['authTag']);
+        self::$authFailUrl  = self::resolveAuthFailUrl(self::$inheritanceConfig['authFailUrl']);
+        self::$error404Url  = self::$inheritanceConfig['error404Url'] ?? GALASTRI['error404Url'];
+        self::$urlString    = self::$route['urlPath'].self::$route['url'];
+        self::$siteName     = self::$inheritanceConfig['siteName'] ?? GALASTRI['title']['siteName'];
+        self::$title        = self::getMethodParameter('title', '');
+        self::$template     = self::$inheritanceConfig['template'];
+        self::$import       = self::getMethodParameter('import', []);
+        self::$renderer     = self::$inheritanceConfig['renderer'];
+        self::$baseFolder   = self::getMethodParameter('baseFolder', null);
         self::$downloadable = self::$inheritanceConfig['downloadable'];
     }
 
@@ -345,9 +385,11 @@ class Route
     public static function parameters()  { return self::$parameters; }
     public static function path()        { return self::$path; }
     public static function offline()     { return self::$offline; }
-    public static function authTag()     { return self::$authTag; }
     public static function error404Url() { return self::$error404Url; }
+    public static function authTag()     { return self::$authTag; }
     public static function authFailUrl() { return self::$authFailUrl; }
+    public static function authStatus()  { return self::$authStatus; }
+    public static function authBlock()   { return self::$authBlock; }
     public static function urlString()   { return self::$urlString; }
     public static function siteName()    { return self::$siteName; }
     public static function title()       { return self::$title; }
