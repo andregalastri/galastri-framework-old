@@ -236,7 +236,7 @@ trait File
         $path = Route::baseFolder() ?? Route::path();
         $path = $path === '/' ? '/' : "$path/";
        
-        self::$file->path = $folder.$path.$parameters;
+        self::$file->path = path($folder.$path.$parameters);
 
         if(sizeof(explode('.', $parameters))>=2){
             self::$file->extension = lower(array_slice(explode('.', $parameters), -1, 1)[0]);

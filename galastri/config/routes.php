@@ -114,6 +114,8 @@
  * 
  */
 return [
+    'root' => '/',
+    
     '/' => [
         '@main' => [
             'renderer' => 'view',

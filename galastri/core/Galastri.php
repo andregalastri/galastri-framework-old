@@ -239,7 +239,7 @@ class Galastri
         if($data !== null){
             
             $authBlock = property_exists($data, 'authBlock') ? $data->authBlock : true;
-            $authFailUrl = $data->authFailUrl;
+            $authFailUrl = property_exists($data, 'authBlock') ? $data->authBlock : null;
             
             if(empty($authFailUrl) and gettype(Route::authTag()) === 'string')
                 Debug::error('ROUTE002', Route::authTag())::print();
@@ -259,6 +259,6 @@ class Galastri
     /**
      * Métodos para impressão ou requerimento de conteúdo.
      */
-    private static function requireContent($render, $file){ exit(require_once(path($file))); }
+    private static function requireContent($render, $file){ exit(require_once($file)); }
     private static function printContent($content){ exit(print($content)); }
 }

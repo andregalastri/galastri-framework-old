@@ -102,6 +102,7 @@ class Controller
         $data->authFailUrl  = $this->authFailUrl;
         $data->authBlock    = $this->authBlock;
         $data->data         = $this->data;
+        $data->rootRoute    = GALASTRI['routes']['root'] === '/' ? '' : GALASTRI['routes']['root'];
         
         $data->path         = Route::path();
         $data->method       = Route::method();

@@ -83,7 +83,9 @@ class Route
 
     private static function getUrl()
     {
-        $url = explode('?', $_SERVER['REQUEST_URI']);
+        $root = ltrim(GALASTRI['routes']['root'], '/');
+
+        $url = explode('?', str_replace($root, '', $_SERVER['REQUEST_URI']));
         $url = explode('/', $url[0]);
 
         if(empty($url[1])) array_shift($url);

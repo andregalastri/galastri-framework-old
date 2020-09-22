@@ -51,7 +51,9 @@ class Redirect
                 $to = vsprintf($to, $printf);
             }
 
-            exit(header('Location: '.$to));
+            $root = GALASTRI['routes']['root'] === '/' ? '' : GALASTRI['routes']['root'];
+
+            exit(header('Location: '.$root.$to));
         }
     }
 
