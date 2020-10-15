@@ -38,20 +38,19 @@ class Redirect
         if($to === false){
             Debug::error('REDIRECT000')::print();
         } else {
-            if($to !== '/'){
-                foreach($printf as &$string){
-                    $string = ltrim($string, '/');
-                    $string = rtrim($string, '/');
-                } unset($string);
+            $root = GALASTRI['routes']['root']/* === '/' ? '' : GALASTRI['routes']['root']*/;
+            if($root !== '/'){
+                $root = self::cleanLocation($root);
+                $root = "/$root/";
             }
 
             if(array_key_exists($to, GALASTRI['urlAlias'])){
-                $to = vsprintf(GALASTRI['urlAlias'][$to], $printf);
+                $to = self::cleanLocation(GALASTRI['urlAlias'][$to]);
             } else {
-                $to = vsprintf($to, $printf);
+                $to = self::cleanLocation($to);
             }
 
-            $root = GALASTRI['routes']['root'] === '/' ? '' : GALASTRI['routes']['root'];
+            $to = vsprintf($to, $printf);
 
             exit(header('Location: '.$root.$to));
         }
@@ -64,5 +63,12 @@ class Redirect
     public static function to($to = false, ...$printf)
     {
         self::location($to, $printf);
+    }
+
+    private static function cleanLocation($to)
+    {
+        $to = ltrim($to, '/');
+        $to = rtrim($to, '/');
+        return $to;
     }
 }

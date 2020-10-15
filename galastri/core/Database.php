@@ -48,6 +48,7 @@ class Database
     private $active;
     private $driver;
     private $host;
+    private $port;
     private $database;
     private $user;
     private $password;
@@ -87,6 +88,7 @@ class Database
     public function setStatus($status)            { $this->status       = $status;       return $this; }
     public function setTable($table)              { $this->table        = $table;        return $this; }
     public function setFilename($filename)        { $this->filename     = $filename;     return $this; }
+    public function setPort($port)                { $this->port         = empty($port) ? '' : "port=$port"; return $this; }
     
     public function setBackupFolder($backupFolder){
         $backupFolder = ltrim($backupFolder, '/');
@@ -102,6 +104,7 @@ class Database
     public function getActive()      { return $this->active; }
     public function getDriver()      { return $this->driver; }
     public function getHost()        { return $this->host; }
+    public function getPort()        { return $this->port; }
     public function getDatabase()    { return $this->database; }
     public function getUser()        { return $this->user; }
     public function getPassword()    { return $this->password; }
@@ -120,6 +123,7 @@ class Database
         $this->setActive      (GALASTRI['database']['active']       ?? false);
         $this->setDriver      (GALASTRI['database']['driver']       ?? false);
         $this->setHost        (GALASTRI['database']['host']         ?? null);
+        $this->setPort        (GALASTRI['database']['port']         ?? null);
         $this->setDatabase    (GALASTRI['database']['database']     ?? null);
         $this->setUser        (GALASTRI['database']['user']         ?? null);
         $this->setPassword    (GALASTRI['database']['password']     ?? null);
@@ -150,6 +154,7 @@ class Database
         $customDns = $this->getCustomDns();
         $driver    = $this->getDriver();
         $host      = $this->getHost();
+        $port      = $this->getPort();
         $database  = $this->getDatabase();
         $user      = $this->getUser();
         $password  = $this->getPassword();
@@ -158,10 +163,12 @@ class Database
         if($active){
             try {
                 if($customDns)  $this->pdo = new \PDO($customDns, $user, $password, $options);
-                else            $this->pdo = new \PDO("$driver:host=$host;dbname=$database", $user, $password, $options);
+                else            $this->pdo = new \PDO("$driver:host=$host;$port dbname=$database", $user, $password, $options);
 
                 $this->setStatus(true);
-            } catch (\PDOException $e) {}
+            } catch (\PDOException $e) {
+                throw new Exception(GALASTRI['debug'] ? $e->getMessage() : 'Erro durante a conexão com o banco de dados.', 'pdoError');
+            }
         }
         return $this;
     }
@@ -268,7 +275,7 @@ class Database
                         $pagStatus  = false;
                         $pagLog     = [];
 
-                        $queryType  = lower(explode(' ', $mainQuery)[0]);
+                        $queryType  = trim(lower(explode(' ', $mainQuery)[0]));
                         /** Verifica se o termo LIMIT foi usado na querystring. Caso tenha sido,
                          * então a paginação não será executada. Isso ocorre pois a paginação
                          * necessita de uma querystring livre de limitações, já que a paginação
@@ -322,6 +329,7 @@ class Database
                                     if($sql->execute($bindArray)) {
                                         switch($queryType){
                                             case 'select':
+
                                                 if($sql->rowCount() > 0){
                                                     $resultLog['found'] = true;
 
@@ -562,7 +570,7 @@ class Database
         $this->result[$label]->queryType    = $result['queryType'] ?? false;
         $this->result[$label]->affectedRows = $result['affectedRows'] ?? false;
         $this->result[$label]->found        = $result['found'] ?? false;
-        $this->result[$label]->data         = $result['data'] ?? null;
+        $this->result[$label]->data         = $result['data'] ?? [];
         $this->result[$label]->lastId       = $result['lastId'] ?? null;
     }
 

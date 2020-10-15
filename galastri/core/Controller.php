@@ -29,16 +29,16 @@ class Controller
      * autenticação é obrigatória mas estiver inativa, o controller da área sequer é chamado.
      * 
      * Já quando a autenticação estiver ativa ou ainda quando a autenticação não for obrigatória,
-     * este método verifica se existe um método chamado construct(). Mas qual o motivo de haver
-     * um método chamado construct() sendo que no PHP existe o __construct()? Simples, as chamadas
+     * este método verifica se existe um método chamado __build(). Mas qual o motivo de haver
+     * um método chamado __build() sendo que no PHP existe o __construct()? As chamadas
      * de métodos devem ocorrer dentro de uma ordem, conforme abaixo:
      * 
      *  | 1. A classe é criada;
      *  | 2. O método startController() é chamado e faz as configurações iniciais;
-     *  | 3. Caso exista um método construct() na controller, ela é chamada;
+     *  | 3. Caso exista um método __build() na controller, ela é chamada;
      *  | 4. O método que representa a requisição é chamada.
      * 
-     * O método construct() deve ser chamado depois do startController() ter feito algumas
+     * O método __build() deve ser chamado depois do startController() ter feito algumas
      * configurações iniciais, do contrário, as configurações não estarão preparadas para serem
      * utilizadas. Além disso foram reportados alguns erros que podem acontecer, principalmente
      * relacionados ao método Authentication() que utiliza sessões. E este é o problema de se
@@ -47,10 +47,10 @@ class Controller
      * 
      * De qualquer forma, é perfeitamente possível utilizar o método __construct() caso se deseje
      * executar comandos antes das configurações iniciais, mas o indicado é utilizar sempre o
-     * método interno construct().
+     * método interno __build().
      * 
      *  | IMPORTANTE:
-     *  | As orientações para o uso do construct() no lugar do __construct() servem APENAS para
+     *  | As orientações para o uso do __build() no lugar do __construct() servem APENAS para
      *  | as controllers, não servem para outras classes, tais como models, extensões, etc.
      * 
      * Após isso, a controller é chamada e deverá retornar os dados que serão utilizados pelo
@@ -58,6 +58,8 @@ class Controller
      */
     public function startController()
     {
+        $buildException = false;
+
         $this->siteName         = Route::siteName();
         $this->title            = Route::title();
         $this->view             = Route::view();
@@ -73,13 +75,17 @@ class Controller
         
         $this->parameters       = $this->resolveParameters();
 
-        if(method_exists($this, 'construct')){
-            $this->construct();
+        if(method_exists($this, '__build')){
+            $this->data = $this->__build();
+            
+            if($this->data != null and array_key_exists('error', $this->data))
+                $buildException = true;
         }
-        
-        $method = Route::method();
 
-        $this->data = $this->$method();
+        if(!$buildException){
+            $method = Route::method();
+            $this->data = $this->$method();
+        }
     }
 
     /**

@@ -191,7 +191,7 @@ class Route
 
                     self::setUrlParameter($dynamicNode['nodeName'], $tmpParameters[0]);
                     
-                    self::$authStatus = self::resolveAuthStatus($tmpParameters[0]);
+                    // self::$authStatus = self::resolveAuthStatus($tmpParameters[0]);
                     self::$route['currentNode'] = $dynamicNode['nodeName'];
                     
                     self::parseNodes(self::$route['data'][$dynamicNode['nodeName']]);

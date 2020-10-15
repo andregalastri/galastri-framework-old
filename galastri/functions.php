@@ -344,7 +344,10 @@ function formatAbsolutePath($path) {
             $absolutes[] = $part;
         }
     }
-    return DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $absolutes);
+
+    $finalPath = implode(DIRECTORY_SEPARATOR, $absolutes);
+    
+    return strncasecmp(PHP_OS, 'WIN', 3) == 0 ? $finalPath : DIRECTORY_SEPARATOR.$finalPath;
 }
 
 /**

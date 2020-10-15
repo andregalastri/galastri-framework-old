@@ -239,9 +239,9 @@ class Galastri
         if($data !== null){
             
             $authBlock = property_exists($data, 'authBlock') ? $data->authBlock : true;
-            $authFailUrl = property_exists($data, 'authBlock') ? $data->authBlock : null;
+            $authFailUrl = property_exists($data, 'authFailUrl') ? $data->authFailUrl : null;
             
-            if(empty($authFailUrl) and gettype(Route::authTag()) === 'string')
+            if(empty($authFailUrl) and $authFailUrl !== false and gettype(Route::authTag()) === 'string')
                 Debug::error('ROUTE002', Route::authTag())::print();
 
             if($authBlock === true and gettype(Route::authTag()) === 'string'){
