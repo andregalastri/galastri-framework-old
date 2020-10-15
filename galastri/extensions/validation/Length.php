@@ -57,10 +57,22 @@ trait Length
                                 /** Compara a quantidade de caracteres do dado com a quantidade
                                  * especificada nos métodos de comparação. */
                                 case 'length':
-                                    
                                     foreach($operation as $operator){
-                                        if(!$this->compare(strlen($testValue), $operator['operator'], $operator['delimiter'])){
-                                            $error = true;
+                                        if($operator['name'] == 'specificValues'){
+                                            foreach($operator['delimiter'] as $delimiter){
+                                                $error = true;
+                                                
+                                                if($this->compare(strlen($testValue), $operator['operator'], $delimiter)){
+                                                    $error = false;
+                                                    break;
+                                                }
+                                            }
+                                        } else {
+                                            if(!$this->compare(strlen($testValue), $operator['operator'], $operator['delimiter']))
+                                                $error = true;
+                                        }
+
+                                        if($error == true){
                                             $errorLog['invalidData'] = strlen($testValue);
                                             $errorLog['reason']      = 'length_'.strlen($testValue);
                                             $errorLog['message']     = $operator['message'];
@@ -75,7 +87,9 @@ trait Length
                                 case 'greater':
                                 case 'equal':
                                 case 'diff':
+                                case 'specificValues':
                                     $operation[] = [
+                                        'name'      => $parameter['name'],
                                         'operator'  => $parameter['operator'],
                                         'delimiter' => $parameter['delimiter'],
                                         'message'   => $parameter['message'],

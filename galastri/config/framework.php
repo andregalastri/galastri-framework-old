@@ -93,7 +93,7 @@ return [
         'root'           => '../galastri/view/template/template.php',
         'head'           => '../galastri/view/template/head.php',
         'nav'            => '../galastri/view/template/nav.php',
-        'footer'         => '../galastri/view/template/footer.php',    
+        'footer'         => '../galastri/view/template/footer.php',
     ],
 
     'folders' => [

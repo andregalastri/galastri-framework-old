@@ -29,7 +29,7 @@
  * 
  * - PARÂMETROS PARA CLASSES OU MÉTODOS -
  * renderer          (string) Indica um renderizador para a área ou método. Os padrões são view
- *                   json e file.
+ *                   json, file e text.
  * 
  * siteName          (string) Opcional. Permite definir um nome de site diferente para cada área.
  *                             
@@ -67,16 +67,6 @@
  *                   define um caminho para a parte. Quando não configurado, o caminho usado será
  *                   o padrão.
  * 
- * 
- * - PARÂMETROS PARA MÉTODOS -
- * title             (string) Opcional. Indica um título para a página.
- * 
- * view              (string) Opcional. Indica uma view diferente do padrão. Quando não configurado
- *                   irá se basear no caminho padrão /<view>/<classe>/<metodo>.php.
- * 
- * controller        (string) Opcional. Indica uma controller diferente do padrão. Quando não
- *                   configurado irá se basear no caminho padrão /<controller>/<classe>/<metodo>.php.
- * 
  * cache             (array) Opcional. Configurações de cache para imagens e arquivos.
  * 
  *   status          (bool) Opcional. Ativa ou desativa o cache. Quando não configurado irá levar
@@ -84,6 +74,15 @@
  * 
  *   expire          (int) Opcional. Indica o valor em segundos para expiração do cache. Quando
  *                   não configurado irá levar em conta a configuração global.
+ * 
+ * - PARÂMETROS PARA MÉTODOS -
+ * title             (string) Opcional. Indica um título para a página.
+ * 
+ * view              (string) Opcional. Indica uma view diferente do padrão. Quando não configurado
+ *                   irá se basear no caminho padrão /view/<classe>/<metodo>.php.
+ * 
+ * controller        (string) Opcional. Indica uma controller diferente do padrão. Quando não
+ *                   configurado irá se basear no caminho padrão /controller/<classe>/<metodo>.php.
  * 
  * import            (array) Opcional. Cada valor da array indica um caminho para o arquivo externo
  *                   que poderá ser importado para a tag <head>. Por padrão pode-se informar arquivos
@@ -115,6 +114,8 @@
  * 
  */
 return [
+    'root' => '/',
+    
     '/' => [
         '@main' => [
             'renderer' => 'view',
@@ -122,7 +123,7 @@ return [
         
         '@pagina-nao-encontrada' => [
             'renderer' => 'view',
-            'view' => 'Erro404.php',
+            'view' => 'erro404.php',
         ],
     ]
 ];

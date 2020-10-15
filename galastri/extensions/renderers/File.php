@@ -114,6 +114,7 @@ trait File
             ::fileCheckExists();
         
         self::$file = self::checkAuth(self::$file);
+
         
         /** Tags responsáveis por controlar o cache do arquivo no navegador do usuário. O uso de
          * uma e-tag permite que o arquivo seja armazenado em cache e, caso seja modificado, o
@@ -199,7 +200,7 @@ trait File
                Debug::error('CONTROLLER003', gettype($controller))::print();
             }
         } else {
-            self::$file->parameters   = Route::parameters();
+            self::$file->parameters   = Route::parameters()['afterMethod'];
             self::$file->downloadable = Route::downloadable();
             self::$file->cache        = Route::cache();
         }
@@ -235,7 +236,7 @@ trait File
         $path = Route::baseFolder() ?? Route::path();
         $path = $path === '/' ? '/' : "$path/";
        
-        self::$file->path = $folder.$path.$parameters;
+        self::$file->path = path($folder.$path.$parameters);
 
         if(sizeof(explode('.', $parameters))>=2){
             self::$file->extension = lower(array_slice(explode('.', $parameters), -1, 1)[0]);

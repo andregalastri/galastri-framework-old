@@ -41,17 +41,27 @@ class Fetch
     }
 
     /**
-     * Método que verifica o tipo da requisição (POST ou GET) para testar se a chave existe na
-     * variável global $_POST ou $_GET. Caso a chave não exista, é testado então se os dados
-     * recebidos através de JSON devido ao envio de requisições por Promises, que não são
-     * reconhecidos por padrão no PHP e, portanto, não ficam armazenados nas globais.
-     * 
-     * Caso a chave também não exista no JSON, então é retornado o valor padrão.
+     * Método que verifica o tipo da requisição para testar se a chave existe na variável global
+     * $_POST ou $_GET.
+     *
+     * Caso a chave não exista, é testado então se os dados recebidos estão no arquivo de fluxo de
+     * dados php://input. O PHP, por padrão, não consegue lidar com requisições PUT e DELETE (a
+     * testar), por isso os dados ficam acessíveis apenas através da conversão do fluxo de dados do
+     * php://input.
+     *
+     * Caso a chave também não exista tanto nas globais quanto no fluxo de dados, então é retornado
+     * o valor padrão.
      */
     private static function resolve()
     {
         Debug::trace(debug_backtrace()[0]);
-        $phpGlobalVar = self::$phpGlobalVar === 'post' ? $_POST : $_GET;
+
+        switch(self::$phpGlobalVar){
+            case 'post': $phpGlobalVar = $_POST; break;
+            case 'get': $phpGlobalVar = $_GET; break;
+            case 'put': parse_str(file_get_contents("php://input"),$phpGlobalVar);; break;
+            case 'delete': parse_str(file_get_contents("php://input"),$phpGlobalVar);; break;
+        }
 
         $data = array_key_exists(self::$key, $phpGlobalVar) === false ? json_decode(file_get_contents('php://input'), true) : $phpGlobalVar;
         
@@ -86,7 +96,9 @@ class Fetch
     private static function put()
     {
         Debug::trace(debug_backtrace()[0]);
-        return self::post();
+        self::$phpGlobalVar = 'put';
+
+        return self::resolve();
     }
 
     /**
@@ -95,6 +107,8 @@ class Fetch
     private static function delete()
     {
         Debug::trace(debug_backtrace()[0]);
-        return self::post();
+        self::$phpGlobalVar = 'put';
+
+        return self::resolve();
     }
 }

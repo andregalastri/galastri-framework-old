@@ -3,7 +3,6 @@ namespace galastri\controller;
 
 class Index extends \galastri\core\Controller
 {
-
     protected function main()
     {
         return [];

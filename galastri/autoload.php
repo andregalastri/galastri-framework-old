@@ -47,7 +47,7 @@ spl_autoload_register(function($className){
     $className = explode('\\', $className);
                  array_shift($className);
     $className = implode('/', $className);
-    $path      = GALASTRI['folders']['root']."/$className.php";
+    $path      = path('/'.GALASTRI['folders']['root']."/$className.php");
 
     /* Verifica se o arquivo com o nome da classe existe. Se existir ele irá importar o conteúdo
      * do arquivo através de um require_once. */

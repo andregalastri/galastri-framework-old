@@ -16,6 +16,7 @@
     }
 
     body {
+        color: #fff;
         height: 100%;
         margin: 0;
         padding: 1px;

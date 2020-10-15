@@ -24,12 +24,13 @@ trait Operators
      *                                 Outros validadores podem usar este parâmetro para outros
      *                                 objetivos.
      */
-    public function min     ($delimiter, $optional = false) { $this->operatorChain("min",     $delimiter, ">=", $optional); return $this; }
-    public function max     ($delimiter, $optional = false) { $this->operatorChain("max",     $delimiter, "<=", $optional); return $this; }
-    public function smaller ($delimiter, $optional = false) { $this->operatorChain("smaller", $delimiter, "<" , $optional); return $this; }
-    public function greater ($delimiter, $optional = false) { $this->operatorChain("greater", $delimiter, ">" , $optional); return $this; }
-    public function diff    ($delimiter, $optional = false) { $this->operatorChain("diff",    $delimiter, "!=", $optional); return $this; }
-    public function equal   ($delimiter, $optional = false) { $this->operatorChain("equal",   $delimiter, "==", $optional); return $this; }
+    public function min            ($delimiter, $optional = false) { $this->operatorChain("min",            $delimiter, ">=", $optional); return $this; }
+    public function max            ($delimiter, $optional = false) { $this->operatorChain("max",            $delimiter, "<=", $optional); return $this; }
+    public function smaller        ($delimiter, $optional = false) { $this->operatorChain("smaller",        $delimiter, "<" , $optional); return $this; }
+    public function greater        ($delimiter, $optional = false) { $this->operatorChain("greater",        $delimiter, ">" , $optional); return $this; }
+    public function diff           ($delimiter, $optional = false) { $this->operatorChain("diff",           $delimiter, "!=", $optional); return $this; }
+    public function equal          ($delimiter, $optional = false) { $this->operatorChain("equal",          $delimiter, "==", $optional); return $this; }
+    public function specificValues (...$delimiter)                 { $this->operatorChain("specificValues", $delimiter, "==", false);     return $this; }
 
     /**
      * Método que cria o elo na corrente com o operador. Todo os operadores utilizam os mesmos

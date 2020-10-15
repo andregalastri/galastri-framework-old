@@ -28,7 +28,8 @@ function vdump(...$variable)
  * 
  * @param mixed $variable          Valor que será impresso pelo var_dump().
  */
-function ddump(...$variable)
+
+function edump(...$variable)
 {
     $debug = debug_backtrace()[0];
     $format = dump($variable);
@@ -226,7 +227,7 @@ function convertCase($string, $type, $regex = '/(-|_)/')
                 break;
         }
 
-        $value = capitalize($value);
+        $value = capitalize($value, true, true);
     } unset($value);
     return implode($string);
 }
@@ -318,4 +319,77 @@ function arraySearch($values, $array, $strict = false)
             return $search;
     }
     return false;
+}
+
+/**
+ * Autor: Sven Arduwie
+ * https://www.php.net/manual/pt_BR/function.realpath.php#84012
+ * 
+ * Formata um caminho de de diretórios para retornar o caminho absoluto de um até um
+ * arquivo ou pasta. Não leva em conta se o arquivo existe ou não, apenas formata a
+ * string.
+ * 
+ * @param string $path           Caminho a ser formatado.
+ * 
+ */
+function formatAbsolutePath($path) {
+    $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+    $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+    $absolutes = array();
+    foreach ($parts as $part) {
+        if ('.' == $part) continue;
+        if ('..' == $part) {
+            array_pop($absolutes);
+        } else {
+            $absolutes[] = $part;
+        }
+    }
+
+    $finalPath = implode(DIRECTORY_SEPARATOR, $absolutes);
+    
+    return strncasecmp(PHP_OS, 'WIN', 3) == 0 ? $finalPath : DIRECTORY_SEPARATOR.$finalPath;
+}
+
+/**
+ * Retorna o caminho absoluto do arquivo ou pasta baseando-se no diretório raiz do
+ * framework.
+ * 
+ * @param string $path           Caminho do arquivo ou diretório.
+ * 
+ */
+function path($path = ''){
+    return formatAbsolutePath(DIR.'/'.$path);
+}
+
+/**
+ * Realiza uma busca recursiva que passa por todas as chaves de uma array em busca
+ * de um valor, mesmo em arrays multidimensionais. Ao encontrar o valor, ele retorna
+ * exatamente a chave onde o valor está localizado.
+ * 
+ * @param string $search         Valor a ser buscado.
+ *
+ * @param string $array          Array onde a busca será efetuada.
+ * 
+ * @param string $result         Resultado da busca recursiva. É pra ser usado pela própria
+ *                               função a cada recursão.
+ * 
+ */
+function recursiveArraySearch($search, array $array)
+{
+    $recursive = (function($search, array $array, array $result = []){
+        foreach($array as $key => $value){
+            if(is_array($value)){
+                $result[$key] = recursiveArraySearch($search, $value, isset($result[$key]) ? $result[$key] : []);
+            } else {
+                if($value === $search){
+                    $result[$key] = $value;
+                }
+            }
+        }
+        return $result;
+    });
+
+    $result = $recursive($search, $array, []);
+
+    return $result;
 }

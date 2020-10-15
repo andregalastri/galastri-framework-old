@@ -91,6 +91,7 @@ class Permission
     private static $allowed = [];
     private static $onError = GALASTRI['permission']['failMessage'];
     private static $exceptionTag = GALASTRI['permission']['exceptionTag'];
+    private static $requireAll = false;
 
     /** Esta classe trabalha sob o padrão Singleton, por isso, não poderá ser instanciada. */
     private function __construct(){}
@@ -128,7 +129,22 @@ class Permission
     public static function reset()
     {
         self::$allowed = [];
+        self::$requireAll = false;
 
+        return __CLASS__;
+    }
+
+    /**
+     * Método que define uma lista de permissões obrigatórias, ou seja, todos os quais os valores serão considerados
+     * válidos.
+     * 
+     * @param mixed $tags              Lista contendo valores que serão considerados válidos.
+     */
+    public static function require(...$tags)
+    {
+        self::$requireAll = true;
+
+        self::allow($tags);
         return __CLASS__;
     }
 
@@ -158,13 +174,23 @@ class Permission
     {
         $allowed = self::$allowed;
         $permissions = flattenArray($permissions);
+        $validated = false;
 
         foreach($allowed as $tagName){
             if(array_search($tagName, $permissions) !== false){
-                return __CLASS__;
+                $validated = true;
+            } else {
+                if(self::$requireAll){
+                    $validated = false;
+                    break;
+                }
             }
         }
 
-        throw new Exception(self::$onError, self::$exceptionTag);
+        if($validated){
+            return __CLASS__;
+        } else {
+            throw new Exception(self::$onError, self::$exceptionTag);
+        }
     }
 }

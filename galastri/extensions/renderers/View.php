@@ -134,10 +134,14 @@ trait View
             }
         }
 
+        foreach($template as &$file){
+            $file = path($file);
+        } unset($file);
+        
         self::$view->template = $template;
         self::$view->import   = $import;
         self::$view->title    = ltrim(implode('', $title), GALASTRI['title']['divisor']);
-        self::$view->view     = GALASTRI['folders']['view'].'/'.ltrim($data->view, '/');
+        self::$view->view     = path(GALASTRI['folders']['view'].'/'.ltrim($data->view, '/'));
 
         return __CLASS__;
     }
