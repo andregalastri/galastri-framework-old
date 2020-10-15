@@ -18,7 +18,7 @@
     <li>Controle de autenticação;</li>
     <li>Controle de permissões;</li>
     <li>Validação de dados;</li>
-    <li>Controle de rotas de URLs;</li>
+    <li>Controle de rotas de URLs, incluindo rotas dinâmicas;</li>
     <li>Possibilidade de criação de APIs;</li>
     <li>Envio de e-mails através do próprio microframework através da biblioteca <a href="https://github.com/PHPMailer/PHPMailer">PHPMailer</a>.</li>
 </ul>
@@ -27,17 +27,4 @@
 <ul>
     <li>Verificação de bugs;</li>
     <li>Criação de site com a documentação de uso.</li>
-</ul>
-
-<h3>Implementações futuras</h3>
-<ul>
-    <li>Acesse a <a href="https://github.com/andregalastri/galastri-framework/issues/2">lista de implementações</a>.</li>
-</ul>
-
-<h2>Alterações importantes</h2>
-<ul>
-    <li>05/04/2020: Incorporada a biblioteca <a href="https://github.com/PHPMailer/PHPMailer">PHPMailer</a> versão 6.1.5 como classe Mailer para envio de e-mails;</li>
-    <li>05/11/2019: Melhorado sistema de parâmetros para rotas. Agora é possível definir rótulos aos parâmetros, recuperar estes parâmetros na controller através destes rótulos e obrigar a URL a contê-los ou não, dependendo da configuração;</li>
-    <li>25/10/2019: Aplicado padrão Singleton para a classe principal Galastri e componentes Authentication, Chain, Debug, Permission, Redirect e Route;</li>
-    <li>21/10/2019: Envio inicial.</li>
 </ul>
