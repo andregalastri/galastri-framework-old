@@ -98,7 +98,6 @@ return [
 
     'folders' => [
         'root'              => '../galastri',
-        'additional-config' => '../galastri/config/additional-config',
         'controller'        => '../galastri/controller',
         'view'              => '../galastri/view',
     ],
