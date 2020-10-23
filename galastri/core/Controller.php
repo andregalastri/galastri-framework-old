@@ -72,19 +72,20 @@ class Controller
         $this->authStatus       = Route::authStatus();
         $this->authBlock        = Route::authBlock();
         $this->authFailUrl      = Route::authFailUrl() ?? false;
-        
-        $this->parameters       = $this->resolveParameters();
+        $this->parameters = $this->resolveParameters();
 
-        if(method_exists($this, '__build')){
-            $this->data = $this->__build();
-            
-            if($this->data != null and array_key_exists('error', $this->data))
-                $buildException = true;
-        }
+        if(!$this->authBlock or !$this->authTag){
+            if(method_exists($this, '__build')){
+                $this->data = $this->__build();
+                
+                if($this->data != null and array_key_exists('error', $this->data))
+                    $buildException = true;
+            }
 
-        if(!$buildException){
-            $method = Route::method();
-            $this->data = $this->$method();
+            if(!$buildException){
+                $method = Route::method();
+                $this->data = $this->$method();
+            }
         }
     }
 

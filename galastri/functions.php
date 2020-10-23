@@ -303,22 +303,46 @@ function flattenArray($array, $index = false, $unique = false)
 }
 
 /**
- * Converte uma array multidimensional em uma array simples, mantendo todos os valores. Os índices
- * das chaves não são mantidos.
+ * Executa a função array_search sobre vários valores ao invés de um único.
+ *
+ * @param array $values            Array contendo multiplos valores que serão procurados. O primeiro
+ *                                 valor encontrado é retornado.
+ *
+ * @param array $array             Array onde os dados serão procurados.
  * 
- * @param array $array             Array multidimensional que será convertida.
- * 
- * @param array $unique            Opcional. Remove valores duplicados.
- * 
+ * @param array $strict            Faz a busca ser estrita (busca exatamente o que é procurado).
+ *
  */
 function arraySearch($values, $array, $strict = false)
 {
+    if(gettype($values) !== 'array')
+        $values = [$values];
+
     foreach($values as $value){
         $search = array_search($value, $array, $strict);
         if($search !== false)
             return $search;
     }
     return false;
+}
+
+/**
+ * Executa a função array_search sobre vários valores ao invés de um único, retornando apenas true
+ * ou false caso o dado exista ou não na array
+ *
+ * @param array $values            Array contendo multiplos valores que serão procurados. O primeiro
+ *                                 valor encontrado faz a função retornar true. Caso nada seja
+ *                                 achado, retorna-se false.
+ *
+ * @param array $array             Array onde os dados serão procurados.
+ * 
+ * @param array $strict            Faz a busca ser estrita (busca exatamente o que é procurado).
+ *
+ */
+function arrayValueExists($values, $array, $strict = false)
+{
+    $search = arraySearch($values, $array, $strict);
+    return $search === false ? false : true;
 }
 
 /**

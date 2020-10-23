@@ -187,10 +187,7 @@ class Authentication
     {
         session_start();
         if(self::check($authTag)){
-            $session = new \StdClass;
-            foreach($_SESSION[$authTag] as $authTag => $value){
-                $session->$authTag = $value;
-            }
+            $session = $_SESSION[$authTag];
             session_write_close();
             return $session;
         }

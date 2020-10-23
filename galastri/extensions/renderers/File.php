@@ -113,6 +113,9 @@ trait File
             ::fileCheckContentType()
             ::fileCheckExists();
         
+        self::$file->authFailUrl = Route::authFailUrl();
+        self::$file->authBlock = Route::authBlock();
+    
         self::$file = self::checkAuth(self::$file);
 
         
