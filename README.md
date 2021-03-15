@@ -1,30 +1,27 @@
-<h1><img src="https://user-images.githubusercontent.com/49572917/111221229-f96bcb80-85b8-11eb-83db-db11fb78be37.png"/></h1>
-<p>Microframework PHP 7 simples para estudo e criação de pequenos sistemas WEB.</p>
+![Galastri Framework Logo](https://user-images.githubusercontent.com/49572917/111221229-f96bcb80-85b8-11eb-83db-db11fb78be37.png)
 
-<h2>Documentação</h2>
-<ul>
-    <li>Em breve</li>
-</ul>
+# Galastri Framework
+Microframework PHP 7 simples para estudo e criação de pequenos sistemas WEB.
 
-<h2>O que é este projeto</h2>
-<p>Este microframework PHP 7 MVC orientado a objetos está sendo usado para estudo pessoal para compreensão mais aprofundada dos fundamentos do PHP e dos padrões de projeto. A ideia é fazer um framework fácil de compreender e que dê mais liberdade para o programador fazer as coisas do seu jeito ao mesmo tempo que o direciona, como um guia.</p>
+## Documentação
+- Em breve
 
-<p><b>Atenção!</b><br>Este projeto está em fase alpha de desenvolvimento. Isso significa que ele pode sofrer alterações e remoções de funcionalidades e comportamentos sem prévio aviso que comprometem sistemas ou sites que utilizem versões anteriores. Portanto, evite atualizar o framework caso o esteja utilizando em um projeto real.</p>
+## O que é este projeto
+Este microframework PHP 7 MVC orientado a objetos está sendo usado para estudo pessoal para compreensão mais aprofundada dos fundamentos do PHP e dos padrões de projeto. A ideia é fazer um framework fácil de compreender e que dê mais liberdade para o programador fazer as coisas do seu jeito ao mesmo tempo que o direciona, como um guia.
 
-<h2>Principais funcionalidades</h2>
-<ul>
-    <li>Conexão com banco de dados facilitada;</li>
-    <li>Consultas SQL com paginação;</li>
-    <li>Controle de autenticação;</li>
-    <li>Controle de permissões;</li>
-    <li>Validação de dados;</li>
-    <li>Controle de rotas de URLs, incluindo rotas dinâmicas;</li>
-    <li>Possibilidade de criação de APIs;</li>
-    <li>Envio de e-mails através do próprio microframework através da biblioteca <a href="https://github.com/PHPMailer/PHPMailer">PHPMailer</a>.</li>
-</ul>
+**Atenção!**<br>
+Este projeto está em fase alpha de desenvolvimento. Isso significa que ele pode sofrer alterações e remoções de funcionalidades e comportamentos sem prévio aviso que comprometem sistemas ou sites que utilizem versões anteriores. Portanto, evite atualizar o framework caso o esteja utilizando em um projeto real.
 
-<h2>Estágio atual</h2>
-<ul>
-    <li>Verificação de bugs;</li>
-    <li>Criação de site com a documentação de uso.</li>
-</ul>
+## Principais funcionalidades
+- Conexão com banco de dados facilitada;
+- Consultas SQL com paginação;
+- Controle de autenticação;
+- Controle de permissões;
+- Validação de dados;
+- Controle de rotas de URLs, incluindo rotas dinâmicas;
+- Possibilidade de criação de APIs;
+- Envio de e-mails através do próprio microframework através da biblioteca <a href="https://github.com/PHPMailer/PHPMailer">PHPMailer</a>.
+
+## Estágio atual
+- Verificação de bugs;
+- Criação de site com a documentação de uso.
