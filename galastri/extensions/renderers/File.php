@@ -235,10 +235,10 @@ trait File
     private static function fileCheckExtension()
     {
         $parameters = self::$file->parameters;
-        $folder = GALASTRI['folders']['root'];
+        $folder = GALASTRI['folders']['app'];
         $path = Route::baseFolder() ?? Route::path();
         $path = $path === '/' ? '/' : "$path/";
-       
+
         self::$file->path = path($folder.$path.$parameters);
 
         if(sizeof(explode('.', $parameters))>=2){

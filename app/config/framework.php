@@ -90,16 +90,16 @@ return [
     'timezone'           => 'America/Sao_Paulo',
 
     'template' => [
-        'root'           => '../galastri/view/template/template.php',
-        'head'           => '../galastri/view/template/head.php',
-        'nav'            => '../galastri/view/template/nav.php',
-        'footer'         => '../galastri/view/template/footer.php',
+        'root'           => '../app/view/template/template.php',
+        'head'           => '../app/view/template/head.php',
+        'nav'            => '../app/view/template/nav.php',
+        'footer'         => '../app/view/template/footer.php',
     ],
 
     'folders' => [
-        'root'              => '../galastri',
-        'controller'        => '../galastri/controller',
-        'view'              => '../galastri/view',
+        'app'               => '../app',
+        'controller'        => '../app/controller',
+        'view'              => '../app/view',
     ],
 
     'contentType' => [

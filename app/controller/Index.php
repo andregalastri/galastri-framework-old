@@ -1,5 +1,5 @@
 <?php
-namespace galastri\controller;
+namespace app\controller;
 
 class Index extends \galastri\core\Controller
 {

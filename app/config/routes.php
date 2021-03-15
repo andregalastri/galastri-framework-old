@@ -125,5 +125,9 @@ return [
             'renderer' => 'view',
             'view' => 'erro404.php',
         ],
+
+        '/images' => [
+            'renderer' => 'file',
+        ],
     ]
 ];

@@ -42,19 +42,19 @@ define('FRAMEWORK_VERSION', file_exists(path('../VERSION')) ? file_get_contents(
 /** Faz a importação das funções globais. */
 
 /** Faz a importação de arquivos adicionais que podem ser configurados pelo usuário. */
-foreach(glob(path('config/additional-config/*.php')) as $additionalConfig)
+foreach(glob(path('../app/config/additional-config/*.php')) as $additionalConfig)
     require($additionalConfig);
 
 /** Faz a importação das constantes dos arquivos de configuração e armazena tudo em uma constante.
  * Desta forma, todas as configurações são acessadas através da constante GALASTRI.
  */
-define ('GALASTRI',
+define('GALASTRI',
         array_merge(
             $debug,
-            require(path('config/framework.php')),
-            ['database' => require(path('config/database.php'))],
-            ['routes'   => require(path('config/routes.php'))],
-            ['urlAlias' => require(path('config/url-alias.php'))],
+            require(path('../app/config/framework.php')),
+            ['database' => require(path('../app/config/database.php'))],
+            ['routes'   => require(path('../app/config/routes.php'))],
+            ['urlAlias' => require(path('../app/config/url-alias.php'))],
             ['version'  => FRAMEWORK_VERSION]
         )
 );
