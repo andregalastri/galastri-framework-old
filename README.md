@@ -1,4 +1,4 @@
-<h1><img src="https://user-images.githubusercontent.com/49572917/78736928-b2934180-7924-11ea-95cc-a897c8773ecf.png"/></h1>
+<h1><img src="https://user-images.githubusercontent.com/49572917/111221229-f96bcb80-85b8-11eb-83db-db11fb78be37.png"/></h1>
 <p>Microframework PHP 7 simples para estudo e criação de pequenos sistemas WEB.</p>
 
 <h2>Documentação</h2>
