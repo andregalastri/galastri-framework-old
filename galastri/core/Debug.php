@@ -126,6 +126,7 @@ class Debug
             case 'CONTROLLER002': return "O controller <b>'$data[0]'</b> não possui o método <b>'$data[1]'</b>.";
             case 'CONTROLLER003': return "É esperado que o controller retorne um objeto, mas o retorno é um dado do tipo <b>'$data[0]'</b>.";
             case 'CONTROLLER004': return "O parâmetro <b>'$data[0]'</b> não existe. É preciso defini-lo no arquivo <b>'config/routes.php'</b>.";
+            case 'CONTROLLER005': return "O parâmetro <b>'$data[0]'</b>, definido no método <b>'$data[1]'</b>, deve ser um <b>array</b> e não um(a) <b>'$data[2]'</b>";
 
             case 'VIEW001':       return "O renderizador <b>'view'</b> não conseguiu localizar o arquivo <b>'$data[0]'</b>.";
             case 'VIEW002':       return "A rota <b>'$data[0]'</b> requer uma view configurada no arquivo <b>'config/routes.php'</b>.";
