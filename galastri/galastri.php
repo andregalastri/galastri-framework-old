@@ -37,7 +37,7 @@ namespace galastri;
 define('DIR', __DIR__);
 require_once('functions.php');
 
-define('FRAMEWORK_VERSION', file_exists(path('../VERSION')) ? file_get_contents(path('../VERSION')) : '');
+define('FRAMEWORK_VERSION', file_exists(path('VERSION')) ? file_get_contents(path('VERSION')) : '');
 
 /** Faz a importação das funções globais. */
 
