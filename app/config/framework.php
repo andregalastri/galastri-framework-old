@@ -90,10 +90,10 @@ return [
     'timezone'           => 'America/Sao_Paulo',
 
     'template' => [
-        'root'           => '../app/view/template/template.php',
-        'head'           => '../app/view/template/head.php',
-        'nav'            => '../app/view/template/nav.php',
-        'footer'         => '../app/view/template/footer.php',
+        'root'           => '../app/template/template.php',
+        'head'           => '../app/template/head.php',
+        'nav'            => '../app/template/nav.php',
+        'footer'         => '../app/template/footer.php',
     ],
 
     'folders' => [

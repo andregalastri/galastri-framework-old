@@ -133,9 +133,13 @@ class Controller
 
         /** DOCUMENTAR AQUI */
         $methodParameter = $routes["@$method"]['parameters'] ?? [];
+
         if($routePath === '/' and !empty($afterMethod) and empty($methodParameter)){
             Redirect::location(Route::error404Url());
         } else {
+            if(gettype($methodParameter) !== 'array')
+                Debug::error('CONTROLLER005', $methodParameter, "$routePath/$method", gettype($methodParameter))::print();
+            
             $requiredLabel = [];
             
             foreach($methodParameter as $label){
