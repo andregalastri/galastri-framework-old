@@ -2,7 +2,7 @@
 
 
 # Galastri Framework
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/andregalastri/galastri-framework/blob/master/galastri/LICENSE)
 
 ## O que é este projeto
 Microframework PHP 7 simples para estudo e criação de pequenos sistemas WEB.
